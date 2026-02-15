@@ -24,7 +24,7 @@
                     <button class="exercise-card" onclick="startExercise('akkorde')">
                         <div class="card-icon">🎹</div>
                         <h2>Akkorde</h2>
-                        <p>Dreiklänge & Vierklänge</p>
+                        <p>9 Akkorde (4-stimmig)</p>
                     </button>
                     
                     <button class="exercise-card" onclick="startExercise('melodie')">
@@ -107,6 +107,12 @@
                 </div>
 
                 <div class="exercise-area">
+                    <div class="info-box">
+                        <p><strong>Tonraum:</strong> g bis c³ (G3 bis C6)</p>
+                        <p><strong>Lage:</strong> Grundstellung, enge Lage, 4-stimmig</p>
+                        <p><em>Diktiermodus: Erst einzeln, dann zusammen</em></p>
+                    </div>
+
                     <div id="notation-akkord" class="notation-display"></div>
                     
                     <div class="controls">
@@ -117,15 +123,15 @@
                     <div class="answer-section" id="akkord-answer-section" style="display: none;">
                         <h3>Welchen Akkord hörst du?</h3>
                         <div class="button-grid">
-                            <button class="answer-btn" onclick="checkAkkord('Dur8')">Dur8</button>
-                            <button class="answer-btn" onclick="checkAkkord('Dmaj7')">Dmaj7</button>
+                            <button class="answer-btn" onclick="checkAkkord('Durdreiklang')">Durdreiklang (D)</button>
+                            <button class="answer-btn" onclick="checkAkkord('Molldreiklang')">Molldreiklang (M)</button>
+                            <button class="answer-btn" onclick="checkAkkord('Übermäßiger Dreiklang')">Übermäßiger Dreiklang (ü)</button>
                             <button class="answer-btn" onclick="checkAkkord('D7')">D7</button>
-                            <button class="answer-btn" onclick="checkAkkord('D56')">D56</button>
-                            <button class="answer-btn" onclick="checkAkkord('Moll8')">Moll8</button>
-                            <button class="answer-btn" onclick="checkAkkord('Moll7')">Moll7</button>
-                            <button class="answer-btn" onclick="checkAkkord('Moll56')">Moll56</button>
-                            <button class="answer-btn" onclick="checkAkkord('Vermindert')">Vermindert</button>
-                            <button class="answer-btn" onclick="checkAkkord('Übermäßig')">Übermäßig</button>
+                            <button class="answer-btn" onclick="checkAkkord('Dmaj7')">Dmaj7</button>
+                            <button class="answer-btn" onclick="checkAkkord('M7')">M7</button>
+                            <button class="answer-btn" onclick="checkAkkord('v7')">v7</button>
+                            <button class="answer-btn" onclick="checkAkkord('D56')">D5/6</button>
+                            <button class="answer-btn" onclick="checkAkkord('M56')">M5/6</button>
                         </div>
                     </div>
 
