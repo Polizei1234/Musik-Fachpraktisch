@@ -1,16 +1,35 @@
-// Audio Context - initialize lazily
+// Audio Context - Safari requires user interaction before creating AudioContext
 let audioContext = null;
+let audioInitialized = false;
+
+function initAudioContext() {
+    if (!audioContext || audioContext.state === 'closed') {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('AudioContext created, state:', audioContext.state);
+        } catch (e) {
+            console.error('Failed to create AudioContext:', e);
+            return null;
+        }
+    }
+    
+    // Resume context if suspended (Safari autoplay policy)
+    if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+            console.log('AudioContext resumed, state:', audioContext.state);
+        }).catch(e => {
+            console.error('Failed to resume AudioContext:', e);
+        });
+    }
+    
+    audioInitialized = true;
+    return audioContext;
+}
 
 function getAudioContext() {
     if (!audioContext || audioContext.state === 'closed') {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        initAudioContext();
     }
-    
-    // Resume context if suspended (browser autoplay policy)
-    if (audioContext.state === 'suspended') {
-        audioContext.resume();
-    }
-    
     return audioContext;
 }
 
@@ -33,56 +52,65 @@ const allNotes = Object.keys(noteFrequencies);
 // Improved piano tone generator with harmonics
 function playPianoNote(frequency, startTime, duration = 1.0) {
     const ctx = getAudioContext();
-    const masterGain = ctx.createGain();
+    if (!ctx || ctx.state !== 'running') {
+        console.warn('AudioContext not running');
+        return duration;
+    }
     
-    // Create multiple oscillators for harmonics (piano has rich overtones)
-    const harmonics = [
-        { mult: 1.0, gain: 1.0 },      // Fundamental
-        { mult: 2.0, gain: 0.5 },      // 2nd harmonic (octave)
-        { mult: 3.0, gain: 0.25 },     // 3rd harmonic
-        { mult: 4.0, gain: 0.15 },     // 4th harmonic
-        { mult: 5.0, gain: 0.08 },     // 5th harmonic
-        { mult: 6.0, gain: 0.05 }      // 6th harmonic
-    ];
-    
-    harmonics.forEach(harmonic => {
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+    try {
+        const masterGain = ctx.createGain();
         
-        // Use sine waves for cleaner harmonics
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(frequency * harmonic.mult, startTime);
+        // Create multiple oscillators for harmonics (piano has rich overtones)
+        const harmonics = [
+            { mult: 1.0, gain: 1.0 },      // Fundamental
+            { mult: 2.0, gain: 0.5 },      // 2nd harmonic (octave)
+            { mult: 3.0, gain: 0.25 },     // 3rd harmonic
+            { mult: 4.0, gain: 0.15 },     // 4th harmonic
+            { mult: 5.0, gain: 0.08 },     // 5th harmonic
+            { mult: 6.0, gain: 0.05 }      // 6th harmonic
+        ];
         
-        // Set relative gain for this harmonic
-        gainNode.gain.setValueAtTime(harmonic.gain * 0.3, startTime);
+        harmonics.forEach(harmonic => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            // Use sine waves for cleaner harmonics
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency * harmonic.mult, startTime);
+            
+            // Set relative gain for this harmonic
+            gainNode.gain.setValueAtTime(harmonic.gain * 0.3, startTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(masterGain);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        });
         
-        oscillator.connect(gainNode);
-        gainNode.connect(masterGain);
+        // ADSR Envelope for realistic piano sound
+        const attackTime = 0.01;      // Very fast attack
+        const decayTime = 0.2;        // Quick decay
+        const sustainLevel = 0.25;    // Lower sustain
+        const releaseTime = 0.4;      // Longer release
         
-        oscillator.start(startTime);
-        oscillator.stop(startTime + duration);
-    });
-    
-    // ADSR Envelope for realistic piano sound
-    const attackTime = 0.01;      // Very fast attack
-    const decayTime = 0.2;        // Quick decay
-    const sustainLevel = 0.25;    // Lower sustain
-    const releaseTime = 0.4;      // Longer release
-    
-    masterGain.gain.setValueAtTime(0, startTime);
-    masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
-    masterGain.gain.exponentialRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
-    masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-    
-    // Add a subtle lowpass filter for warmth
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(3000, startTime);
-    filter.Q.setValueAtTime(1, startTime);
-    
-    masterGain.connect(filter);
-    filter.connect(ctx.destination);
+        masterGain.gain.setValueAtTime(0, startTime);
+        masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
+        masterGain.gain.exponentialRampToValueAtTime(Math.max(0.01, sustainLevel), startTime + attackTime + decayTime);
+        masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+        masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        // Add a subtle lowpass filter for warmth
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3000, startTime);
+        filter.Q.setValueAtTime(1, startTime);
+        
+        masterGain.connect(filter);
+        filter.connect(ctx.destination);
+    } catch (e) {
+        console.error('Error playing note:', e);
+    }
     
     return duration;
 }
@@ -90,6 +118,16 @@ function playPianoNote(frequency, startTime, duration = 1.0) {
 // Play a sequence of notes
 async function playNoteSequence(notes, gap = 0.15) {
     const ctx = getAudioContext();
+    if (!ctx) {
+        console.error('No AudioContext available');
+        return;
+    }
+    
+    // Ensure context is running
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+    }
+    
     const now = ctx.currentTime;
     let currentTime = now + 0.05;
     
@@ -119,6 +157,13 @@ async function playNoteSequence(notes, gap = 0.15) {
 // Play rhythm pattern (single pitch)
 async function playRhythmPattern(pattern, pitch = 'C4') {
     const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    // Ensure context is running
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+    }
+    
     const now = ctx.currentTime;
     let currentTime = now + 0.05;
     const beatDuration = 60 / 60; // Quarter note at 60 BPM = 1 second
