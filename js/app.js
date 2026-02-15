@@ -1,8 +1,8 @@
 // Screen Management
 function startExercise(type) {
-    // Ensure audio context is ready
-    if (typeof getAudioContext === 'function') {
-        getAudioContext();
+    // Initialize audio context immediately on user interaction (Safari requirement)
+    if (typeof initAudioContext === 'function') {
+        initAudioContext();
     }
     
     document.querySelectorAll('.screen').forEach(screen => {
@@ -29,20 +29,24 @@ function goHome() {
         screen.classList.remove('active');
     });
     document.getElementById('welcome-screen').classList.add('active');
-    
-    // Don't close audio context - just let it be ready for next use
 }
 
 // Initialize on load
 window.addEventListener('load', () => {
     console.log('Gehörbildungstrainer geladen!');
     console.log('Alle 4 Module aktiv: Intervalle, Akkorde, Melodiediktat, Rhythmusdiktat');
+    console.log('Browser:', navigator.userAgent.includes('Safari') ? 'Safari' : 'Other');
     
-    // Pre-initialize audio context on first user interaction
-    document.body.addEventListener('click', function initAudio() {
-        if (typeof getAudioContext === 'function') {
-            getAudioContext();
+    // For Safari: Initialize AudioContext on ANY click
+    let audioReady = false;
+    document.addEventListener('click', function ensureAudio() {
+        if (!audioReady && typeof initAudioContext === 'function') {
+            console.log('Initializing AudioContext on user click...');
+            const ctx = initAudioContext();
+            if (ctx) {
+                console.log('AudioContext ready, state:', ctx.state);
+                audioReady = true;
+            }
         }
-        document.body.removeEventListener('click', initAudio);
-    }, { once: true });
+    });
 });
