@@ -1,30 +1,10 @@
 // Safari-compatible audio with piano sound
 let audioContext = null;
-let debugLog = [];
 let audioUnlocked = false;
-
-function log(msg) {
-    console.log(msg);
-    debugLog.push(msg);
-    updateDebugOverlay();
-}
-
-function updateDebugOverlay() {
-    let overlay = document.getElementById('debug-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'debug-overlay';
-        overlay.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; z-index: 10000;';
-        document.body.appendChild(overlay);
-    }
-    overlay.innerHTML = debugLog.slice(-10).join('<br>');
-}
 
 // Force unlock Safari audio
 async function unlockAudio() {
     if (audioUnlocked) return true;
-    
-    log('Unlocking audio...');
     
     try {
         const ctx = getAudioContext();
@@ -33,7 +13,6 @@ async function unlockAudio() {
         // Resume context
         if (ctx.state === 'suspended') {
             await ctx.resume();
-            log('Context resumed: ' + ctx.state);
         }
         
         // Play actual audible sound to unlock
@@ -54,10 +33,9 @@ async function unlockAudio() {
         await new Promise(r => setTimeout(r, 150));
         
         audioUnlocked = true;
-        log('✅ Audio unlocked!');
         return true;
     } catch (e) {
-        log('❌ Unlock failed: ' + e.message);
+        console.error('Unlock failed:', e);
         return false;
     }
 }
@@ -68,10 +46,9 @@ function initAudio() {
     
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        log('✅ AudioContext created! State: ' + audioContext.state);
         return audioContext;
     } catch (e) {
-        log('❌ Audio init failed: ' + e.message);
+        console.error('Audio init failed:', e);
         return null;
     }
 }
@@ -125,26 +102,19 @@ function playPianoTone(frequency, startTime, duration) {
             gain.connect(masterGain);
             
             osc.start(startTime);
-            osc.stop(startTime + duration + 0.1); // Stop slightly after for smooth fadeout
+            osc.stop(startTime + duration + 0.1);
         });
         
-        // Smooth ADSR envelope - CRITICAL: smooth fadeout prevents clicks
-        const attackTime = 0.005;     // Very fast attack
-        const decayTime = 0.1;        // Quick decay
-        const sustainLevel = 0.3;     // Sustain level
-        const releaseTime = 0.05;     // Short but smooth release
+        // Smooth ADSR envelope
+        const attackTime = 0.005;
+        const decayTime = 0.1;
+        const sustainLevel = 0.3;
+        const releaseTime = 0.05;
         
-        // Attack
         masterGain.gain.setValueAtTime(0, startTime);
         masterGain.gain.linearRampToValueAtTime(0.7, startTime + attackTime);
-        
-        // Decay to sustain
         masterGain.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
-        
-        // Hold sustain
         masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-        
-        // Release - MUST fade to 0 smoothly to prevent click!
         masterGain.gain.linearRampToValueAtTime(0.0, startTime + duration);
         
         // Lowpass filter for warmth
@@ -156,24 +126,19 @@ function playPianoTone(frequency, startTime, duration) {
         masterGain.connect(filter);
         filter.connect(ctx.destination);
         
-        log('♫ ' + Math.round(frequency) + 'Hz');
     } catch (e) {
-        log('❌ Play error: ' + e.message);
+        console.error('Play error:', e);
     }
 }
 
 // Play single note
 async function playNote(noteName, duration = 0.5) {
-    // Ensure audio is unlocked first
     if (!audioUnlocked) {
         await unlockAudio();
     }
     
     const freq = noteFrequencies[noteName];
-    if (!freq) {
-        log('❌ Unknown note: ' + noteName);
-        return;
-    }
+    if (!freq) return;
     
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -183,15 +148,9 @@ async function playNote(noteName, duration = 0.5) {
 
 // Play sequence
 async function playNoteSequence(notes, gap = 0.15) {
-    log('▶ Sequence start');
-    
-    // Unlock audio first
     if (!audioUnlocked) {
         const unlocked = await unlockAudio();
-        if (!unlocked) {
-            log('❌ Cannot play - audio locked');
-            return;
-        }
+        if (!unlocked) return;
     }
     
     const ctx = getAudioContext();
@@ -202,19 +161,14 @@ async function playNoteSequence(notes, gap = 0.15) {
             playNote(note, 0.5);
             await new Promise(r => setTimeout(r, (0.5 + gap) * 1000));
         } else if (Array.isArray(note)) {
-            // Chord - play all at same time
             note.forEach(n => playNote(n, 0.8));
             await new Promise(r => setTimeout(r, (0.8 + gap) * 1000));
         }
     }
-    
-    log('✓ Done');
 }
 
 // Play rhythm pattern
 async function playRhythmPattern(pattern, pitch = 'C4') {
-    log('▶ Rhythm');
-    
     if (!audioUnlocked) {
         await unlockAudio();
     }
@@ -222,7 +176,7 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     const ctx = getAudioContext();
     if (!ctx) return;
     
-    const beatDuration = 1.0; // 60 BPM
+    const beatDuration = 1.0;
     const freq = noteFrequencies[pitch];
     if (!freq) return;
     
@@ -237,8 +191,6 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     
     const totalDuration = (currentTime - ctx.currentTime) * 1000;
     await new Promise(r => setTimeout(r, totalDuration));
-    
-    log('✓ Done');
 }
 
 // Helpers
@@ -265,7 +217,6 @@ function noteToVexFlow(noteName) {
 
 // Test
 async function testAudio() {
-    log('=== TEST START ===');
     await unlockAudio();
     playNote('C4', 0.3);
     setTimeout(() => playNote('E4', 0.3), 400);
