@@ -147,20 +147,18 @@
                     <div class="info-box">
                         <p><strong>Tonart:</strong> <span id="melodie-tonart"></span></p>
                         <p><strong>Anfangston:</strong> <span id="melodie-startton"></span></p>
-                        <p><em>Trage die Vorzeichen selbstständig ein!</em></p>
+                        <p><em>Notiere die Melodie auf Notenpapier!</em></p>
                     </div>
 
                     <div id="notation-melodie" class="notation-display"></div>
                     
                     <div class="controls">
-                        <button class="btn-primary" id="play-melodie" onclick="playMelodie()">▶ Start (alle 4 Takte)</button>
+                        <button class="btn-primary" id="play-melodie" onclick="playMelodie()">▶ Start: Kadenz + Takt 1-4</button>
                         <button class="btn-primary" id="continue-melodie" onclick="continueMelodie()" style="display: none;">Weiter ▶</button>
                     </div>
 
                     <div class="answer-section">
-                        <h3>Notiere die Melodie (4 Takte im 4/4-Takt)</h3>
-                        <textarea id="melodie-input" rows="4" placeholder="Notiere hier deine Lösung (z.B. Tonnamen mit Oktave: C4, D4, E4...)"></textarea>
-                        <button class="btn-primary" id="check-melodie" onclick="checkMelodie()" style="display: none;">Lösung überprüfen</button>
+                        <button class="btn-primary" id="show-melodie-solution" onclick="showMelodieSolution()" style="display: none;">Lösung anzeigen</button>
                     </div>
 
                     <div class="feedback" id="melodie-feedback"></div>
@@ -185,21 +183,20 @@
                     <div class="info-box">
                         <p><strong>Taktart:</strong> 4/4-Takt</p>
                         <p><strong>Umfang:</strong> 4 Takte</p>
+                        <p><strong>Tempo:</strong> Viertel = ca. 60</p>
                         <p><em>Enthält: Synkopen, Triolen, Punktierungen</em></p>
-                        <p><em>Tempo: Viertel = ca. 60</em></p>
+                        <p><em>Notiere den Rhythmus auf Notenpapier!</em></p>
                     </div>
 
                     <div id="notation-rhythmus" class="notation-display"></div>
                     
                     <div class="controls">
-                        <button class="btn-primary" id="play-rhythmus" onclick="playRhythmus()">▶ Start (alle 4 Takte)</button>
+                        <button class="btn-primary" id="play-rhythmus" onclick="playRhythmus()">▶ Start: Vorzählen + Takt 1-4</button>
                         <button class="btn-primary" id="continue-rhythmus" onclick="continueRhythmus()" style="display: none;">Weiter ▶</button>
                     </div>
 
                     <div class="answer-section">
-                        <h3>Notiere den Rhythmus (4 Takte im 4/4-Takt)</h3>
-                        <textarea id="rhythmus-input" rows="4" placeholder="Notiere hier deine Lösung..."></textarea>
-                        <button class="btn-primary" id="check-rhythmus" onclick="checkRhythmus()" style="display: none;">Lösung überprüfen</button>
+                        <button class="btn-primary" id="show-rhythmus-solution" onclick="showRhythmusSolution()" style="display: none;">Lösung anzeigen</button>
                     </div>
 
                     <div class="feedback" id="rhythmus-feedback"></div>

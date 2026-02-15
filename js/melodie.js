@@ -1,5 +1,6 @@
 // Melodiediktat Logic based on BW official guidelines
 // 4 Takte, 4/4-Takt, bis zu 3 Vorzeichen, leitereigene Töne, Ambitus > Oktave
+// Diktiermodus: 1-4, dann 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, dann 1-4
 
 const tonarten = [
     { name: 'C-Dur', key: 'C', mode: 'major', sharps: 0, flats: 0, scale: [0, 2, 4, 5, 7, 9, 11] },
@@ -19,18 +20,26 @@ const tonarten = [
 ];
 
 let currentMelodie = null;
-let melodieStats = { correct: 0, wrong: 0, total: 0 };
-let hasPlayedMelodie = false;
-let melodiePlaybackStep = 0; // Track which step we're at
+let melodieStats = { correct: 0, total: 0 };
+let melodiePlaybackStep = 0;
+
+// Diktiermodus Steps nach offiziellen Vorgaben
+const melodieDiktierSteps = [
+    { label: 'Takt 1-4', bars: [0, 1, 2, 3] },
+    { label: 'Takt 1', bars: [0], repeat: 3 },
+    { label: 'Takt 2', bars: [1], repeat: 3 },
+    { label: 'Takt 3', bars: [2], repeat: 3 },
+    { label: 'Takt 4', bars: [3], repeat: 3 },
+    { label: 'Takt 1-4', bars: [0, 1, 2, 3] }
+];
 
 function initMelodie() {
-    melodieStats = { correct: 0, wrong: 0, total: 0 };
+    melodieStats = { correct: 0, total: 0 };
     updateMelodieStats();
     generateNewMelodie();
 }
 
 function generateNewMelodie() {
-    hasPlayedMelodie = false;
     melodiePlaybackStep = 0;
     
     // Random key (up to 3 accidentals)
@@ -61,15 +70,11 @@ function generateNewMelodie() {
     
     // Reset UI
     document.getElementById('melodie-feedback').classList.remove('show', 'correct', 'wrong');
-    document.getElementById('check-melodie').style.display = 'none';
+    document.getElementById('show-melodie-solution').style.display = 'none';
     document.getElementById('next-melodie').style.display = 'none';
     document.getElementById('play-melodie').disabled = false;
     document.getElementById('continue-melodie').style.display = 'none';
     document.getElementById('continue-melodie').disabled = false;
-    
-    // Clear input
-    document.getElementById('melodie-input').value = '';
-    document.getElementById('melodie-input').disabled = false;
 }
 
 function generateMelodyBars(tonart, startNote) {
@@ -120,17 +125,17 @@ async function playMelodie() {
     try {
         melodiePlaybackStep = 0;
         
-        // Play cadence first to establish key
+        // Play cadence first to establish key (simplified - just C major I-V-I)
         await playNoteSequence([['C4', 'E4', 'G4'], ['G4', 'B4', 'D5'], ['C4', 'E4', 'G4']], 0.2);
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Play all 4 bars first time
+        // Play all 4 bars
         await playNoteSequence(currentMelodie.melody, 0.1);
         
         melodiePlaybackStep = 1;
         continueBtn.style.display = 'inline-block';
         continueBtn.disabled = false;
-        continueBtn.textContent = 'Takt 1 (3x) ▶';
+        continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' (3x) ▶';
         
     } catch (error) {
         console.error('Error playing melody:', error);
@@ -146,32 +151,33 @@ async function continueMelodie() {
     continueBtn.disabled = true;
     
     try {
-        // Steps 1-4: Play each bar 3 times
-        if (melodiePlaybackStep >= 1 && melodiePlaybackStep <= 4) {
-            const barIndex = melodiePlaybackStep - 1;
+        if (melodiePlaybackStep >= 1 && melodiePlaybackStep < melodieDiktierSteps.length) {
+            const step = melodieDiktierSteps[melodiePlaybackStep];
             
-            for (let repeat = 0; repeat < 3; repeat++) {
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await playNoteSequence(currentMelodie.bars[barIndex], 0.1);
+            // Collect notes from specified bars
+            let notesToPlay = [];
+            step.bars.forEach(barIndex => {
+                notesToPlay = notesToPlay.concat(currentMelodie.bars[barIndex]);
+            });
+            
+            // Play the specified bars (with repeat if specified)
+            const repeatCount = step.repeat || 1;
+            for (let i = 0; i < repeatCount; i++) {
+                if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
+                await playNoteSequence(notesToPlay, 0.1);
             }
             
             melodiePlaybackStep++;
             
-            if (melodiePlaybackStep <= 4) {
-                continueBtn.textContent = `Takt ${melodiePlaybackStep} (3x) ▶`;
+            if (melodiePlaybackStep < melodieDiktierSteps.length) {
+                const nextStep = melodieDiktierSteps[melodiePlaybackStep];
+                const label = nextStep.repeat ? nextStep.label + ' (3x)' : nextStep.label;
+                continueBtn.textContent = label + ' ▶';
             } else {
-                continueBtn.textContent = 'Alle 4 Takte ▶';
+                // Finished all steps
+                continueBtn.style.display = 'none';
+                document.getElementById('show-melodie-solution').style.display = 'block';
             }
-        }
-        // Step 5: Play all 4 bars again
-        else if (melodiePlaybackStep === 5) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            await playNoteSequence(currentMelodie.melody, 0.1);
-            
-            continueBtn.style.display = 'none';
-            document.getElementById('check-melodie').style.display = 'block';
-            document.getElementById('melodie-input').disabled = false;
-            hasPlayedMelodie = true;
         }
         
     } catch (error) {
@@ -181,29 +187,19 @@ async function continueMelodie() {
     continueBtn.disabled = false;
 }
 
-function checkMelodie() {
-    if (!hasPlayedMelodie) return;
+function showMelodieSolution() {
+    melodieStats.total++;
+    updateMelodieStats();
     
     const feedback = document.getElementById('melodie-feedback');
-    const input = document.getElementById('melodie-input').value;
+    feedback.textContent = '✅ Hier ist die Lösung. Vergleiche mit deiner Aufschrift!';
+    feedback.className = 'feedback show correct';
     
-    if (input.trim().length > 0) {
-        melodieStats.total++;
-        feedback.textContent = '✅ Eingabe gespeichert. Vergleiche deine Lösung mit den angezeigten Noten!';
-        feedback.className = 'feedback show correct';
-        
-        // Show notation
-        displayNotes('notation-melodie', currentMelodie.melody);
-        
-        document.getElementById('next-melodie').style.display = 'block';
-        document.getElementById('check-melodie').style.display = 'none';
-        document.getElementById('melodie-input').disabled = true;
-        
-        updateMelodieStats();
-    } else {
-        feedback.textContent = '❌ Bitte gib zuerst eine Lösung ein.';
-        feedback.className = 'feedback show wrong';
-    }
+    // Show notation
+    displayNotes('notation-melodie', currentMelodie.melody);
+    
+    document.getElementById('next-melodie').style.display = 'block';
+    document.getElementById('show-melodie-solution').style.display = 'none';
 }
 
 function nextMelodie() {
