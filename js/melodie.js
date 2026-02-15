@@ -1,6 +1,6 @@
 // Melodiediktat Logic based on BW official guidelines
 // 4 Takte, 4/4-Takt, bis zu 3 Vorzeichen, leitereigene Töne, Ambitus > Oktave
-// Diktiermodus: 1-4, dann 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, dann 1-4
+// Diktiermodus: 1-4, dann 1, 1, 1+2, 2, 2+3, 3, 3+4, 4, 4, dann 1-4
 
 const tonarten = [
     { name: 'C-Dur', key: 'C', mode: 'major', sharps: 0, flats: 0, scale: [0, 2, 4, 5, 7, 9, 11] },
@@ -23,13 +23,18 @@ let currentMelodie = null;
 let melodieStats = { correct: 0, total: 0 };
 let melodiePlaybackStep = 0;
 
-// Diktiermodus Steps nach offiziellen Vorgaben
+// Diktiermodus Steps nach offiziellen Vorgaben (wie Rhythmus)
 const melodieDiktierSteps = [
     { label: 'Takt 1-4', bars: [0, 1, 2, 3] },
-    { label: 'Takt 1', bars: [0], repeat: 3 },
-    { label: 'Takt 2', bars: [1], repeat: 3 },
-    { label: 'Takt 3', bars: [2], repeat: 3 },
-    { label: 'Takt 4', bars: [3], repeat: 3 },
+    { label: 'Takt 1', bars: [0] },
+    { label: 'Takt 1', bars: [0] },
+    { label: 'Takt 1+2', bars: [0, 1] },
+    { label: 'Takt 2', bars: [1] },
+    { label: 'Takt 2+3', bars: [1, 2] },
+    { label: 'Takt 3', bars: [2] },
+    { label: 'Takt 3+4', bars: [2, 3] },
+    { label: 'Takt 4', bars: [3] },
+    { label: 'Takt 4', bars: [3] },
     { label: 'Takt 1-4', bars: [0, 1, 2, 3] }
 ];
 
@@ -113,6 +118,45 @@ function generateMelodyBars(tonart, startNote) {
     return melody;
 }
 
+// Play count-in (4 beats with metronome click) - same as Rhythmus
+async function playMelodieCountIn() {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+    }
+    
+    const now = ctx.currentTime;
+    const beatDuration = 60 / 60; // Quarter note at 60 BPM = 1 second
+    
+    // Play 4 metronome clicks
+    for (let i = 0; i < 4; i++) {
+        const startTime = now + (i * beatDuration);
+        
+        // Higher pitched click for first beat
+        const freq = i === 0 ? 1000 : 800;
+        
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(freq, startTime);
+        
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.05);
+    }
+    
+    // Wait for count-in to finish
+    await new Promise(resolve => setTimeout(resolve, beatDuration * 4 * 1000));
+}
+
 async function playMelodie() {
     if (!currentMelodie) return;
     
@@ -127,7 +171,13 @@ async function playMelodie() {
         
         // Play cadence first to establish key (simplified - just C major I-V-I)
         await playNoteSequence([['C4', 'E4', 'G4'], ['G4', 'B4', 'D5'], ['C4', 'E4', 'G4']], 0.2);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Play count-in (4 beats)
+        await playMelodieCountIn();
+        
+        // Small pause after count-in
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Play all 4 bars
         await playNoteSequence(currentMelodie.melody, 0.1);
@@ -135,7 +185,7 @@ async function playMelodie() {
         melodiePlaybackStep = 1;
         continueBtn.style.display = 'inline-block';
         continueBtn.disabled = false;
-        continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' (3x) ▶';
+        continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' ▶';
         
     } catch (error) {
         console.error('Error playing melody:', error);
@@ -160,19 +210,36 @@ async function continueMelodie() {
                 notesToPlay = notesToPlay.concat(currentMelodie.bars[barIndex]);
             });
             
-            // Play the specified bars (with repeat if specified)
-            const repeatCount = step.repeat || 1;
-            for (let i = 0; i < repeatCount; i++) {
-                if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-                await playNoteSequence(notesToPlay, 0.1);
+            // Play count-in "drei, vier" (2 beats)
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            const beatDuration = 60 / 60;
+            
+            for (let i = 0; i < 2; i++) {
+                const startTime = now + (i * beatDuration);
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, startTime);
+                gainNode.gain.setValueAtTime(0.2, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.05);
             }
+            
+            await new Promise(resolve => setTimeout(resolve, beatDuration * 2 * 1000 + 200));
+            
+            // Play the specified bars
+            await playNoteSequence(notesToPlay, 0.1);
             
             melodiePlaybackStep++;
             
             if (melodiePlaybackStep < melodieDiktierSteps.length) {
-                const nextStep = melodieDiktierSteps[melodiePlaybackStep];
-                const label = nextStep.repeat ? nextStep.label + ' (3x)' : nextStep.label;
-                continueBtn.textContent = label + ' ▶';
+                continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' ▶';
             } else {
                 // Finished all steps
                 continueBtn.style.display = 'none';
