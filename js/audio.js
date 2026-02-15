@@ -1,39 +1,25 @@
-// Audio Context - Safari requires user interaction before creating AudioContext
+// Audio Context - Simple and robust for Safari
 let audioContext = null;
-let audioInitialized = false;
-
-function initAudioContext() {
-    if (!audioContext || audioContext.state === 'closed') {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('AudioContext created, state:', audioContext.state);
-        } catch (e) {
-            console.error('Failed to create AudioContext:', e);
-            return null;
-        }
-    }
-    
-    // Resume context if suspended (Safari autoplay policy)
-    if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => {
-            console.log('AudioContext resumed, state:', audioContext.state);
-        }).catch(e => {
-            console.error('Failed to resume AudioContext:', e);
-        });
-    }
-    
-    audioInitialized = true;
-    return audioContext;
-}
 
 function getAudioContext() {
-    if (!audioContext || audioContext.state === 'closed') {
-        initAudioContext();
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('AudioContext created');
     }
     return audioContext;
 }
 
-// Note frequencies (C2 to C6 range for variety)
+// Ensure audio is ready (call this on every play button)
+async function ensureAudioReady() {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+        console.log('AudioContext resumed');
+    }
+    return ctx;
+}
+
+// Note frequencies (C2 to C6 range)
 const noteFrequencies = {
     'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31,
     'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
@@ -49,98 +35,77 @@ const noteFrequencies = {
 // Get all note names in chromatic order
 const allNotes = Object.keys(noteFrequencies);
 
-// Improved piano tone generator with harmonics
+// Piano tone generator
 function playPianoNote(frequency, startTime, duration = 1.0) {
     const ctx = getAudioContext();
-    if (!ctx || ctx.state !== 'running') {
-        console.warn('AudioContext not running');
-        return duration;
-    }
     
-    try {
-        const masterGain = ctx.createGain();
+    const masterGain = ctx.createGain();
+    
+    // Harmonics for piano sound
+    const harmonics = [
+        { mult: 1.0, gain: 1.0 },
+        { mult: 2.0, gain: 0.5 },
+        { mult: 3.0, gain: 0.25 },
+        { mult: 4.0, gain: 0.15 },
+        { mult: 5.0, gain: 0.08 },
+        { mult: 6.0, gain: 0.05 }
+    ];
+    
+    harmonics.forEach(harmonic => {
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
         
-        // Create multiple oscillators for harmonics (piano has rich overtones)
-        const harmonics = [
-            { mult: 1.0, gain: 1.0 },      // Fundamental
-            { mult: 2.0, gain: 0.5 },      // 2nd harmonic (octave)
-            { mult: 3.0, gain: 0.25 },     // 3rd harmonic
-            { mult: 4.0, gain: 0.15 },     // 4th harmonic
-            { mult: 5.0, gain: 0.08 },     // 5th harmonic
-            { mult: 6.0, gain: 0.05 }      // 6th harmonic
-        ];
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency * harmonic.mult, startTime);
+        gainNode.gain.setValueAtTime(harmonic.gain * 0.3, startTime);
         
-        harmonics.forEach(harmonic => {
-            const oscillator = ctx.createOscillator();
-            const gainNode = ctx.createGain();
-            
-            // Use sine waves for cleaner harmonics
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(frequency * harmonic.mult, startTime);
-            
-            // Set relative gain for this harmonic
-            gainNode.gain.setValueAtTime(harmonic.gain * 0.3, startTime);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(masterGain);
-            
-            oscillator.start(startTime);
-            oscillator.stop(startTime + duration);
-        });
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
         
-        // ADSR Envelope for realistic piano sound
-        const attackTime = 0.01;      // Very fast attack
-        const decayTime = 0.2;        // Quick decay
-        const sustainLevel = 0.25;    // Lower sustain
-        const releaseTime = 0.4;      // Longer release
-        
-        masterGain.gain.setValueAtTime(0, startTime);
-        masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
-        masterGain.gain.exponentialRampToValueAtTime(Math.max(0.01, sustainLevel), startTime + attackTime + decayTime);
-        masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-        masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-        
-        // Add a subtle lowpass filter for warmth
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(3000, startTime);
-        filter.Q.setValueAtTime(1, startTime);
-        
-        masterGain.connect(filter);
-        filter.connect(ctx.destination);
-    } catch (e) {
-        console.error('Error playing note:', e);
-    }
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+    });
+    
+    // ADSR Envelope
+    const attackTime = 0.01;
+    const decayTime = 0.2;
+    const sustainLevel = 0.25;
+    const releaseTime = 0.4;
+    
+    masterGain.gain.setValueAtTime(0, startTime);
+    masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
+    masterGain.gain.exponentialRampToValueAtTime(Math.max(0.01, sustainLevel), startTime + attackTime + decayTime);
+    masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+    
+    // Lowpass filter
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(3000, startTime);
+    filter.Q.setValueAtTime(1, startTime);
+    
+    masterGain.connect(filter);
+    filter.connect(ctx.destination);
     
     return duration;
 }
 
 // Play a sequence of notes
 async function playNoteSequence(notes, gap = 0.15) {
+    await ensureAudioReady();
     const ctx = getAudioContext();
-    if (!ctx) {
-        console.error('No AudioContext available');
-        return;
-    }
-    
-    // Ensure context is running
-    if (ctx.state === 'suspended') {
-        await ctx.resume();
-    }
     
     const now = ctx.currentTime;
     let currentTime = now + 0.05;
     
     for (const note of notes) {
         if (typeof note === 'string') {
-            // Single note
             const freq = noteFrequencies[note];
             if (freq) {
                 playPianoNote(freq, currentTime, 0.9);
                 currentTime += 0.9 + gap;
             }
         } else if (Array.isArray(note)) {
-            // Chord (simultaneous notes)
             note.forEach(n => {
                 const freq = noteFrequencies[n];
                 if (freq) playPianoNote(freq, currentTime, 1.5);
@@ -149,24 +114,18 @@ async function playNoteSequence(notes, gap = 0.15) {
         }
     }
     
-    // Return promise that resolves when all notes are done
     const totalDuration = (currentTime - now) * 1000;
     return new Promise(resolve => setTimeout(resolve, totalDuration));
 }
 
-// Play rhythm pattern (single pitch)
+// Play rhythm pattern
 async function playRhythmPattern(pattern, pitch = 'C4') {
+    await ensureAudioReady();
     const ctx = getAudioContext();
-    if (!ctx) return;
-    
-    // Ensure context is running
-    if (ctx.state === 'suspended') {
-        await ctx.resume();
-    }
     
     const now = ctx.currentTime;
     let currentTime = now + 0.05;
-    const beatDuration = 60 / 60; // Quarter note at 60 BPM = 1 second
+    const beatDuration = 60 / 60;
     
     const freq = noteFrequencies[pitch];
     if (!freq) return;
@@ -190,7 +149,7 @@ function getRandomNote(minNote = 'C3', maxNote = 'C6') {
     return allNotes[randomIndex];
 }
 
-// Get note by interval (in semitones)
+// Get note by interval
 function getNoteByInterval(baseNote, semitones) {
     const baseIndex = allNotes.indexOf(baseNote);
     if (baseIndex === -1) return null;
@@ -203,7 +162,6 @@ function getNoteByInterval(baseNote, semitones) {
 
 // Convert note name to VexFlow notation
 function noteToVexFlow(noteName) {
-    // Convert 'C#4' to 'C#/4' for VexFlow
     const match = noteName.match(/([A-G]#?)([0-9])/);
     if (match) {
         return `${match[1]}/${match[2]}`;

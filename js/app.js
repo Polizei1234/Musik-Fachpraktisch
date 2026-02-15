@@ -1,9 +1,7 @@
 // Screen Management
 function startExercise(type) {
-    // Initialize audio context immediately on user interaction (Safari requirement)
-    if (typeof initAudioContext === 'function') {
-        initAudioContext();
-    }
+    // Initialize audio
+    getAudioContext();
     
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -34,19 +32,9 @@ function goHome() {
 // Initialize on load
 window.addEventListener('load', () => {
     console.log('Gehörbildungstrainer geladen!');
-    console.log('Alle 4 Module aktiv: Intervalle, Akkorde, Melodiediktat, Rhythmusdiktat');
-    console.log('Browser:', navigator.userAgent.includes('Safari') ? 'Safari' : 'Other');
     
-    // For Safari: Initialize AudioContext on ANY click
-    let audioReady = false;
-    document.addEventListener('click', function ensureAudio() {
-        if (!audioReady && typeof initAudioContext === 'function') {
-            console.log('Initializing AudioContext on user click...');
-            const ctx = initAudioContext();
-            if (ctx) {
-                console.log('AudioContext ready, state:', ctx.state);
-                audioReady = true;
-            }
-        }
-    });
+    // Initialize audio on first click anywhere
+    document.body.addEventListener('click', function() {
+        getAudioContext();
+    }, { once: true });
 });
