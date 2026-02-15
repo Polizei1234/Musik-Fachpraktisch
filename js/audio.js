@@ -17,32 +17,58 @@ const noteFrequencies = {
 // Get all note names in chromatic order
 const allNotes = Object.keys(noteFrequencies);
 
-// Piano tone generator with ADSR envelope
-function playPianoNote(frequency, startTime, duration = 0.8) {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+// Improved piano tone generator with harmonics
+function playPianoNote(frequency, startTime, duration = 1.0) {
+    const masterGain = audioContext.createGain();
     
-    // Use a combination of sine waves for a piano-like sound
-    oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(frequency, startTime);
+    // Create multiple oscillators for harmonics (piano has rich overtones)
+    const harmonics = [
+        { mult: 1.0, gain: 1.0 },      // Fundamental
+        { mult: 2.0, gain: 0.5 },      // 2nd harmonic (octave)
+        { mult: 3.0, gain: 0.25 },     // 3rd harmonic
+        { mult: 4.0, gain: 0.15 },     // 4th harmonic
+        { mult: 5.0, gain: 0.08 },     // 5th harmonic
+        { mult: 6.0, gain: 0.05 }      // 6th harmonic
+    ];
     
-    // ADSR Envelope for piano-like sound
-    const attackTime = 0.02;
-    const decayTime = 0.15;
-    const sustainLevel = 0.3;
-    const releaseTime = 0.3;
+    harmonics.forEach(harmonic => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        // Use sine waves for cleaner harmonics
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency * harmonic.mult, startTime);
+        
+        // Set relative gain for this harmonic
+        gainNode.gain.setValueAtTime(harmonic.gain * 0.3, startTime);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+    });
     
-    gainNode.gain.setValueAtTime(0, startTime);
-    gainNode.gain.linearRampToValueAtTime(0.6, startTime + attackTime);
-    gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
-    gainNode.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-    gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+    // ADSR Envelope for realistic piano sound
+    const attackTime = 0.01;      // Very fast attack
+    const decayTime = 0.2;        // Quick decay
+    const sustainLevel = 0.25;    // Lower sustain
+    const releaseTime = 0.4;      // Longer release
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    masterGain.gain.setValueAtTime(0, startTime);
+    masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
+    masterGain.gain.exponentialRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
+    masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
     
-    oscillator.start(startTime);
-    oscillator.stop(startTime + duration);
+    // Add a subtle lowpass filter for warmth
+    const filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(3000, startTime);
+    filter.Q.setValueAtTime(1, startTime);
+    
+    masterGain.connect(filter);
+    filter.connect(audioContext.destination);
     
     return duration;
 }
@@ -57,16 +83,16 @@ async function playNoteSequence(notes, gap = 0.15) {
             // Single note
             const freq = noteFrequencies[note];
             if (freq) {
-                playPianoNote(freq, currentTime, 0.8);
-                currentTime += 0.8 + gap;
+                playPianoNote(freq, currentTime, 0.9);
+                currentTime += 0.9 + gap;
             }
         } else if (Array.isArray(note)) {
             // Chord (simultaneous notes)
             note.forEach(n => {
                 const freq = noteFrequencies[n];
-                if (freq) playPianoNote(freq, currentTime, 1.2);
+                if (freq) playPianoNote(freq, currentTime, 1.5);
             });
-            currentTime += 1.2 + gap;
+            currentTime += 1.5 + gap;
         }
     }
     
