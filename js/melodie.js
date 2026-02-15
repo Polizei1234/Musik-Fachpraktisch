@@ -1,5 +1,6 @@
 // Melodiediktat Logic based on BW official guidelines
 // 4 Takte, 4/4-Takt, bis zu 3 Vorzeichen, leitereigene Töne, Ambitus > Oktave
+// Mit rhythmischer Vielfalt: Viertel, Halbe, Ganze, Achtel
 // Diktiermodus: 1-4, dann 1, 1, 1+2, 2, 2+3, 3, 3+4, 4, 4, dann 1-4
 
 const tonarten = [
@@ -23,7 +24,7 @@ let currentMelodie = null;
 let melodieStats = { correct: 0, total: 0 };
 let melodiePlaybackStep = 0;
 
-// Diktiermodus Steps nach offiziellen Vorgaben (wie Rhythmus)
+// Diktiermodus Steps nach offiziellen Vorgaben
 const melodieDiktierSteps = [
     { label: 'Takt 1-4', bars: [0, 1, 2, 3] },
     { label: 'Takt 1', bars: [0] },
@@ -50,20 +51,18 @@ function generateNewMelodie() {
     // Random key (up to 3 accidentals)
     const tonart = tonarten[Math.floor(Math.random() * tonarten.length)];
     
-    // Generate 4 bars of melody with ambitus > octave
+    // Generate 4 bars of melody with rhythm and ambitus > octave
     const startNote = getRandomNote('C3', 'C5');
-    const melody = generateMelodyBars(tonart, startNote);
+    const melody = generateMusicalMelody(tonart, startNote);
+    
+    // Split into bars based on duration
+    const bars = splitMelodyIntoBars(melody);
     
     currentMelodie = {
         tonart: tonart,
         startNote: startNote,
         melody: melody,
-        bars: [
-            melody.slice(0, 4),
-            melody.slice(4, 8),
-            melody.slice(8, 12),
-            melody.slice(12, 16)
-        ]
+        bars: bars
     };
     
     // Clear notation
@@ -82,44 +81,111 @@ function generateNewMelodie() {
     document.getElementById('continue-melodie').disabled = false;
 }
 
-function generateMelodyBars(tonart, startNote) {
+function generateMusicalMelody(tonart, startNote) {
     const melody = [];
     const startIndex = allNotes.indexOf(startNote);
     
-    // Generate melody ensuring ambitus > octave (13+ semitones)
     let currentIndex = startIndex;
     let minIndex = startIndex;
     let maxIndex = startIndex;
+    let lastNote = null;
     
-    // 16 quarter notes for 4 bars in 4/4
-    for (let i = 0; i < 16; i++) {
-        // More interesting intervals - larger leaps
-        const possibleSteps = [-7, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 7]; // Bigger jumps
-        const step = possibleSteps[Math.floor(Math.random() * possibleSteps.length)];
+    // Generate 4 bars = 16 quarter note beats
+    let beatsRemaining = 16;
+    
+    while (beatsRemaining > 0) {
+        // Choose rhythm value (in quarter notes)
+        let duration;
+        if (beatsRemaining >= 4 && Math.random() > 0.7) {
+            duration = 4; // Whole note
+        } else if (beatsRemaining >= 2 && Math.random() > 0.6) {
+            duration = 2; // Half note
+        } else if (beatsRemaining >= 1.5 && Math.random() > 0.5) {
+            duration = 1.5; // Dotted quarter
+        } else if (beatsRemaining >= 1) {
+            duration = 1; // Quarter note
+        } else if (beatsRemaining >= 0.5) {
+            duration = 0.5; // Eighth note
+        } else {
+            duration = beatsRemaining;
+        }
         
-        let newIndex = currentIndex + step;
+        // Make sure we don't exceed remaining beats
+        duration = Math.min(duration, beatsRemaining);
         
-        // Keep within reasonable range
-        newIndex = Math.max(allNotes.indexOf('C3'), Math.min(allNotes.indexOf('C6'), newIndex));
+        // Choose next note - NEVER the same as last note!
+        let newIndex;
+        let attempts = 0;
+        do {
+            // More interesting intervals
+            const possibleSteps = [-7, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 7];
+            // Favor smaller intervals more often for singability
+            const stepWeights = [1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1];
+            const totalWeight = stepWeights.reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            let stepIndex = 0;
+            for (let i = 0; i < stepWeights.length; i++) {
+                random -= stepWeights[i];
+                if (random <= 0) {
+                    stepIndex = i;
+                    break;
+                }
+            }
+            const step = possibleSteps[stepIndex];
+            
+            newIndex = currentIndex + step;
+            
+            // Keep within reasonable range
+            newIndex = Math.max(allNotes.indexOf('C3'), Math.min(allNotes.indexOf('C6'), newIndex));
+            
+            attempts++;
+        } while (newIndex === currentIndex && attempts < 20); // NEVER repeat the same note!
         
         minIndex = Math.min(minIndex, newIndex);
         maxIndex = Math.max(maxIndex, newIndex);
         
-        melody.push(allNotes[newIndex]);
+        melody.push({
+            note: allNotes[newIndex],
+            duration: duration
+        });
+        
         currentIndex = newIndex;
+        lastNote = allNotes[newIndex];
+        beatsRemaining -= duration;
     }
     
     // Ensure ambitus > octave (12 semitones)
     const ambitus = maxIndex - minIndex;
     if (ambitus <= 12) {
         // Regenerate if ambitus too small
-        return generateMelodyBars(tonart, startNote);
+        return generateMusicalMelody(tonart, startNote);
     }
     
     return melody;
 }
 
-// Play count-in (4 beats with metronome click) - same as Rhythmus
+function splitMelodyIntoBars(melody) {
+    const bars = [[], [], [], []];
+    let currentBar = 0;
+    let beatsInBar = 0;
+    
+    for (const noteObj of melody) {
+        if (beatsInBar + noteObj.duration > 4) {
+            // Move to next bar
+            currentBar++;
+            beatsInBar = 0;
+        }
+        
+        if (currentBar < 4) {
+            bars[currentBar].push(noteObj);
+            beatsInBar += noteObj.duration;
+        }
+    }
+    
+    return bars;
+}
+
+// Play count-in (4 beats with metronome click)
 async function playMelodieCountIn() {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -158,6 +224,33 @@ async function playMelodieCountIn() {
     await new Promise(resolve => setTimeout(resolve, beatDuration * 4 * 1000));
 }
 
+// Play melody with rhythm
+async function playMelodyWithRhythm(noteObjs) {
+    if (!noteObjs || noteObjs.length === 0) return;
+    
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+    }
+    
+    const beatDuration = 1.0; // 60 BPM = 1 second per quarter note
+    let currentTime = ctx.currentTime + 0.05;
+    
+    for (const noteObj of noteObjs) {
+        const freq = noteFrequencies[noteObj.note];
+        if (freq) {
+            const noteDuration = noteObj.duration * beatDuration * 0.95; // Slight separation
+            playPianoTone(freq, currentTime, noteDuration);
+            currentTime += noteObj.duration * beatDuration;
+        }
+    }
+    
+    const totalDuration = (currentTime - ctx.currentTime) * 1000;
+    await new Promise(resolve => setTimeout(resolve, totalDuration));
+}
+
 async function playMelodie() {
     if (!currentMelodie) return;
     
@@ -180,8 +273,8 @@ async function playMelodie() {
         // Small pause after count-in
         await new Promise(resolve => setTimeout(resolve, 200));
         
-        // Play all 4 bars
-        await playNoteSequence(currentMelodie.melody, 0.1);
+        // Play all 4 bars with rhythm
+        await playMelodyWithRhythm(currentMelodie.melody);
         
         melodiePlaybackStep = 1;
         continueBtn.style.display = 'inline-block';
@@ -234,8 +327,8 @@ async function continueMelodie() {
             
             await new Promise(resolve => setTimeout(resolve, beatDuration * 2 * 1000 + 200));
             
-            // Play the specified bars
-            await playNoteSequence(notesToPlay, 0.1);
+            // Play the specified bars with rhythm
+            await playMelodyWithRhythm(notesToPlay);
             
             melodiePlaybackStep++;
             
@@ -263,8 +356,31 @@ function showMelodieSolution() {
     feedback.textContent = '✅ Hier ist die Lösung. Vergleiche mit deiner Aufschrift!';
     feedback.className = 'feedback show correct';
     
-    // Show notation
-    displayNotes('notation-melodie', currentMelodie.melody);
+    // Show notation info (can't display complex rhythm in VexFlow easily)
+    const element = document.getElementById('notation-melodie');
+    if (element) {
+        let melodyText = '<p style="text-align: center; padding: 30px; font-size: 1.1em;"><strong>Melodie-Lösung:</strong><br><br>';
+        melodyText += '<strong>Tonart:</strong> ' + currentMelodie.tonart.name + '<br>';
+        melodyText += '<strong>Anfangston:</strong> ' + currentMelodie.startNote + '<br><br>';
+        
+        for (let i = 0; i < currentMelodie.bars.length; i++) {
+            melodyText += '<strong>Takt ' + (i + 1) + ':</strong> ';
+            currentMelodie.bars[i].forEach(noteObj => {
+                let rhythmName = '';
+                if (noteObj.duration === 4) rhythmName = ' (Ganze)';
+                else if (noteObj.duration === 2) rhythmName = ' (Halbe)';
+                else if (noteObj.duration === 1.5) rhythmName = ' (Viertel♪)';
+                else if (noteObj.duration === 1) rhythmName = ' (Viertel)';
+                else if (noteObj.duration === 0.5) rhythmName = ' (Achtel)';
+                
+                melodyText += noteObj.note + rhythmName + ' ';
+            });
+            melodyText += '<br>';
+        }
+        
+        melodyText += '<br><em>Tipp: Spiele die Melodie mehrmals ab und vergleiche!</em></p>';
+        element.innerHTML = melodyText;
+    }
     
     document.getElementById('next-melodie').style.display = 'block';
     document.getElementById('show-melodie-solution').style.display = 'none';
