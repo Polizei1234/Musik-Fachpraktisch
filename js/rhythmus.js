@@ -24,9 +24,15 @@ function generateNewRhythmus() {
         bars.push(generateRhythmBar());
     }
     
+    // Flatten bars array manually for Safari compatibility
+    let pattern = [];
+    bars.forEach(bar => {
+        pattern = pattern.concat(bar);
+    });
+    
     currentRhythmus = {
         bars: bars,
-        pattern: bars.flat()
+        pattern: pattern
     };
     
     // Clear notation
@@ -70,7 +76,10 @@ function generateRhythmBar() {
 }
 
 async function playRhythmus() {
-    if (!currentRhythmus) return;
+    if (!currentRhythmus) {
+        console.error('No rhythm generated');
+        return;
+    }
     
     const playBtn = document.getElementById('play-rhythmus');
     const continueBtn = document.getElementById('continue-rhythmus');
@@ -80,6 +89,8 @@ async function playRhythmus() {
     
     try {
         rhythmusPlaybackStep = 0;
+        
+        console.log('Playing rhythm, pattern length:', currentRhythmus.pattern.length);
         
         // Play all 4 bars first time
         await playRhythmPattern(currentRhythmus.pattern, 'C4');
@@ -106,6 +117,8 @@ async function continueRhythmus() {
         // Steps 1-4: Play each bar 3 times
         if (rhythmusPlaybackStep >= 1 && rhythmusPlaybackStep <= 4) {
             const barIndex = rhythmusPlaybackStep - 1;
+            
+            console.log(`Playing bar ${barIndex + 1}, 3 times`);
             
             for (let repeat = 0; repeat < 3; repeat++) {
                 await new Promise(resolve => setTimeout(resolve, 500));
