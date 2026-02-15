@@ -4,9 +4,9 @@
 // Tonraum: g bis c3 (G3 bis C6)
 
 const akkorde = [
-    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7] },
-    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7] },
-    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8] },
+    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7, 12] },        // Add octave
+    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7, 12] },       // Add octave
+    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8, 12] }, // Add octave
     { name: 'D7', short: 'D7', intervals: [0, 4, 7, 10] },
     { name: 'Dmaj7', short: 'Dmaj7', intervals: [0, 4, 7, 11] },
     { name: 'M7', short: 'M7', intervals: [0, 3, 7, 10] },
@@ -30,9 +30,9 @@ function generateNewAkkord() {
     
     const akkord = akkorde[Math.floor(Math.random() * akkorde.length)];
     
-    // Random root note between G3 and C5 to ensure all voices fit within G3-C6
+    // Random root note between G3 and C4 to ensure octave fits within G3-C6
     const minIndex = allNotes.indexOf('G3');
-    const maxIndex = allNotes.indexOf('C5');
+    const maxIndex = allNotes.indexOf('C4'); // Lower to fit octave
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
     const rootNote = allNotes[randomIndex];
     
@@ -49,8 +49,11 @@ function generateNewAkkord() {
         name: akkord.name,
         short: akkord.short,
         rootNote: rootNote,
-        notes: notes
+        notes: notes,
+        intervals: akkord.intervals
     };
+    
+    console.log('Generated 4-voiced chord:', currentAkkord.short, 'with', notes.length, 'notes:', notes);
     
     clearNotation('notation-akkord');
     
@@ -81,7 +84,7 @@ async function playAkkord() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing chord:', currentAkkord.notes);
+    console.log('Playing 4-voiced chord:', currentAkkord.notes.length, 'notes:', currentAkkord.notes);
     
     try {
         // Play each note individually first
@@ -95,7 +98,7 @@ async function playAkkord() {
         
         // Play all notes together
         await playNoteSequence([currentAkkord.notes], 0.1);
-        console.log('All chord notes played together');
+        console.log('All', currentAkkord.notes.length, 'notes played together');
         
     } catch (error) {
         console.error('Error playing chord:', error);
