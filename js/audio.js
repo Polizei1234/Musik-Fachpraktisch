@@ -77,7 +77,7 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Piano tone with harmonics and NO CLICKS
+// Realistic piano tone with proper harmonics
 function playPianoTone(frequency, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -85,23 +85,24 @@ function playPianoTone(frequency, startTime, duration) {
     try {
         const masterGain = ctx.createGain();
         
-        // Harmonics for piano sound
+        // Piano harmonics - more realistic ratios and volumes
         const harmonics = [
-            { mult: 1.0, gain: 1.0 },      // Fundamental
-            { mult: 2.0, gain: 0.5 },      // Octave
-            { mult: 3.0, gain: 0.25 },     // Fifth above octave
-            { mult: 4.0, gain: 0.15 },     // Second octave
-            { mult: 5.0, gain: 0.08 },     // Major third above 2nd octave
-            { mult: 6.0, gain: 0.05 }      // Fifth above 2nd octave
+            { mult: 1.0, gain: 1.0, type: 'sine' },       // Fundamental
+            { mult: 2.0, gain: 0.4, type: 'sine' },       // 2nd harmonic (octave)
+            { mult: 3.0, gain: 0.2, type: 'sine' },       // 3rd harmonic
+            { mult: 4.0, gain: 0.15, type: 'sine' },      // 4th harmonic
+            { mult: 5.0, gain: 0.1, type: 'sine' },       // 5th harmonic
+            { mult: 6.0, gain: 0.05, type: 'sine' },      // 6th harmonic
+            { mult: 7.0, gain: 0.03, type: 'sine' }       // 7th harmonic
         ];
         
         harmonics.forEach(harmonic => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             
-            osc.type = 'sine';
+            osc.type = harmonic.type;
             osc.frequency.value = frequency * harmonic.mult;
-            gain.gain.value = harmonic.gain * 0.3;
+            gain.gain.value = harmonic.gain * 0.2; // Lower overall volume
             
             osc.connect(gain);
             gain.connect(masterGain);
@@ -110,26 +111,45 @@ function playPianoTone(frequency, startTime, duration) {
             osc.stop(startTime + duration + 0.1);
         });
         
-        // Smooth ADSR envelope
-        const attackTime = 0.005;
-        const decayTime = 0.1;
-        const sustainLevel = 0.3;
-        const releaseTime = 0.05;
+        // Piano-like ADSR envelope
+        const attackTime = 0.002;      // Very fast attack (piano hammer)
+        const decayTime = 0.15;        // Quick decay
+        const sustainLevel = 0.2;      // Low sustain
+        const releaseTime = 0.1;       // Smooth release
         
+        // Attack phase
         masterGain.gain.setValueAtTime(0, startTime);
-        masterGain.gain.linearRampToValueAtTime(0.7, startTime + attackTime);
+        masterGain.gain.linearRampToValueAtTime(1.0, startTime + attackTime);
+        
+        // Decay to sustain
         masterGain.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
+        
+        // Hold sustain
         masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+        
+        // Release to zero
         masterGain.gain.linearRampToValueAtTime(0.0, startTime + duration);
         
-        // Lowpass filter for warmth
+        // Lowpass filter for warmer piano tone
         const filter = ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = 3000;
-        filter.Q.value = 1;
+        filter.frequency.setValueAtTime(3500, startTime);
+        filter.frequency.exponentialRampToValueAtTime(2000, startTime + duration);
+        filter.Q.value = 0.5;
+        
+        // Add slight reverb with delay
+        const delay = ctx.createDelay();
+        delay.delayTime.value = 0.03;
+        const delayGain = ctx.createGain();
+        delayGain.gain.value = 0.15;
         
         masterGain.connect(filter);
         filter.connect(ctx.destination);
+        
+        // Subtle delay for depth
+        filter.connect(delay);
+        delay.connect(delayGain);
+        delayGain.connect(ctx.destination);
         
         console.log('♫', Math.round(frequency), 'Hz');
     } catch (e) {
