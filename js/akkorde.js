@@ -150,7 +150,11 @@ function checkAkkord(answer) {
     displayChord('notation-akkord', currentAkkord.notes);
     
     updateAkkordStats();
-    document.getElementById('next-akkord').style.display = 'block';
+    
+    // Show next button immediately
+    const nextBtn = document.getElementById('next-akkord');
+    nextBtn.style.display = 'block';
+    nextBtn.textContent = 'Nächster Akkord →';
 }
 
 function getAkkordShort(fullName) {

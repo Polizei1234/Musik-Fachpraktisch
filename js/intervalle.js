@@ -177,7 +177,11 @@ function checkIntervall(answer) {
     displayInterval('notation-intervall', currentIntervall.baseNote, currentIntervall.secondNote);
     
     updateIntervallStats();
-    document.getElementById('next-intervall').style.display = 'block';
+    
+    // Show next button immediately
+    const nextBtn = document.getElementById('next-intervall');
+    nextBtn.style.display = 'block';
+    nextBtn.textContent = 'Nächstes Intervall →';
 }
 
 function getShortName(fullName) {

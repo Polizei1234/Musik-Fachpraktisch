@@ -1,9 +1,10 @@
 // Main App Logic
 
 function startExercise(type) {
-    // Stop Vanessa background music when leaving home
+    // STOP Vanessa background music when entering exercises
     if (typeof stopVanessaBgMusic === 'function') {
         stopVanessaBgMusic();
+        console.log('Stopped background music for exercise');
     }
     
     // Hide all screens
