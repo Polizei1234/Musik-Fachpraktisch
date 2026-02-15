@@ -58,18 +58,18 @@ body[data-theme="light"] {
     --border: #e0e0e0;
 }
 
-/* Besch Theme (Vanessa Modus) - ALLES IN BESCH! 💖 */
+/* Besch Theme (Vanessa Modus) - BEIGE! 🟤 */
 body[data-theme="besch"] {
-    --bg-primary: #fff0f5;
-    --bg-secondary: #ffe4e9;
-    --bg-card: #ffd4dd;
-    --text-primary: #5c0a3d;
-    --text-secondary: #8b1454;
-    --accent: #ff69b4;
-    --accent-hover: #ff1493;
-    --success: #ff85b3;
-    --error: #dc143c;
-    --border: #ffb6c1;
+    --bg-primary: #f5e6d3;
+    --bg-secondary: #ead5bb;
+    --bg-card: #dfc4a3;
+    --text-primary: #3d2817;
+    --text-secondary: #6b4423;
+    --accent: #c19a6b;
+    --accent-hover: #a67c52;
+    --success: #d4af7a;
+    --error: #c85a54;
+    --border: #d4af7a;
 }
 
 /* Pastel Pink */
@@ -259,8 +259,8 @@ strong {
 }
 
 .besch-preview {
-    background: linear-gradient(135deg, #fff0f5 0%, #ffd4dd 100%);
-    border-color: #ffb6c1;
+    background: linear-gradient(135deg, #f5e6d3 0%, #dfc4a3 100%);
+    border-color: #c19a6b;
 }
 
 .pastel-pink-preview {
@@ -326,11 +326,11 @@ body[data-theme="light"] .warning-box {
 }
 
 body[data-theme="besch"] .warning-box {
-    background: #ffe4f0;
-    border-color: #ff69b4;
-    color: #8b1454;
+    background: #f0e5d8;
+    border-color: #c19a6b;
+    color: #6b4423;
 }
 
 body[data-theme="besch"] .warning-box strong {
-    color: #ff1493;
+    color: #3d2817;
 }
