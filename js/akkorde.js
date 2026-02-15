@@ -60,8 +60,8 @@ function generateNewAkkord() {
     // Random akkord
     const akkord = akkorde[Math.floor(Math.random() * akkorde.length)];
     
-    // Random starting note (C2 to B3 range to ensure all notes fit)
-    const startNote = getRandomNote('C2', 'B3');
+    // Random starting note (C3 to C5 range to ensure all notes fit)
+    const startNote = getRandomNote('C3', 'C5');
     const notes = akkord.intervals.map(interval => getNoteByInterval(startNote, interval));
     
     // Ensure all notes are valid

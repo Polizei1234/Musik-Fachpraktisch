@@ -101,8 +101,28 @@ async function playNoteSequence(notes, gap = 0.15) {
     return new Promise(resolve => setTimeout(resolve, totalDuration));
 }
 
+// Play rhythm pattern (single pitch)
+async function playRhythmPattern(pattern, pitch = 'C4') {
+    const now = audioContext.currentTime;
+    let currentTime = now + 0.05;
+    const beatDuration = 60 / 60; // Quarter note at 60 BPM = 1 second
+    
+    const freq = noteFrequencies[pitch];
+    if (!freq) return;
+    
+    for (const note of pattern) {
+        if (note.duration > 0) {
+            playPianoNote(freq, currentTime, note.duration * beatDuration * 0.8);
+        }
+        currentTime += note.duration * beatDuration;
+    }
+    
+    const totalDuration = (currentTime - now) * 1000;
+    return new Promise(resolve => setTimeout(resolve, totalDuration));
+}
+
 // Get a random note within range
-function getRandomNote(minNote = 'C2', maxNote = 'C5') {
+function getRandomNote(minNote = 'C3', maxNote = 'C6') {
     const minIndex = allNotes.indexOf(minNote);
     const maxIndex = allNotes.indexOf(maxNote);
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));

@@ -37,8 +37,8 @@ function generateNewIntervall() {
     // Random intervall
     const intervall = intervalle[Math.floor(Math.random() * intervalle.length)];
     
-    // Random starting note (C2 to C4 range)
-    const startNote = getRandomNote('C2', 'C4');
+    // Random starting note (C3 to C6 range)
+    const startNote = getRandomNote('C3', 'C5');
     const endNote = getNoteByInterval(startNote, intervall.semitones);
     
     // Ensure end note is valid
