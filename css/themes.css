@@ -1,0 +1,221 @@
+/* Theme System */
+:root {
+    /* Default Dark Theme */
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-card: #0f3460;
+    --text-primary: #eaeaea;
+    --text-secondary: #a8a8a8;
+    --accent: #e94560;
+    --accent-hover: #c23b52;
+    --success: #4caf50;
+    --error: #f44336;
+    --border: #2a2a4e;
+}
+
+/* Light Theme */
+body[data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-card: #fafafa;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --accent: #2196F3;
+    --accent-hover: #1976D2;
+    --success: #4caf50;
+    --error: #f44336;
+    --border: #e0e0e0;
+}
+
+/* Besch Theme (Vanessa Modus) - Pink/Rose Gold */
+body[data-theme="besch"] {
+    --bg-primary: #fff0f5;
+    --bg-secondary: #ffe4e9;
+    --bg-card: #ffd4dd;
+    --text-primary: #5c0a3d;
+    --text-secondary: #8b1454;
+    --accent: #ff69b4;
+    --accent-hover: #ff1493;
+    --success: #ff85b3;
+    --error: #dc143c;
+    --border: #ffb6c1;
+}
+
+/* Pastel Pink */
+body[data-theme="pastel-pink"] {
+    --bg-primary: #ffe5ec;
+    --bg-secondary: #ffccd5;
+    --bg-card: #ffb3c1;
+    --text-primary: #3d1e1e;
+    --text-secondary: #6b3939;
+    --accent: #ff6b9d;
+    --accent-hover: #ff4d88;
+    --success: #ff85ad;
+    --error: #ff3366;
+    --border: #ffabc4;
+}
+
+/* Pastel Blue */
+body[data-theme="pastel-blue"] {
+    --bg-primary: #e3f2fd;
+    --bg-secondary: #bbdefb;
+    --bg-card: #90caf9;
+    --text-primary: #1a237e;
+    --text-secondary: #3949ab;
+    --accent: #42a5f5;
+    --accent-hover: #1e88e5;
+    --success: #66bb6a;
+    --error: #ef5350;
+    --border: #64b5f6;
+}
+
+/* Pastel Green */
+body[data-theme="pastel-green"] {
+    --bg-primary: #e8f5e9;
+    --bg-secondary: #c8e6c9;
+    --bg-card: #a5d6a7;
+    --text-primary: #1b5e20;
+    --text-secondary: #388e3c;
+    --accent: #66bb6a;
+    --accent-hover: #4caf50;
+    --success: #81c784;
+    --error: #ef5350;
+    --border: #81c784;
+}
+
+/* Pastel Purple */
+body[data-theme="pastel-purple"] {
+    --bg-primary: #f3e5f5;
+    --bg-secondary: #e1bee7;
+    --bg-card: #ce93d8;
+    --text-primary: #4a148c;
+    --text-secondary: #6a1b9a;
+    --accent: #ab47bc;
+    --accent-hover: #8e24aa;
+    --success: #ba68c8;
+    --error: #ef5350;
+    --border: #ba68c8;
+}
+
+/* Pastel Orange */
+body[data-theme="pastel-orange"] {
+    --bg-primary: #fff3e0;
+    --bg-secondary: #ffe0b2;
+    --bg-card: #ffcc80;
+    --text-primary: #e65100;
+    --text-secondary: #f57c00;
+    --accent: #ff9800;
+    --accent-hover: #fb8c00;
+    --success: #ffb74d;
+    --error: #ef5350;
+    --border: #ffb74d;
+}
+
+/* Theme Grid */
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.theme-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    border-color: var(--accent);
+}
+
+.theme-preview {
+    width: 100px;
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+}
+
+/* Theme Previews */
+.dark-preview {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+}
+
+.light-preview {
+    background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+    border-color: #ccc;
+}
+
+.besch-preview {
+    background: linear-gradient(135deg, #fff0f5 0%, #ffd4dd 100%);
+    border-color: #ffb6c1;
+}
+
+.pastel-pink-preview {
+    background: linear-gradient(135deg, #ffe5ec 0%, #ffb3c1 100%);
+    border-color: #ffabc4;
+}
+
+.pastel-blue-preview {
+    background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%);
+    border-color: #64b5f6;
+}
+
+.pastel-green-preview {
+    background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
+    border-color: #81c784;
+}
+
+.pastel-purple-preview {
+    background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
+    border-color: #ba68c8;
+}
+
+.pastel-orange-preview {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+    border-color: #ffb74d;
+}
+
+.theme-btn span {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: center;
+}
+
+.settings-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+}
+
+/* Warning Box */
+.warning-box {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #856404;
+}
+
+.warning-box strong {
+    color: #d39e00;
+}
+
+body[data-theme="dark"] .warning-box {
+    background: #4a3c1f;
+    border-color: #ffc107;
+    color: #ffd54f;
+}
+
+body[data-theme="dark"] .warning-box strong {
+    color: #ffeb3b;
+}

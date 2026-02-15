@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Musik Fachpraktisch - Gehörbildung</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
     <div id="app">
@@ -38,6 +39,70 @@
                         <h2>Rhythmusdiktat</h2>
                         <p>4 Takte, 4/4-Takt</p>
                     </button>
+                    
+                    <button class="exercise-card settings-card" onclick="openSettings()">
+                        <div class="card-icon">⚙️</div>
+                        <h2>Einstellungen</h2>
+                        <p>Theme anpassen</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Einstellungen -->
+        <div id="settings-screen" class="screen">
+            <div class="container">
+                <button class="back-button" onclick="goHome()">← Zurück</button>
+                
+                <h1>⚙️ Einstellungen</h1>
+                
+                <div class="exercise-area">
+                    <h2>Theme auswählen</h2>
+                    <div class="theme-grid">
+                        <button class="theme-btn" onclick="setTheme('dark')">
+                            <div class="theme-preview dark-preview"></div>
+                            <span>Dunkel</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('light')">
+                            <div class="theme-preview light-preview"></div>
+                            <span>Hell</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('besch')">
+                            <div class="theme-preview besch-preview"></div>
+                            <span>Besch (Vanessa Modus)</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('pastel-pink')">
+                            <div class="theme-preview pastel-pink-preview"></div>
+                            <span>Pastell Rosa</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('pastel-blue')">
+                            <div class="theme-preview pastel-blue-preview"></div>
+                            <span>Pastell Blau</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('pastel-green')">
+                            <div class="theme-preview pastel-green-preview"></div>
+                            <span>Pastell Grün</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('pastel-purple')">
+                            <div class="theme-preview pastel-purple-preview"></div>
+                            <span>Pastell Lila</span>
+                        </button>
+                        
+                        <button class="theme-btn" onclick="setTheme('pastel-orange')">
+                            <div class="theme-preview pastel-orange-preview"></div>
+                            <span>Pastell Orange</span>
+                        </button>
+                    </div>
+                    
+                    <p style="margin-top: 30px; text-align: center; color: var(--text-secondary);">
+                        <em>Deine Auswahl wird gespeichert</em>
+                    </p>
                 </div>
             </div>
         </div>
@@ -154,6 +219,10 @@
                 </div>
 
                 <div class="exercise-area">
+                    <div class="warning-box">
+                        <p><strong>⚠️ Hinweis:</strong> Das Melodiediktat funktioniert aktuell noch nicht vollständig korrekt. Die Rhythmen und Töne entsprechen möglicherweise nicht den exakten BW-Vorgaben. Bitte verwende diese Übung mit Vorsicht und vergleiche mit anderen Quellen!</p>
+                    </div>
+                    
                     <div class="info-box">
                         <p><strong>Tonart:</strong> <span id="melodie-tonart"></span></p>
                         <p><strong>Anfangston:</strong> <span id="melodie-startton"></span></p>
@@ -224,6 +293,7 @@
     <script src="js/akkorde.js"></script>
     <script src="js/melodie.js"></script>
     <script src="js/rhythmus.js"></script>
+    <script src="js/themes.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
