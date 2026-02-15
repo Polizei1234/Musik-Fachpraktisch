@@ -2,31 +2,31 @@
 
 const akkorde = [
     { 
-        name: 'Dur (Grundstellung)', 
+        name: 'Dur8', 
         intervals: [0, 4, 7, 12]  // Root, major third, fifth, octave
     },
     { 
-        name: 'Dur mit großer Septime', 
+        name: 'Dmaj7', 
         intervals: [0, 4, 7, 11]  // Root, major third, fifth, major seventh
     },
     { 
-        name: 'Dur mit kleiner Septime', 
+        name: 'D7', 
         intervals: [0, 4, 7, 10]  // Root, major third, fifth, minor seventh
     },
     { 
-        name: 'Dur mit Sexte', 
+        name: 'D56', 
         intervals: [0, 4, 7, 9]  // Root, major third, fifth, sixth
     },
     { 
-        name: 'Moll (Grundstellung)', 
+        name: 'Moll8', 
         intervals: [0, 3, 7, 12]  // Root, minor third, fifth, octave
     },
     { 
-        name: 'Moll mit kleiner Septime', 
+        name: 'Moll7', 
         intervals: [0, 3, 7, 10]  // Root, minor third, fifth, minor seventh
     },
     { 
-        name: 'Moll mit Sexte', 
+        name: 'Moll56', 
         intervals: [0, 3, 7, 9]  // Root, minor third, fifth, sixth
     },
     { 
