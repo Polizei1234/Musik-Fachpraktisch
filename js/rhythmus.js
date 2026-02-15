@@ -5,6 +5,7 @@
 let currentRhythmus = null;
 let rhythmusStats = { correct: 0, wrong: 0, total: 0 };
 let hasPlayedRhythmus = false;
+let rhythmusPlaybackStep = 0;
 
 function initRhythmus() {
     rhythmusStats = { correct: 0, wrong: 0, total: 0 };
@@ -14,6 +15,7 @@ function initRhythmus() {
 
 function generateNewRhythmus() {
     hasPlayedRhythmus = false;
+    rhythmusPlaybackStep = 0;
     
     // Generate 4 bars of rhythm with Synkopen, Triolen, Punktierungen
     const bars = [];
@@ -35,7 +37,8 @@ function generateNewRhythmus() {
     document.getElementById('check-rhythmus').style.display = 'none';
     document.getElementById('next-rhythmus').style.display = 'none';
     document.getElementById('play-rhythmus').disabled = false;
-    document.getElementById('replay-rhythmus').disabled = true;
+    document.getElementById('continue-rhythmus').style.display = 'none';
+    document.getElementById('continue-rhythmus').disabled = false;
     
     // Clear input
     document.getElementById('rhythmus-input').value = '';
@@ -70,44 +73,74 @@ async function playRhythmus() {
     if (!currentRhythmus) return;
     
     const playBtn = document.getElementById('play-rhythmus');
-    const replayBtn = document.getElementById('replay-rhythmus');
+    const continueBtn = document.getElementById('continue-rhythmus');
     
     playBtn.disabled = true;
-    replayBtn.disabled = true;
+    continueBtn.disabled = true;
     
-    // Play according to official dictation mode:
-    // Bars 1-4, then 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, then 1-4
-    
-    // First: All 4 bars
-    await playRhythmPattern(currentRhythmus.pattern, 'C4');
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Then each bar 3 times with "drei, vier" countdown
-    for (let barIndex = 0; barIndex < 4; barIndex++) {
-        for (let repeat = 0; repeat < 3; repeat++) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            await playRhythmPattern(currentRhythmus.bars[barIndex], 'C4');
-        }
-    }
-    
-    // Finally: All 4 bars again
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    await playRhythmPattern(currentRhythmus.pattern, 'C4');
-    
-    if (!hasPlayedRhythmus) {
-        document.getElementById('check-rhythmus').style.display = 'block';
-        document.getElementById('rhythmus-input').disabled = false;
-        hasPlayedRhythmus = true;
+    try {
+        rhythmusPlaybackStep = 0;
+        
+        // Play all 4 bars first time
+        await playRhythmPattern(currentRhythmus.pattern, 'C4');
+        
+        rhythmusPlaybackStep = 1;
+        continueBtn.style.display = 'inline-block';
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Takt 1 (3x) ▶';
+        
+    } catch (error) {
+        console.error('Error playing rhythm:', error);
     }
     
     playBtn.disabled = false;
-    replayBtn.disabled = false;
+}
+
+async function continueRhythmus() {
+    if (!currentRhythmus) return;
+    
+    const continueBtn = document.getElementById('continue-rhythmus');
+    continueBtn.disabled = true;
+    
+    try {
+        // Steps 1-4: Play each bar 3 times
+        if (rhythmusPlaybackStep >= 1 && rhythmusPlaybackStep <= 4) {
+            const barIndex = rhythmusPlaybackStep - 1;
+            
+            for (let repeat = 0; repeat < 3; repeat++) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await playRhythmPattern(currentRhythmus.bars[barIndex], 'C4');
+            }
+            
+            rhythmusPlaybackStep++;
+            
+            if (rhythmusPlaybackStep <= 4) {
+                continueBtn.textContent = `Takt ${rhythmusPlaybackStep} (3x) ▶`;
+            } else {
+                continueBtn.textContent = 'Alle 4 Takte ▶';
+            }
+        }
+        // Step 5: Play all 4 bars again
+        else if (rhythmusPlaybackStep === 5) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            await playRhythmPattern(currentRhythmus.pattern, 'C4');
+            
+            continueBtn.style.display = 'none';
+            document.getElementById('check-rhythmus').style.display = 'block';
+            document.getElementById('rhythmus-input').disabled = false;
+            hasPlayedRhythmus = true;
+        }
+        
+    } catch (error) {
+        console.error('Error continuing rhythm:', error);
+    }
+    
+    continueBtn.disabled = false;
 }
 
 function checkRhythmus() {
     if (!hasPlayedRhythmus) return;
     
-    // This is a simplified check - in reality, would need rhythm notation parsing
     const feedback = document.getElementById('rhythmus-feedback');
     const input = document.getElementById('rhythmus-input').value;
     
