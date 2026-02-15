@@ -11,6 +11,17 @@
     <!-- Settings Button (fixed top-right) -->
     <button class="settings-button" onclick="openSettings()" title="Einstellungen">⚙️</button>
     
+    <!-- Audio elements for Vanessa Mode -->
+    <audio id="vanessa-bg-music" loop>
+        <source src="audio/river-flows.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="vanessa-correct">
+        <source src="audio/clap.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="vanessa-wrong">
+        <source src="audio/boo.mp3" type="audio/mpeg">
+    </audio>
+    
     <div id="app">
         <!-- Willkommensbildschirm -->
         <div id="welcome-screen" class="screen active">
@@ -68,7 +79,7 @@
                         
                         <button class="theme-btn" onclick="setTheme('besch')">
                             <div class="theme-preview besch-preview"></div>
-                            <span>💖 Vanessa Modus 💖</span>
+                            <span>Vanessa Modus</span>
                         </button>
                         
                         <button class="theme-btn" onclick="setTheme('pastel-pink')">
@@ -222,7 +233,7 @@
                     
                     <div class="info-box">
                         <p><strong>Tonart:</strong> <span id="melodie-tonart"></span></p>
-                        <strong>Anfangston:</strong> <span id="melodie-startton"></span></p>
+                        <p><strong>Anfangston:</strong> <span id="melodie-startton"></span></p>
                         <p><em>Notiere die Melodie auf Notenpapier!</em></p>
                     </div>
 
@@ -291,6 +302,7 @@
     <script src="js/melodie.js"></script>
     <script src="js/rhythmus.js"></script>
     <script src="js/themes.js"></script>
+    <script src="js/vanessa-sounds.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
