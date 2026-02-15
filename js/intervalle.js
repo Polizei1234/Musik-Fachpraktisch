@@ -1,71 +1,82 @@
-// Intervall Exercise Logic
+// Intervall-Übung nach BW-Richtlinien
+// Tonraum: g bis g2 (G3 bis G5)
+// k2, g2, k3, g3, r4, Tritonus, r5, k6, g6, k7, g7, r8
+// Diktiermodus: Erst einzeln (nicht liegen lassen), dann zusammen (jeweils einmal)
 
 const intervalle = [
-    { name: 'Prime', semitones: 0 },
-    { name: 'Kleine Sekunde', semitones: 1 },
-    { name: 'Große Sekunde', semitones: 2 },
-    { name: 'Kleine Terz', semitones: 3 },
-    { name: 'Große Terz', semitones: 4 },
-    { name: 'Quarte', semitones: 5 },
-    { name: 'Tritonus', semitones: 6 },
-    { name: 'Quinte', semitones: 7 },
-    { name: 'Kleine Sexte', semitones: 8 },
-    { name: 'Große Sexte', semitones: 9 },
-    { name: 'Kleine Septime', semitones: 10 },
-    { name: 'Große Septime', semitones: 11 },
-    { name: 'Oktave', semitones: 12 }
+    { name: 'Kleine Sekunde', semitones: 1, short: 'k2' },
+    { name: 'Große Sekunde', semitones: 2, short: 'g2' },
+    { name: 'Kleine Terz', semitones: 3, short: 'k3' },
+    { name: 'Große Terz', semitones: 4, short: 'g3' },
+    { name: 'Reine Quarte', semitones: 5, short: 'r4' },
+    { name: 'Tritonus', semitones: 6, short: 'Tritonus' },
+    { name: 'Reine Quinte', semitones: 7, short: 'r5' },
+    { name: 'Kleine Sexte', semitones: 8, short: 'k6' },
+    { name: 'Große Sexte', semitones: 9, short: 'g6' },
+    { name: 'Kleine Septime', semitones: 10, short: 'k7' },
+    { name: 'Große Septime', semitones: 11, short: 'g7' },
+    { name: 'Reine Oktave', semitones: 12, short: 'r8' }
 ];
 
 let currentIntervall = null;
 let intervallStats = { correct: 0, wrong: 0, total: 0 };
-let hasPlayed = false;
-let hasAnswered = false;
+let hasPlayedIntervall = false;
 
 function initIntervalle() {
-    // Reset stats
     intervallStats = { correct: 0, wrong: 0, total: 0 };
     updateIntervallStats();
-    
-    // Generate new intervall
     generateNewIntervall();
 }
 
 function generateNewIntervall() {
-    hasPlayed = false;
-    hasAnswered = false;
+    hasPlayedIntervall = false;
     
-    // Random intervall
+    // Random interval
     const intervall = intervalle[Math.floor(Math.random() * intervalle.length)];
     
-    // Random starting note (C3 to C6 range)
-    const startNote = getRandomNote('C3', 'C5');
-    const endNote = getNoteByInterval(startNote, intervall.semitones);
+    // Random base note in range g (G3) to g2 (G5)
+    // But ensure second note doesn't exceed g2
+    const minIndex = allNotes.indexOf('G3');
+    const maxIndex = allNotes.indexOf('G5') - intervall.semitones;
     
-    // Ensure end note is valid
-    if (!endNote) {
+    if (maxIndex < minIndex) {
+        // Interval too large for this range, use smaller interval
+        generateNewIntervall();
+        return;
+    }
+    
+    const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
+    const baseNote = allNotes[randomIndex];
+    const secondNote = getNoteByInterval(baseNote, intervall.semitones);
+    
+    if (!secondNote) {
+        // Skip if note out of range
         generateNewIntervall();
         return;
     }
     
     currentIntervall = {
         name: intervall.name,
-        notes: [startNote, endNote]
+        short: intervall.short,
+        baseNote: baseNote,
+        secondNote: secondNote,
+        semitones: intervall.semitones
     };
     
-    // Clear notation
+    // Clear previous notation
     clearNotation('notation-intervall');
     
     // Reset UI
-    document.getElementById('intervall-answer-section').style.display = 'none';
     document.getElementById('intervall-feedback').classList.remove('show', 'correct', 'wrong');
     document.getElementById('next-intervall').style.display = 'none';
+    document.getElementById('intervall-answer-section').style.display = 'none';
     document.getElementById('play-intervall').disabled = false;
     document.getElementById('replay-intervall').disabled = true;
     
     // Reset answer buttons
-    document.querySelectorAll('#intervalle-screen .answer-btn').forEach(btn => {
-        btn.classList.remove('correct', 'wrong');
+    document.querySelectorAll('#intervall-answer-section .answer-btn').forEach(btn => {
         btn.disabled = false;
+        btn.classList.remove('correct', 'wrong');
     });
 }
 
@@ -78,58 +89,88 @@ async function playIntervall() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    // Play notes sequentially, then together
-    const [note1, note2] = currentIntervall.notes;
-    await playNoteSequence([note1, note2, [note1, note2]]);
+    // Play according to BW guidelines:
+    // 1. First note (not held)
+    // 2. Second note (not held)
+    // 3. Both notes together (once)
     
-    // Show answer section after first play
-    if (!hasPlayed) {
-        document.getElementById('intervall-answer-section').style.display = 'block';
-        hasPlayed = true;
+    try {
+        // Play first note
+        await playNoteSequence([currentIntervall.baseNote], 0.3);
+        
+        // Short pause
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Play second note
+        await playNoteSequence([currentIntervall.secondNote], 0.3);
+        
+        // Short pause
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Play both together
+        await playNoteSequence([[currentIntervall.baseNote, currentIntervall.secondNote]], 0.1);
+        
+    } catch (error) {
+        console.error('Error playing interval:', error);
     }
     
-    playBtn.disabled = hasAnswered;
+    if (!hasPlayedIntervall) {
+        document.getElementById('intervall-answer-section').style.display = 'block';
+        hasPlayedIntervall = true;
+    }
+    
+    playBtn.disabled = false;
     replayBtn.disabled = false;
 }
 
 function checkIntervall(answer) {
-    if (!hasPlayed || hasAnswered) return;
+    if (!hasPlayedIntervall) return;
     
-    hasAnswered = true;
+    const feedback = document.getElementById('intervall-feedback');
+    const buttons = document.querySelectorAll('#intervall-answer-section .answer-btn');
+    
+    // Disable all buttons
+    buttons.forEach(btn => btn.disabled = true);
+    
     intervallStats.total++;
     
-    const isCorrect = answer === currentIntervall.name;
-    const feedback = document.getElementById('intervall-feedback');
-    
-    if (isCorrect) {
+    if (answer === currentIntervall.name) {
         intervallStats.correct++;
-        feedback.textContent = `✅ Richtig! Das war ${currentIntervall.name}.`;
+        feedback.textContent = `✅ Richtig! Das war ${currentIntervall.short}.`;
         feedback.className = 'feedback show correct';
+        
+        // Highlight correct button
+        buttons.forEach(btn => {
+            if (btn.textContent === answer) {
+                btn.classList.add('correct');
+            }
+        });
     } else {
         intervallStats.wrong++;
-        feedback.textContent = `❌ Leider falsch. Das war ${currentIntervall.name}, nicht ${answer}.`;
+        feedback.textContent = `❌ Falsch! Das war ${currentIntervall.short}, nicht ${getShortName(answer)}.`;
         feedback.className = 'feedback show wrong';
+        
+        // Highlight wrong and correct buttons
+        buttons.forEach(btn => {
+            if (btn.textContent === answer) {
+                btn.classList.add('wrong');
+            }
+            if (btn.textContent === currentIntervall.name) {
+                btn.classList.add('correct');
+            }
+        });
     }
     
-    // Highlight correct answer
-    document.querySelectorAll('#intervalle-screen .answer-btn').forEach(btn => {
-        btn.disabled = true;
-        if (btn.textContent === currentIntervall.name) {
-            btn.classList.add('correct');
-        } else if (btn.textContent === answer && !isCorrect) {
-            btn.classList.add('wrong');
-        }
-    });
+    // Show notation after answer
+    displayInterval('notation-intervall', currentIntervall.baseNote, currentIntervall.secondNote);
     
-    // Show notation
-    displayNotes('notation-intervall', currentIntervall.notes);
-    
-    // Show next button and disable play button
-    document.getElementById('next-intervall').style.display = 'block';
-    document.getElementById('play-intervall').disabled = true;
-    
-    // Update stats
     updateIntervallStats();
+    document.getElementById('next-intervall').style.display = 'block';
+}
+
+function getShortName(fullName) {
+    const interval = intervalle.find(i => i.name === fullName);
+    return interval ? interval.short : fullName;
 }
 
 function nextIntervall() {
