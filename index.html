@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
+    <!-- Settings Button (fixed top-right) -->
+    <button class="settings-button" onclick="openSettings()" title="Einstellungen">⚙️</button>
+    
     <div id="app">
         <!-- Willkommensbildschirm -->
         <div id="welcome-screen" class="screen active">
@@ -39,12 +42,6 @@
                         <h2>Rhythmusdiktat</h2>
                         <p>4 Takte, 4/4-Takt</p>
                     </button>
-                    
-                    <button class="exercise-card settings-card" onclick="openSettings()">
-                        <div class="card-icon">⚙️</div>
-                        <h2>Einstellungen</h2>
-                        <p>Theme anpassen</p>
-                    </button>
                 </div>
             </div>
         </div>
@@ -71,7 +68,7 @@
                         
                         <button class="theme-btn" onclick="setTheme('besch')">
                             <div class="theme-preview besch-preview"></div>
-                            <span>Besch (Vanessa Modus)</span>
+                            <span>💖 Besch (Vanessa Modus) 💖</span>
                         </button>
                         
                         <button class="theme-btn" onclick="setTheme('pastel-pink')">
@@ -101,7 +98,7 @@
                     </div>
                     
                     <p style="margin-top: 30px; text-align: center; color: var(--text-secondary);">
-                        <em>Deine Auswahl wird gespeichert</em>
+                        <em>✨ Deine Auswahl wird automatisch gespeichert ✨</em>
                     </p>
                 </div>
             </div>

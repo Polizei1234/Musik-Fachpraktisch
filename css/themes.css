@@ -1,6 +1,30 @@
-/* Theme System */
+/* Theme System - Applied to EVERYTHING */
+
+/* Fixed Settings Button (top-right) */
+.settings-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.settings-button:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: var(--accent-hover);
+}
+
+/* Default Dark Theme */
 :root {
-    /* Default Dark Theme */
     --bg-primary: #1a1a2e;
     --bg-secondary: #16213e;
     --bg-card: #0f3460;
@@ -11,6 +35,13 @@
     --success: #4caf50;
     --error: #f44336;
     --border: #2a2a4e;
+}
+
+/* Apply theme colors to body */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 /* Light Theme */
@@ -27,7 +58,7 @@ body[data-theme="light"] {
     --border: #e0e0e0;
 }
 
-/* Besch Theme (Vanessa Modus) - Pink/Rose Gold */
+/* Besch Theme (Vanessa Modus) - ALLES IN BESCH! 💖 */
 body[data-theme="besch"] {
     --bg-primary: #fff0f5;
     --bg-secondary: #ffe4e9;
@@ -111,6 +142,73 @@ body[data-theme="pastel-orange"] {
     --border: #ffb74d;
 }
 
+/* Apply theme to ALL elements */
+.container {
+    background: var(--bg-secondary);
+}
+
+.exercise-card,
+.theme-btn,
+.info-box,
+.stats-bar,
+.answer-section,
+.controls {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--accent);
+}
+
+.answer-btn {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.answer-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+}
+
+.back-button {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.back-button:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+h1, h2, h3 {
+    color: var(--text-primary);
+}
+
+p, span, em {
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+}
+
 /* Theme Grid */
 .theme-grid {
     display: grid;
@@ -136,6 +234,11 @@ body[data-theme="pastel-orange"] {
     transform: translateY(-5px);
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     border-color: var(--accent);
+}
+
+.theme-btn.active {
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 20px var(--accent);
 }
 
 .theme-preview {
@@ -191,11 +294,6 @@ body[data-theme="pastel-orange"] {
     text-align: center;
 }
 
-.settings-card {
-    background: var(--bg-card);
-    border: 2px solid var(--border);
-}
-
 /* Warning Box */
 .warning-box {
     background: #fff3cd;
@@ -210,6 +308,7 @@ body[data-theme="pastel-orange"] {
     color: #d39e00;
 }
 
+/* Warning Box in different themes */
 body[data-theme="dark"] .warning-box {
     background: #4a3c1f;
     border-color: #ffc107;
@@ -218,4 +317,20 @@ body[data-theme="dark"] .warning-box {
 
 body[data-theme="dark"] .warning-box strong {
     color: #ffeb3b;
+}
+
+body[data-theme="light"] .warning-box {
+    background: #fff9e6;
+    border-color: #ffb300;
+    color: #664d00;
+}
+
+body[data-theme="besch"] .warning-box {
+    background: #ffe4f0;
+    border-color: #ff69b4;
+    color: #8b1454;
+}
+
+body[data-theme="besch"] .warning-box strong {
+    color: #ff1493;
 }
