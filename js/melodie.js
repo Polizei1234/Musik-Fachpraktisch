@@ -93,8 +93,9 @@ function generateMelodyBars(tonart, startNote) {
     
     // 16 quarter notes for 4 bars in 4/4
     for (let i = 0; i < 16; i++) {
-        // Move to a nearby scale tone
-        const step = Math.floor(Math.random() * 7) - 3; // -3 to +3 scale steps
+        // More interesting intervals - larger leaps
+        const possibleSteps = [-7, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 7]; // Bigger jumps
+        const step = possibleSteps[Math.floor(Math.random() * possibleSteps.length)];
         
         let newIndex = currentIndex + step;
         

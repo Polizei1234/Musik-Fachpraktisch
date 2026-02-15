@@ -63,23 +63,34 @@ function generateNewRhythmus() {
 
 function generateRhythmBar() {
     const patterns = [
-        // Synkopen (Syncopation) - muss 4 Schläge ergeben
-        [{duration: 0.5}, {duration: 1}, {duration: 0.5}, {duration: 1}, {duration: 0.5}, {duration: 0.5}],
-        [{duration: 0.25}, {duration: 0.25}, {duration: 1.5}, {duration: 1}, {duration: 1}],
+        // SCHWIERIGE SYNKOPEN (Syncopation)
+        [{duration: 0.25}, {duration: 0.75}, {duration: 1}, {duration: 0.5}, {duration: 0.5}, {duration: 1}],
+        [{duration: 0.5}, {duration: 1.5}, {duration: 0.25}, {duration: 0.25}, {duration: 1.5}],
+        [{duration: 1}, {duration: 0.25}, {duration: 1.25}, {duration: 0.5}, {duration: 1}],
+        [{duration: 0.25}, {duration: 1.25}, {duration: 0.5}, {duration: 1}, {duration: 1}],
+        [{duration: 1.5}, {duration: 0.25}, {duration: 0.25}, {duration: 1}, {duration: 1}],
         
-        // Triolen (Triplets)
-        [{duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 1}, {duration: 1}, {duration: 1}],
-        [{duration: 1}, {duration: 2/3}, {duration: 2/3}, {duration: 2/3}, {duration: 1}],
+        // KOMPLEXE TRIOLEN (Triplets)
+        [{duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 2/3}, {duration: 2/3}, {duration: 2/3}, {duration: 1}],
+        [{duration: 2/3}, {duration: 1/3}, {duration: 1}, {duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 1}],
+        [{duration: 1}, {duration: 1/3}, {duration: 2/3}, {duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 1}],
+        [{duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 1}, {duration: 2/3}, {duration: 2/3}, {duration: 2/3}],
         
-        // Punktierungen (Dotted notes)
-        [{duration: 1.5}, {duration: 0.5}, {duration: 1}, {duration: 1}],
-        [{duration: 1}, {duration: 0.75}, {duration: 0.25}, {duration: 1}, {duration: 1}],
-        [{duration: 0.75}, {duration: 0.25}, {duration: 0.75}, {duration: 0.25}, {duration: 1}, {duration: 1}],
+        // KOMPLEXE PUNKTIERUNGEN (Dotted notes)
+        [{duration: 0.75}, {duration: 0.25}, {duration: 0.75}, {duration: 0.25}, {duration: 0.75}, {duration: 0.25}, {duration: 1}],
+        [{duration: 1.5}, {duration: 0.25}, {duration: 0.25}, {duration: 0.5}, {duration: 1.5}],
+        [{duration: 0.75}, {duration: 0.25}, {duration: 1}, {duration: 0.75}, {duration: 0.25}, {duration: 1}],
+        [{duration: 1}, {duration: 0.75}, {duration: 0.25}, {duration: 0.75}, {duration: 0.25}, {duration: 1}],
         
-        // Mixed patterns
-        [{duration: 0.5}, {duration: 0.5}, {duration: 1.5}, {duration: 0.5}, {duration: 1}],
-        [{duration: 1}, {duration: 0.5}, {duration: 1}, {duration: 0.5}, {duration: 1}],
-        [{duration: 0.25}, {duration: 0.25}, {duration: 0.5}, {duration: 1}, {duration: 1}, {duration: 1}]
+        // SYNKOPEN MIT TRIOLEN GEMISCHT
+        [{duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 0.5}, {duration: 1.5}, {duration: 1}],
+        [{duration: 1.5}, {duration: 1/3}, {duration: 1/3}, {duration: 1/3}, {duration: 0.5}, {duration: 0.5}],
+        [{duration: 0.5}, {duration: 2/3}, {duration: 2/3}, {duration: 2/3}, {duration: 0.5}, {duration: 1}],
+        
+        // SECHZEHNTEL MIT SYNKOPEN
+        [{duration: 0.25}, {duration: 0.25}, {duration: 0.25}, {duration: 0.25}, {duration: 1.5}, {duration: 1.5}],
+        [{duration: 1}, {duration: 0.25}, {duration: 0.25}, {duration: 0.5}, {duration: 1}, {duration: 1}],
+        [{duration: 0.25}, {duration: 0.5}, {duration: 0.25}, {duration: 1}, {duration: 0.5}, {duration: 1.5}]
     ];
     
     return patterns[Math.floor(Math.random() * patterns.length)];
