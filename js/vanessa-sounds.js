@@ -23,11 +23,11 @@ function unlockVanessaAudio() {
     }
     if (clap) {
         clap.load();
-        clap.volume = 0.5;
+        clap.volume = 0.6;
     }
     if (boo) {
         boo.load();
-        boo.volume = 0.5;
+        boo.volume = 0.6;
     }
     
     audioUnlockedForVanessa = true;
@@ -54,13 +54,6 @@ function playVanessaBgMusic() {
             console.log('Background music playing');
         }).catch(e => {
             console.log('Background music play failed:', e.message);
-            // Retry after user clicks anywhere
-            document.body.addEventListener('click', () => {
-                bgMusic.play().then(() => {
-                    bgMusicPlaying = true;
-                    console.log('Background music playing after click');
-                }).catch(err => console.log('Still failed:', err.message));
-            }, { once: true });
         });
     }
 }
@@ -78,101 +71,105 @@ function stopVanessaBgMusic() {
 
 // Play clap sound for correct answer
 function playVanessaCorrect() {
-    if (!isVanessaMode()) return;
+    if (!isVanessaMode()) {
+        console.log('Not in Vanessa mode, skipping clap');
+        return;
+    }
     
     unlockVanessaAudio();
     
     const clapSound = document.getElementById('vanessa-correct');
-    if (clapSound) {
-        clapSound.currentTime = 0;
-        clapSound.play().then(() => {
-            console.log('Clap sound played');
+    if (!clapSound) {
+        console.log('Clap sound element not found!');
+        return;
+    }
+    
+    console.log('Trying to play clap sound...');
+    clapSound.currentTime = 0;
+    const playPromise = clapSound.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            console.log('✅ Clap sound played successfully!');
         }).catch(e => {
-            console.log('Clap sound failed:', e.message);
+            console.error('Clap sound failed:', e);
+            // Try to unlock and play again
+            document.body.addEventListener('click', () => {
+                clapSound.play().then(() => {
+                    console.log('Clap played after retry');
+                });
+            }, { once: true });
         });
-    } else {
-        console.log('Clap sound element not found');
     }
 }
 
 // Play boo sound for wrong answer
 function playVanessaWrong() {
-    if (!isVanessaMode()) return;
+    if (!isVanessaMode()) {
+        console.log('Not in Vanessa mode, skipping boo');
+        return;
+    }
     
     unlockVanessaAudio();
     
     const booSound = document.getElementById('vanessa-wrong');
-    if (booSound) {
-        booSound.currentTime = 0;
-        booSound.play().then(() => {
-            console.log('Boo sound played');
+    if (!booSound) {
+        console.log('Boo sound element not found!');
+        return;
+    }
+    
+    console.log('Trying to play boo sound...');
+    booSound.currentTime = 0;
+    const playPromise = booSound.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            console.log('✅ Boo sound played successfully!');
         }).catch(e => {
-            console.log('Boo sound failed:', e.message);
+            console.error('Boo sound failed:', e);
+            // Try to unlock and play again
+            document.body.addEventListener('click', () => {
+                booSound.play().then(() => {
+                    console.log('Boo played after retry');
+                });
+            }, { once: true });
         });
-    } else {
-        console.log('Boo sound element not found');
     }
 }
 
-// Monitor theme changes
-window.addEventListener('load', () => {
-    const originalSetTheme = window.setTheme;
-    if (originalSetTheme) {
-        window.setTheme = function(theme) {
-            originalSetTheme(theme);
-            
-            if (theme === 'besch') {
-                vanessaModeActive = true;
-                console.log('Vanessa mode activated');
-                setTimeout(() => {
-                    unlockVanessaAudio();
-                    playVanessaBgMusic();
-                }, 500);
-            } else {
-                vanessaModeActive = false;
-                stopVanessaBgMusic();
-            }
-        };
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('Vanessa sounds script loaded');
+    
+    // Preload audio
+    const bgMusic = document.getElementById('vanessa-bg-music');
+    const clap = document.getElementById('vanessa-correct');
+    const boo = document.getElementById('vanessa-wrong');
+    
+    if (bgMusic) {
+        bgMusic.preload = 'auto';
+        console.log('Background music found');
+    }
+    if (clap) {
+        clap.preload = 'auto';
+        console.log('Clap sound found');
+    }
+    if (boo) {
+        boo.preload = 'auto';
+        console.log('Boo sound found');
     }
     
-    const originalStartExercise = window.startExercise;
-    if (originalStartExercise) {
-        window.startExercise = function(type) {
-            stopVanessaBgMusic();
-            originalStartExercise(type);
-        };
-    }
-    
-    const originalGoHome = window.goHome;
-    if (originalGoHome) {
-        window.goHome = function() {
-            originalGoHome();
-            setTimeout(() => playVanessaBgMusic(), 300);
-        };
-    }
+    // Unlock on first user interaction
+    document.body.addEventListener('click', () => {
+        unlockVanessaAudio();
+        if (isVanessaMode()) {
+            playVanessaBgMusic();
+        }
+    }, { once: true });
     
     // Check if Vanessa mode on load
     if (isVanessaMode()) {
         vanessaModeActive = true;
         console.log('Vanessa mode active on load');
-        
-        // Unlock audio on first click
-        document.body.addEventListener('click', () => {
-            unlockVanessaAudio();
-            playVanessaBgMusic();
-        }, { once: true });
     }
-});
-
-// Preload audio when page loads
-window.addEventListener('DOMContentLoaded', () => {
-    const bgMusic = document.getElementById('vanessa-bg-music');
-    const clap = document.getElementById('vanessa-correct');
-    const boo = document.getElementById('vanessa-wrong');
-    
-    if (bgMusic) bgMusic.preload = 'auto';
-    if (clap) clap.preload = 'auto';
-    if (boo) boo.preload = 'auto';
-    
-    console.log('Vanessa audio elements preloaded');
 });
