@@ -1,18 +1,49 @@
-// Ultra-simple Web Audio - guaranteed to work
+// Ultra-simple Web Audio with debug overlay
 let audioContext = null;
+let debugLog = [];
 
-// Initialize on first user interaction
-function initAudio() {
-    if (!audioContext) {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('Audio initialized!');
-        } catch (e) {
-            console.error('Audio init failed:', e);
-            alert('Audio konnte nicht initialisiert werden. Bitte Browser neu laden.');
-        }
+function log(msg) {
+    console.log(msg);
+    debugLog.push(msg);
+    updateDebugOverlay();
+}
+
+function updateDebugOverlay() {
+    let overlay = document.getElementById('debug-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'debug-overlay';
+        overlay.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; z-index: 10000;';
+        document.body.appendChild(overlay);
     }
-    return audioContext;
+    overlay.innerHTML = debugLog.slice(-10).join('<br>');
+}
+
+// Initialize audio
+function initAudio() {
+    if (audioContext) {
+        log('Audio already initialized');
+        return audioContext;
+    }
+    
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        log('✅ AudioContext created! State: ' + audioContext.state);
+        
+        // Force unlock for Safari
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                log('✅ AudioContext resumed!');
+            }).catch(e => {
+                log('❌ Resume failed: ' + e.message);
+            });
+        }
+        
+        return audioContext;
+    } catch (e) {
+        log('❌ Audio init failed: ' + e.message);
+        return null;
+    }
 }
 
 function getAudioContext() {
@@ -34,73 +65,84 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Simple beep function - this WILL work
-function beep(frequency, duration) {
+// Simple tone
+function playTone(frequency, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) {
-        console.error('No audio context!');
+        log('❌ No context!');
         return;
     }
     
-    // Resume if suspended
-    if (ctx.state === 'suspended') {
+    if (ctx.state !== 'running') {
+        log('⚠️ Context state: ' + ctx.state);
         ctx.resume();
     }
     
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.frequency.value = frequency;
-    osc.type = 'sine';
-    
-    gain.gain.value = 0.3;
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
+    try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.frequency.value = frequency;
+        osc.type = 'sine';
+        gain.gain.value = 0.3;
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+        
+        log('♫ Playing ' + frequency + 'Hz for ' + duration + 's');
+    } catch (e) {
+        log('❌ Play error: ' + e.message);
+    }
 }
 
 // Play single note
 function playNote(noteName, duration = 0.5) {
     const freq = noteFrequencies[noteName];
     if (!freq) {
-        console.error('Unknown note:', noteName);
+        log('❌ Unknown note: ' + noteName);
         return;
     }
     
-    console.log('Playing note:', noteName, freq);
-    beep(freq, duration);
-}
-
-// Play sequence of notes
-async function playNoteSequence(notes, gap = 0.15) {
     const ctx = getAudioContext();
     if (!ctx) return;
     
-    // Make sure audio is running
-    if (ctx.state === 'suspended') {
-        await ctx.resume();
-    }
+    playTone(freq, ctx.currentTime, duration);
+}
+
+// Play sequence
+async function playNoteSequence(notes, gap = 0.15) {
+    log('▶ Sequence start: ' + notes.length + ' items');
     
-    console.log('Playing sequence:', notes);
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    // Unlock audio
+    if (ctx.state === 'suspended') {
+        log('Resuming context...');
+        await ctx.resume();
+        log('Context state: ' + ctx.state);
+    }
     
     for (const note of notes) {
         if (typeof note === 'string') {
-            // Single note
             playNote(note, 0.5);
             await new Promise(r => setTimeout(r, (0.5 + gap) * 1000));
         } else if (Array.isArray(note)) {
-            // Chord - play all at once
             note.forEach(n => playNote(n, 0.8));
             await new Promise(r => setTimeout(r, (0.8 + gap) * 1000));
         }
     }
+    
+    log('✓ Sequence done');
 }
 
-// Play rhythm pattern
+// Play rhythm
 async function playRhythmPattern(pattern, pitch = 'C4') {
+    log('▶ Rhythm start');
+    
     const ctx = getAudioContext();
     if (!ctx) return;
     
@@ -108,23 +150,22 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
         await ctx.resume();
     }
     
-    const beatDuration = 1.0; // 60 BPM = 1 second per beat
+    const beatDuration = 1.0;
     let delay = 0;
     
     for (const note of pattern) {
-        setTimeout(() => {
-            playNote(pitch, note.duration * beatDuration * 0.8);
-        }, delay * 1000);
+        setTimeout(() => playNote(pitch, note.duration * beatDuration * 0.8), delay * 1000);
         delay += note.duration * beatDuration;
     }
     
     await new Promise(r => setTimeout(r, delay * 1000));
+    log('✓ Rhythm done');
 }
 
-// Helper functions
+// Helpers
 function getRandomNote(minNote = 'C3', maxNote = 'C6') {
     const minIndex = allNotes.indexOf(minNote);
-    const maxIndex = allNotes.indexOf(maxNote);
+    const maxIndex = allNotes.indexOf(maxIndex);
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
     return allNotes[randomIndex];
 }
@@ -143,10 +184,10 @@ function noteToVexFlow(noteName) {
     return noteName;
 }
 
-// Test function
+// Test
 function testAudio() {
-    console.log('Testing audio...');
-    playNote('C4', 0.5);
-    setTimeout(() => playNote('E4', 0.5), 600);
-    setTimeout(() => playNote('G4', 0.5), 1200);
+    log('=== TEST START ===');
+    playNote('C4', 0.3);
+    setTimeout(() => playNote('E4', 0.3), 400);
+    setTimeout(() => playNote('G4', 0.3), 800);
 }
