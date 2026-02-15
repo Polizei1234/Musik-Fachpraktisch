@@ -70,7 +70,7 @@ function generateNewIntervall() {
 }
 
 async function playIntervall() {
-    if (!currentIntervall || hasAnswered) return;
+    if (!currentIntervall) return;
     
     const playBtn = document.getElementById('play-intervall');
     const replayBtn = document.getElementById('replay-intervall');
@@ -82,12 +82,14 @@ async function playIntervall() {
     const [note1, note2] = currentIntervall.notes;
     await playNoteSequence([note1, note2, [note1, note2]]);
     
-    // Show answer section after playing
-    document.getElementById('intervall-answer-section').style.display = 'block';
+    // Show answer section after first play
+    if (!hasPlayed) {
+        document.getElementById('intervall-answer-section').style.display = 'block';
+        hasPlayed = true;
+    }
     
-    playBtn.disabled = true;
+    playBtn.disabled = hasAnswered;
     replayBtn.disabled = false;
-    hasPlayed = true;
 }
 
 function checkIntervall(answer) {
@@ -122,8 +124,9 @@ function checkIntervall(answer) {
     // Show notation
     displayNotes('notation-intervall', currentIntervall.notes);
     
-    // Show next button
+    // Show next button and disable play button
     document.getElementById('next-intervall').style.display = 'block';
+    document.getElementById('play-intervall').disabled = true;
     
     // Update stats
     updateIntervallStats();

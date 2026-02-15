@@ -31,7 +31,7 @@ const akkorde = [
     },
     { 
         name: 'Vermindert', 
-        intervals: [0, 3, 6, 12]  // Root, minor third, diminished fifth, octave
+        intervals: [0, 3, 6, 9]  // Root, minor third, diminished fifth, diminished seventh
     },
     { 
         name: 'Übermäßig', 
@@ -93,7 +93,7 @@ function generateNewAkkord() {
 }
 
 async function playAkkord() {
-    if (!currentAkkord || hasAnsweredAkkord) return;
+    if (!currentAkkord) return;
     
     const playBtn = document.getElementById('play-akkord');
     const replayBtn = document.getElementById('replay-akkord');
@@ -106,12 +106,14 @@ async function playAkkord() {
     const sequence = [...notes, notes];  // Individual notes, then chord
     await playNoteSequence(sequence);
     
-    // Show answer section after playing
-    document.getElementById('akkord-answer-section').style.display = 'block';
+    // Show answer section after first play
+    if (!hasPlayedAkkord) {
+        document.getElementById('akkord-answer-section').style.display = 'block';
+        hasPlayedAkkord = true;
+    }
     
-    playBtn.disabled = true;
+    playBtn.disabled = hasAnsweredAkkord;
     replayBtn.disabled = false;
-    hasPlayedAkkord = true;
 }
 
 function checkAkkord(answer) {
@@ -146,8 +148,9 @@ function checkAkkord(answer) {
     // Show notation (chord)
     displayNotes('notation-akkord', [currentAkkord.notes]);
     
-    // Show next button
+    // Show next button and disable play button
     document.getElementById('next-akkord').style.display = 'block';
+    document.getElementById('play-akkord').disabled = true;
     
     // Update stats
     updateAkkordStats();
