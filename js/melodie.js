@@ -9,7 +9,7 @@ const tonarten = [
     { name: 'F-Dur', key: 'F', mode: 'major', sharps: 0, flats: 1, scale: [0, 2, 4, 5, 7, 9, 11] },
     { name: 'B-Dur', key: 'Bb', mode: 'major', sharps: 0, flats: 2, scale: [0, 2, 4, 5, 7, 9, 11] },
     { name: 'Es-Dur', key: 'Eb', mode: 'major', sharps: 0, flats: 3, scale: [0, 2, 4, 5, 7, 9, 11] },
-    { name: 'a-Moll', key: 'A', mode: 'minor', sharps: 0, flats: 0, scale: [0, 2, 3, 5, 7, 8, 11] }, // harmonic minor
+    { name: 'a-Moll', key: 'A', mode: 'minor', sharps: 0, flats: 0, scale: [0, 2, 3, 5, 7, 8, 11] },
     { name: 'e-Moll', key: 'E', mode: 'minor', sharps: 1, flats: 0, scale: [0, 2, 3, 5, 7, 8, 11] },
     { name: 'h-Moll', key: 'B', mode: 'minor', sharps: 2, flats: 0, scale: [0, 2, 3, 5, 7, 8, 11] },
     { name: 'fis-Moll', key: 'F#', mode: 'minor', sharps: 3, flats: 0, scale: [0, 2, 3, 5, 7, 8, 11] },
@@ -74,11 +74,7 @@ function generateMelodyBars(tonart, startNote) {
     
     // 16 quarter notes for 4 bars in 4/4
     for (let i = 0; i < 16; i++) {
-        // Get scale degree
-        const scaleDegree = tonart.scale[Math.floor(Math.random() * tonart.scale.length)];
-        
         // Move to a nearby scale tone
-        const direction = Math.random() > 0.5 ? 1 : -1;
         const step = Math.floor(Math.random() * 7) - 3; // -3 to +3 scale steps
         
         let newIndex = currentIndex + step;
@@ -112,58 +108,45 @@ async function playMelodie() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    // Play cadence first to establish key
-    await playCadence(currentMelodie.tonart);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Play according to official dictation mode:
-    // Bars 1-4, then 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, then 1-4
-    
-    const bars = [
-        currentMelodie.melody.slice(0, 4),
-        currentMelodie.melody.slice(4, 8),
-        currentMelodie.melody.slice(8, 12),
-        currentMelodie.melody.slice(12, 16)
-    ];
-    
-    // First: All 4 bars
-    await playNoteSequence(currentMelodie.melody, 0.1);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Then each bar 3 times
-    for (let barIndex = 0; barIndex < 4; barIndex++) {
-        for (let repeat = 0; repeat < 3; repeat++) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            await playNoteSequence(bars[barIndex], 0.1);
+    try {
+        // Play cadence first to establish key (simplified - just C major I-V-I)
+        await playNoteSequence([['C4', 'E4', 'G4'], ['G4', 'B4', 'D5'], ['C4', 'E4', 'G4']], 0.2);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const bars = [
+            currentMelodie.melody.slice(0, 4),
+            currentMelodie.melody.slice(4, 8),
+            currentMelodie.melody.slice(8, 12),
+            currentMelodie.melody.slice(12, 16)
+        ];
+        
+        // First: All 4 bars
+        await playNoteSequence(currentMelodie.melody, 0.1);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Then each bar 3 times
+        for (let barIndex = 0; barIndex < 4; barIndex++) {
+            for (let repeat = 0; repeat < 3; repeat++) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                await playNoteSequence(bars[barIndex], 0.1);
+            }
         }
-    }
-    
-    // Finally: All 4 bars again
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    await playNoteSequence(currentMelodie.melody, 0.1);
-    
-    if (!hasPlayedMelodie) {
-        document.getElementById('check-melodie').style.display = 'block';
-        document.getElementById('melodie-input').disabled = false;
-        hasPlayedMelodie = true;
+        
+        // Finally: All 4 bars again
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await playNoteSequence(currentMelodie.melody, 0.1);
+        
+        if (!hasPlayedMelodie) {
+            document.getElementById('check-melodie').style.display = 'block';
+            document.getElementById('melodie-input').disabled = false;
+            hasPlayedMelodie = true;
+        }
+    } catch (error) {
+        console.error('Error playing melody:', error);
     }
     
     playBtn.disabled = false;
     replayBtn.disabled = false;
-}
-
-async function playCadence(tonart) {
-    // Simple I-IV-V-I cadence to establish key
-    const root = tonart.key;
-    const rootIndex = allNotes.findIndex(n => n.startsWith(root) && n.includes('4'));
-    
-    if (rootIndex === -1) return;
-    
-    const I = [allNotes[rootIndex], allNotes[rootIndex + 4], allNotes[rootIndex + 7]];
-    const IV = [allNotes[rootIndex + 5], allNotes[rootIndex + 9], allNotes[rootIndex + 12]];
-    const V = [allNotes[rootIndex + 7], allNotes[rootIndex + 11], allNotes[rootIndex + 14]];
-    
-    await playNoteSequence([I, IV, V, I], 0.2);
 }
 
 function checkMelodie() {
