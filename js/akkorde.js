@@ -55,6 +55,7 @@ function generateNewAkkord() {
     clearNotation('notation-akkord');
     
     document.getElementById('akkord-feedback').classList.remove('show', 'correct', 'wrong');
+    document.getElementById('akkord-feedback').textContent = '';
     document.getElementById('next-akkord').style.display = 'none';
     document.getElementById('akkord-answer-section').style.display = 'none';
     document.getElementById('play-akkord').disabled = false;
@@ -69,16 +70,24 @@ function generateNewAkkord() {
 async function playAkkord() {
     if (!currentAkkord) return;
     
+    // FORCE unlock audio on first play
+    if (typeof unlockAudio === 'function') {
+        await unlockAudio();
+    }
+    
     const playBtn = document.getElementById('play-akkord');
     const replayBtn = document.getElementById('replay-akkord');
     
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
+    console.log('Playing chord:', currentAkkord.notes);
+    
     try {
         // Play each note individually first
         for (const note of currentAkkord.notes) {
             await playNoteSequence([note], 0.15);
+            console.log('Chord note played:', note);
             await new Promise(resolve => setTimeout(resolve, 300));
         }
         
@@ -86,6 +95,7 @@ async function playAkkord() {
         
         // Play all notes together
         await playNoteSequence([currentAkkord.notes], 0.1);
+        console.log('All chord notes played together');
         
     } catch (error) {
         console.error('Error playing chord:', error);
@@ -102,6 +112,8 @@ async function playAkkord() {
 
 function checkAkkord(answer) {
     if (!hasPlayedAkkord) return;
+    
+    console.log('Checking answer:', answer, 'Correct:', currentAkkord.name);
     
     const feedback = document.getElementById('akkord-feedback');
     const buttons = document.querySelectorAll('#akkord-answer-section .answer-btn');
@@ -151,10 +163,14 @@ function checkAkkord(answer) {
     
     updateAkkordStats();
     
-    // Show next button immediately
+    // ALWAYS show next button
     const nextBtn = document.getElementById('next-akkord');
-    nextBtn.style.display = 'block';
-    nextBtn.textContent = 'Nächster Akkord →';
+    if (nextBtn) {
+        nextBtn.style.display = 'block';
+        console.log('Next button shown');
+    } else {
+        console.error('Next button not found!');
+    }
 }
 
 function getAkkordShort(fullName) {
@@ -163,6 +179,7 @@ function getAkkordShort(fullName) {
 }
 
 function nextAkkord() {
+    console.log('Next chord clicked');
     generateNewAkkord();
 }
 

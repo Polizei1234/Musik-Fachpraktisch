@@ -68,6 +68,7 @@ function generateNewIntervall() {
     
     // Reset UI
     document.getElementById('intervall-feedback').classList.remove('show', 'correct', 'wrong');
+    document.getElementById('intervall-feedback').textContent = '';
     document.getElementById('next-intervall').style.display = 'none';
     document.getElementById('intervall-answer-section').style.display = 'none';
     document.getElementById('play-intervall').disabled = false;
@@ -83,32 +84,37 @@ function generateNewIntervall() {
 async function playIntervall() {
     if (!currentIntervall) return;
     
+    // FORCE unlock audio on first play
+    if (typeof unlockAudio === 'function') {
+        await unlockAudio();
+    }
+    
     const playBtn = document.getElementById('play-intervall');
     const replayBtn = document.getElementById('replay-intervall');
     
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    // Play according to BW guidelines:
-    // 1. First note (not held)
-    // 2. Second note (not held)
-    // 3. Both notes together (once)
+    console.log('Playing interval:', currentIntervall.baseNote, currentIntervall.secondNote);
     
     try {
         // Play first note
         await playNoteSequence([currentIntervall.baseNote], 0.3);
+        console.log('First note played');
         
         // Short pause
         await new Promise(resolve => setTimeout(resolve, 300));
         
         // Play second note
         await playNoteSequence([currentIntervall.secondNote], 0.3);
+        console.log('Second note played');
         
         // Short pause
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Play both together
         await playNoteSequence([[currentIntervall.baseNote, currentIntervall.secondNote]], 0.1);
+        console.log('Both notes played together');
         
     } catch (error) {
         console.error('Error playing interval:', error);
@@ -125,6 +131,8 @@ async function playIntervall() {
 
 function checkIntervall(answer) {
     if (!hasPlayedIntervall) return;
+    
+    console.log('Checking answer:', answer, 'Correct:', currentIntervall.name);
     
     const feedback = document.getElementById('intervall-feedback');
     const buttons = document.querySelectorAll('#intervall-answer-section .answer-btn');
@@ -178,10 +186,14 @@ function checkIntervall(answer) {
     
     updateIntervallStats();
     
-    // Show next button immediately
+    // ALWAYS show next button
     const nextBtn = document.getElementById('next-intervall');
-    nextBtn.style.display = 'block';
-    nextBtn.textContent = 'Nächstes Intervall →';
+    if (nextBtn) {
+        nextBtn.style.display = 'block';
+        console.log('Next button shown');
+    } else {
+        console.error('Next button not found!');
+    }
 }
 
 function getShortName(fullName) {
@@ -190,6 +202,7 @@ function getShortName(fullName) {
 }
 
 function nextIntervall() {
+    console.log('Next interval clicked');
     generateNewIntervall();
 }
 
