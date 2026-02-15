@@ -1,10 +1,7 @@
-// App with audio unlock
+// App with strong audio unlock
 function startExercise(type) {
-    // Force audio init on exercise start
-    const ctx = initAudio();
-    if (ctx && ctx.state === 'suspended') {
-        ctx.resume();
-    }
+    // Init audio
+    initAudio();
     
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -26,10 +23,28 @@ function goHome() {
     document.getElementById('welcome-screen').classList.add('active');
 }
 
+// Big unlock button
+function showUnlockPrompt() {
+    const prompt = document.createElement('div');
+    prompt.id = 'unlock-prompt';
+    prompt.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 99999; text-align: center;';
+    prompt.innerHTML = `
+        <h2 style="margin: 0 0 20px 0;">🔊 Audio aktivieren</h2>
+        <p style="margin: 0 0 20px 0;">Bitte klicke auf den Button um Audio zu aktivieren</p>
+        <button id="unlock-btn" style="padding: 15px 40px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">▶ Audio aktivieren</button>
+    `;
+    document.body.appendChild(prompt);
+    
+    document.getElementById('unlock-btn').onclick = async () => {
+        await unlockAudio();
+        prompt.remove();
+    };
+}
+
 // Test button
 function addTestButton() {
     const testBtn = document.createElement('button');
-    testBtn.innerHTML = '🔊 Test';
+    testBtn.innerHTML = '🔊 Test Audio';
     testBtn.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 9999; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;';
     testBtn.onclick = testAudio;
     document.body.appendChild(testBtn);
@@ -39,27 +54,21 @@ window.addEventListener('load', () => {
     log('App loaded!');
     addTestButton();
     
-    // Unlock audio on first click ANYWHERE
-    const unlockAudio = () => {
-        log('User interaction detected');
-        const ctx = initAudio();
-        if (ctx) {
-            if (ctx.state === 'suspended') {
-                ctx.resume().then(() => {
-                    log('Context unlocked!');
-                });
-            }
-            // Play silent sound to unlock
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            gain.gain.value = 0;
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.01);
+    // Show unlock prompt after short delay
+    setTimeout(() => {
+        if (!audioUnlocked) {
+            showUnlockPrompt();
+        }
+    }, 1000);
+    
+    // Try to unlock on any interaction
+    const tryUnlock = async () => {
+        log('Interaction');
+        if (!audioUnlocked) {
+            await unlockAudio();
         }
     };
     
-    document.addEventListener('click', unlockAudio, { once: true });
-    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('click', tryUnlock);
+    document.addEventListener('touchstart', tryUnlock);
 });

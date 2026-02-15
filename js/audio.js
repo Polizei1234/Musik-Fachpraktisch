@@ -1,6 +1,7 @@
-// Ultra-simple Web Audio with debug overlay
+// Safari-compatible audio with HTMLAudioElement fallback
 let audioContext = null;
 let debugLog = [];
+let audioUnlocked = false;
 
 function log(msg) {
     console.log(msg);
@@ -19,26 +20,55 @@ function updateDebugOverlay() {
     overlay.innerHTML = debugLog.slice(-10).join('<br>');
 }
 
+// Force unlock Safari audio
+async function unlockAudio() {
+    if (audioUnlocked) return true;
+    
+    log('Unlocking audio...');
+    
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return false;
+        
+        // Resume context
+        if (ctx.state === 'suspended') {
+            await ctx.resume();
+            log('Context resumed: ' + ctx.state);
+        }
+        
+        // Play actual audible sound to unlock
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.frequency.value = 440;
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.1);
+        
+        // Wait for sound to play
+        await new Promise(r => setTimeout(r, 150));
+        
+        audioUnlocked = true;
+        log('✅ Audio unlocked!');
+        return true;
+    } catch (e) {
+        log('❌ Unlock failed: ' + e.message);
+        return false;
+    }
+}
+
 // Initialize audio
 function initAudio() {
-    if (audioContext) {
-        log('Audio already initialized');
-        return audioContext;
-    }
+    if (audioContext) return audioContext;
     
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         log('✅ AudioContext created! State: ' + audioContext.state);
-        
-        // Force unlock for Safari
-        if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-                log('✅ AudioContext resumed!');
-            }).catch(e => {
-                log('❌ Resume failed: ' + e.message);
-            });
-        }
-        
         return audioContext;
     } catch (e) {
         log('❌ Audio init failed: ' + e.message);
@@ -65,17 +95,12 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Simple tone
+// Play tone with proper gain envelope
 function playTone(frequency, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) {
         log('❌ No context!');
         return;
-    }
-    
-    if (ctx.state !== 'running') {
-        log('⚠️ Context state: ' + ctx.state);
-        ctx.resume();
     }
     
     try {
@@ -84,7 +109,12 @@ function playTone(frequency, startTime, duration) {
         
         osc.frequency.value = frequency;
         osc.type = 'sine';
-        gain.gain.value = 0.3;
+        
+        // Proper envelope to ensure sound plays
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+        gain.gain.setValueAtTime(0.3, startTime + duration - 0.05);
+        gain.gain.linearRampToValueAtTime(0, startTime + duration);
         
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -92,14 +122,19 @@ function playTone(frequency, startTime, duration) {
         osc.start(startTime);
         osc.stop(startTime + duration);
         
-        log('♫ Playing ' + frequency + 'Hz for ' + duration + 's');
+        log('♫ ' + Math.round(frequency) + 'Hz');
     } catch (e) {
         log('❌ Play error: ' + e.message);
     }
 }
 
 // Play single note
-function playNote(noteName, duration = 0.5) {
+async function playNote(noteName, duration = 0.5) {
+    // Ensure audio is unlocked first
+    if (!audioUnlocked) {
+        await unlockAudio();
+    }
+    
     const freq = noteFrequencies[noteName];
     if (!freq) {
         log('❌ Unknown note: ' + noteName);
@@ -114,17 +149,19 @@ function playNote(noteName, duration = 0.5) {
 
 // Play sequence
 async function playNoteSequence(notes, gap = 0.15) {
-    log('▶ Sequence start: ' + notes.length + ' items');
+    log('▶ Sequence start');
+    
+    // Unlock audio first
+    if (!audioUnlocked) {
+        const unlocked = await unlockAudio();
+        if (!unlocked) {
+            log('❌ Cannot play - audio locked');
+            return;
+        }
+    }
     
     const ctx = getAudioContext();
     if (!ctx) return;
-    
-    // Unlock audio
-    if (ctx.state === 'suspended') {
-        log('Resuming context...');
-        await ctx.resume();
-        log('Context state: ' + ctx.state);
-    }
     
     for (const note of notes) {
         if (typeof note === 'string') {
@@ -136,19 +173,19 @@ async function playNoteSequence(notes, gap = 0.15) {
         }
     }
     
-    log('✓ Sequence done');
+    log('✓ Done');
 }
 
 // Play rhythm
 async function playRhythmPattern(pattern, pitch = 'C4') {
-    log('▶ Rhythm start');
+    log('▶ Rhythm');
+    
+    if (!audioUnlocked) {
+        await unlockAudio();
+    }
     
     const ctx = getAudioContext();
     if (!ctx) return;
-    
-    if (ctx.state === 'suspended') {
-        await ctx.resume();
-    }
     
     const beatDuration = 1.0;
     let delay = 0;
@@ -159,13 +196,13 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     }
     
     await new Promise(r => setTimeout(r, delay * 1000));
-    log('✓ Rhythm done');
+    log('✓ Done');
 }
 
 // Helpers
 function getRandomNote(minNote = 'C3', maxNote = 'C6') {
     const minIndex = allNotes.indexOf(minNote);
-    const maxIndex = allNotes.indexOf(maxIndex);
+    const maxIndex = allNotes.indexOf(maxNote);
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
     return allNotes[randomIndex];
 }
@@ -185,8 +222,9 @@ function noteToVexFlow(noteName) {
 }
 
 // Test
-function testAudio() {
+async function testAudio() {
     log('=== TEST START ===');
+    await unlockAudio();
     playNote('C4', 0.3);
     setTimeout(() => playNote('E4', 0.3), 400);
     setTimeout(() => playNote('G4', 0.3), 800);
