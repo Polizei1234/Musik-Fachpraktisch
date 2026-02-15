@@ -18,7 +18,7 @@
                     <button class="exercise-card" onclick="startExercise('intervalle')">
                         <div class="card-icon">🎼</div>
                         <h2>Intervalle</h2>
-                        <p>Prime bis Oktave</p>
+                        <p>12 Intervalle (k2 bis r8)</p>
                     </button>
                     
                     <button class="exercise-card" onclick="startExercise('akkorde')">
@@ -56,6 +56,11 @@
                 </div>
 
                 <div class="exercise-area">
+                    <div class="info-box">
+                        <p><strong>Tonraum:</strong> g bis g² (G3 bis G5)</p>
+                        <p><em>Diktiermodus: Erst einzeln, dann zusammen</em></p>
+                    </div>
+
                     <div id="notation-intervall" class="notation-display"></div>
                     
                     <div class="controls">
@@ -66,19 +71,18 @@
                     <div class="answer-section" id="intervall-answer-section" style="display: none;">
                         <h3>Welches Intervall hörst du?</h3>
                         <div class="button-grid">
-                            <button class="answer-btn" onclick="checkIntervall('Prime')">Prime</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Sekunde')">Kleine Sekunde</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Sekunde')">Große Sekunde</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Terz')">Kleine Terz</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Terz')">Große Terz</button>
-                            <button class="answer-btn" onclick="checkIntervall('Quarte')">Quarte</button>
+                            <button class="answer-btn" onclick="checkIntervall('Kleine Sekunde')">Kleine Sekunde (k2)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Große Sekunde')">Große Sekunde (g2)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Kleine Terz')">Kleine Terz (k3)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Große Terz')">Große Terz (g3)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Reine Quarte')">Reine Quarte (r4)</button>
                             <button class="answer-btn" onclick="checkIntervall('Tritonus')">Tritonus</button>
-                            <button class="answer-btn" onclick="checkIntervall('Quinte')">Quinte</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Sexte')">Kleine Sexte</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Sexte')">Große Sexte</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Septime')">Kleine Septime</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Septime')">Große Septime</button>
-                            <button class="answer-btn" onclick="checkIntervall('Oktave')">Oktave</button>
+                            <button class="answer-btn" onclick="checkIntervall('Reine Quinte')">Reine Quinte (r5)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Kleine Sexte')">Kleine Sexte (k6)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Große Sexte')">Große Sexte (g6)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Kleine Septime')">Kleine Septime (k7)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Große Septime')">Große Septime (g7)</button>
+                            <button class="answer-btn" onclick="checkIntervall('Reine Oktave')">Reine Oktave (r8)</button>
                         </div>
                     </div>
 
@@ -153,7 +157,7 @@
                     <div id="notation-melodie" class="notation-display"></div>
                     
                     <div class="controls">
-                        <button class="btn-primary" id="play-melodie" onclick="playMelodie()">▶ Start: Kadenz + Takt 1-4</button>
+                        <button class="btn-primary" id="play-melodie" onclick="playMelodie()">▶ Start: Kadenz + Vorzählen + Takt 1-4</button>
                         <button class="btn-primary" id="continue-melodie" onclick="continueMelodie()" style="display: none;">Weiter ▶</button>
                     </div>
 
