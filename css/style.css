@@ -172,6 +172,32 @@ h3 {
     padding: 20px;
 }
 
+/* Info Box */
+.info-box {
+    background: #f0f7ff;
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.info-box p {
+    margin-bottom: 8px;
+}
+
+.info-box p:last-child {
+    margin-bottom: 0;
+}
+
+.info-box strong {
+    color: var(--primary-color);
+}
+
+.info-box em {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
 /* Controls */
 .controls {
     display: flex;
@@ -258,6 +284,29 @@ h3 {
 .answer-btn:disabled {
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 15px;
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+textarea:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
 }
 
 /* Feedback */

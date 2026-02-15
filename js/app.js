@@ -12,6 +12,10 @@ function startExercise(type) {
         initIntervalle();
     } else if (type === 'akkorde') {
         initAkkorde();
+    } else if (type === 'melodie') {
+        initMelodie();
+    } else if (type === 'rhythmus') {
+        initRhythmus();
     }
 }
 
@@ -32,4 +36,5 @@ function goHome() {
 // Initialize on load
 window.addEventListener('load', () => {
     console.log('Gehörbildungstrainer geladen!');
+    console.log('Alle 4 Module aktiv: Intervalle, Akkorde, Melodiediktat, Rhythmusdiktat');
 });
