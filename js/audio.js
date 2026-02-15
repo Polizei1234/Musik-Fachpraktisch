@@ -1,5 +1,18 @@
-// Audio Context
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// Audio Context - initialize lazily
+let audioContext = null;
+
+function getAudioContext() {
+    if (!audioContext || audioContext.state === 'closed') {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    // Resume context if suspended (browser autoplay policy)
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    return audioContext;
+}
 
 // Note frequencies (C2 to C6 range for variety)
 const noteFrequencies = {
@@ -19,7 +32,8 @@ const allNotes = Object.keys(noteFrequencies);
 
 // Improved piano tone generator with harmonics
 function playPianoNote(frequency, startTime, duration = 1.0) {
-    const masterGain = audioContext.createGain();
+    const ctx = getAudioContext();
+    const masterGain = ctx.createGain();
     
     // Create multiple oscillators for harmonics (piano has rich overtones)
     const harmonics = [
@@ -32,8 +46,8 @@ function playPianoNote(frequency, startTime, duration = 1.0) {
     ];
     
     harmonics.forEach(harmonic => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
         
         // Use sine waves for cleaner harmonics
         oscillator.type = 'sine';
@@ -62,20 +76,21 @@ function playPianoNote(frequency, startTime, duration = 1.0) {
     masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
     
     // Add a subtle lowpass filter for warmth
-    const filter = audioContext.createBiquadFilter();
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(3000, startTime);
     filter.Q.setValueAtTime(1, startTime);
     
     masterGain.connect(filter);
-    filter.connect(audioContext.destination);
+    filter.connect(ctx.destination);
     
     return duration;
 }
 
 // Play a sequence of notes
 async function playNoteSequence(notes, gap = 0.15) {
-    const now = audioContext.currentTime;
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
     let currentTime = now + 0.05;
     
     for (const note of notes) {
@@ -103,7 +118,8 @@ async function playNoteSequence(notes, gap = 0.15) {
 
 // Play rhythm pattern (single pitch)
 async function playRhythmPattern(pattern, pitch = 'C4') {
-    const now = audioContext.currentTime;
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
     let currentTime = now + 0.05;
     const beatDuration = 60 / 60; // Quarter note at 60 BPM = 1 second
     

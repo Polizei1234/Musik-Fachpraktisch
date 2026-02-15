@@ -1,5 +1,10 @@
 // Screen Management
 function startExercise(type) {
+    // Ensure audio context is ready
+    if (typeof getAudioContext === 'function') {
+        getAudioContext();
+    }
+    
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
@@ -25,16 +30,19 @@ function goHome() {
     });
     document.getElementById('welcome-screen').classList.add('active');
     
-    // Stop any playing audio
-    if (typeof audioContext !== 'undefined' && audioContext.state !== 'closed') {
-        audioContext.close().then(() => {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        });
-    }
+    // Don't close audio context - just let it be ready for next use
 }
 
 // Initialize on load
 window.addEventListener('load', () => {
     console.log('Gehörbildungstrainer geladen!');
     console.log('Alle 4 Module aktiv: Intervalle, Akkorde, Melodiediktat, Rhythmusdiktat');
+    
+    // Pre-initialize audio context on first user interaction
+    document.body.addEventListener('click', function initAudio() {
+        if (typeof getAudioContext === 'function') {
+            getAudioContext();
+        }
+        document.body.removeEventListener('click', initAudio);
+    }, { once: true });
 });
