@@ -1,63 +1,18 @@
 // Akkord-Übung nach BW-Richtlinien
+// 9 Akkorde: D, M, ü, D7, Dmaj7, M7, v7, D5/6, M5/6
+// 4-stimmig, Grundstellung, enge Lage
 // Tonraum: g bis c3 (G3 bis C6)
-// Grundstellung, enge Lage, stets vierstimmig
-// Diktiermodus: Erst einzeln (nicht liegen lassen), dann zusammen (jeweils einmal)
 
 const akkorde = [
-    { 
-        name: 'Durdreiklang', 
-        short: 'D',
-        intervals: [0, 4, 7, 12], // Grundton, Terz, Quinte, Oktave
-        description: 'Durdreiklang + Oktave'
-    },
-    { 
-        name: 'Molldreiklang', 
-        short: 'M',
-        intervals: [0, 3, 7, 12],
-        description: 'Molldreiklang + Oktave'
-    },
-    { 
-        name: 'Übermäßiger Dreiklang', 
-        short: 'ü',
-        intervals: [0, 4, 8, 12],
-        description: 'Übermäßiger Dreiklang + Oktave'
-    },
-    { 
-        name: 'D7', 
-        short: 'D7',
-        intervals: [0, 4, 7, 10],
-        description: 'Durdreiklang + kleine Septime'
-    },
-    { 
-        name: 'Dmaj7', 
-        short: 'Dmaj7',
-        intervals: [0, 4, 7, 11],
-        description: 'Durdreiklang + große Septime'
-    },
-    { 
-        name: 'M7', 
-        short: 'M7',
-        intervals: [0, 3, 7, 10],
-        description: 'Molldreiklang + kleine Septime'
-    },
-    { 
-        name: 'v7', 
-        short: 'v7',
-        intervals: [0, 3, 6, 9],
-        description: 'Verminderter Dreiklang + verminderte Septime'
-    },
-    { 
-        name: 'D56', 
-        short: 'D5/6',
-        intervals: [0, 4, 7, 9],
-        description: 'Durdreiklang + große Sexte'
-    },
-    { 
-        name: 'M56', 
-        short: 'M5/6',
-        intervals: [0, 3, 7, 9],
-        description: 'Molldreiklang + große Sexte'
-    }
+    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7] },
+    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7] },
+    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8] },
+    { name: 'D7', short: 'D7', intervals: [0, 4, 7, 10] },
+    { name: 'Dmaj7', short: 'Dmaj7', intervals: [0, 4, 7, 11] },
+    { name: 'M7', short: 'M7', intervals: [0, 3, 7, 10] },
+    { name: 'v7', short: 'v7', intervals: [0, 3, 6, 10] },
+    { name: 'D56', short: 'D5/6', intervals: [0, 4, 7, 9] },
+    { name: 'M56', short: 'M5/6', intervals: [0, 3, 7, 9] }
 ];
 
 let currentAkkord = null;
@@ -73,31 +28,19 @@ function initAkkorde() {
 function generateNewAkkord() {
     hasPlayedAkkord = false;
     
-    // Random chord
     const akkord = akkorde[Math.floor(Math.random() * akkorde.length)];
     
-    // Random root note in range g (G3) to c3 (C6)
-    // But ensure highest note doesn't exceed C6
+    // Random root note between G3 and C5 to ensure all voices fit within G3-C6
     const minIndex = allNotes.indexOf('G3');
-    const maxIndex = allNotes.indexOf('C6') - Math.max(...akkord.intervals);
-    
-    if (maxIndex < minIndex) {
-        // Chord too large for this range
-        generateNewAkkord();
-        return;
-    }
-    
+    const maxIndex = allNotes.indexOf('C5');
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
     const rootNote = allNotes[randomIndex];
     
-    // Build chord in close position (enge Lage)
-    const chordNotes = akkord.intervals.map(interval => {
-        const note = getNoteByInterval(rootNote, interval);
-        return note;
-    }).filter(n => n !== null);
+    // Build chord notes
+    const notes = akkord.intervals.map(interval => getNoteByInterval(rootNote, interval));
     
-    if (chordNotes.length !== 4) {
-        // Some notes out of range
+    // Verify all notes are in range
+    if (notes.some(note => !note || allNotes.indexOf(note) > allNotes.indexOf('C6'))) {
         generateNewAkkord();
         return;
     }
@@ -105,22 +48,18 @@ function generateNewAkkord() {
     currentAkkord = {
         name: akkord.name,
         short: akkord.short,
-        description: akkord.description,
         rootNote: rootNote,
-        notes: chordNotes
+        notes: notes
     };
     
-    // Clear previous notation
     clearNotation('notation-akkord');
     
-    // Reset UI
     document.getElementById('akkord-feedback').classList.remove('show', 'correct', 'wrong');
     document.getElementById('next-akkord').style.display = 'none';
     document.getElementById('akkord-answer-section').style.display = 'none';
     document.getElementById('play-akkord').disabled = false;
     document.getElementById('replay-akkord').disabled = true;
     
-    // Reset answer buttons
     document.querySelectorAll('#akkord-answer-section .answer-btn').forEach(btn => {
         btn.disabled = false;
         btn.classList.remove('correct', 'wrong');
@@ -136,21 +75,16 @@ async function playAkkord() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    // Play according to BW guidelines:
-    // 1. Each note individually (not held) - ascending
-    // 2. All notes together (once)
-    
     try {
-        // Play each note individually
+        // Play each note individually first
         for (const note of currentAkkord.notes) {
-            await playNoteSequence([note], 0.2);
+            await playNoteSequence([note], 0.15);
             await new Promise(resolve => setTimeout(resolve, 300));
         }
         
-        // Short pause
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Play all together
+        // Play all notes together
         await playNoteSequence([currentAkkord.notes], 0.1);
         
     } catch (error) {
@@ -172,17 +106,22 @@ function checkAkkord(answer) {
     const feedback = document.getElementById('akkord-feedback');
     const buttons = document.querySelectorAll('#akkord-answer-section .answer-btn');
     
-    // Disable all buttons
     buttons.forEach(btn => btn.disabled = true);
     
     akkordStats.total++;
     
-    if (answer === currentAkkord.name) {
+    const isCorrect = (answer === currentAkkord.name);
+    
+    if (isCorrect) {
         akkordStats.correct++;
-        feedback.textContent = `✅ Richtig! Das war ${currentAkkord.short} (${currentAkkord.description}).`;
+        feedback.textContent = `✅ Richtig! Das war ${currentAkkord.short}.`;
         feedback.className = 'feedback show correct';
         
-        // Highlight correct button
+        // Play Vanessa clap sound if in Vanessa mode
+        if (typeof playVanessaCorrect === 'function') {
+            playVanessaCorrect();
+        }
+        
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
                 btn.classList.add('correct');
@@ -190,10 +129,14 @@ function checkAkkord(answer) {
         });
     } else {
         akkordStats.wrong++;
-        feedback.textContent = `❌ Falsch! Das war ${currentAkkord.short} (${currentAkkord.description}).`;
+        feedback.textContent = `❌ Falsch! Das war ${currentAkkord.short}, nicht ${getAkkordShort(answer)}.`;
         feedback.className = 'feedback show wrong';
         
-        // Highlight wrong and correct buttons
+        // Play Vanessa boo sound if in Vanessa mode
+        if (typeof playVanessaWrong === 'function') {
+            playVanessaWrong();
+        }
+        
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
                 btn.classList.add('wrong');
@@ -204,11 +147,15 @@ function checkAkkord(answer) {
         });
     }
     
-    // Show notation after answer
     displayChord('notation-akkord', currentAkkord.notes);
     
     updateAkkordStats();
     document.getElementById('next-akkord').style.display = 'block';
+}
+
+function getAkkordShort(fullName) {
+    const akkord = akkorde.find(a => a.name === fullName);
+    return akkord ? akkord.short : fullName;
 }
 
 function nextAkkord() {

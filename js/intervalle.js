@@ -134,14 +134,21 @@ function checkIntervall(answer) {
     
     intervallStats.total++;
     
-    if (answer === currentIntervall.name) {
+    const isCorrect = (answer === currentIntervall.name);
+    
+    if (isCorrect) {
         intervallStats.correct++;
         feedback.textContent = `✅ Richtig! Das war ${currentIntervall.short}.`;
         feedback.className = 'feedback show correct';
         
+        // Play Vanessa clap sound if in Vanessa mode
+        if (typeof playVanessaCorrect === 'function') {
+            playVanessaCorrect();
+        }
+        
         // Highlight correct button
         buttons.forEach(btn => {
-            if (btn.textContent === answer) {
+            if (btn.textContent.includes(answer)) {
                 btn.classList.add('correct');
             }
         });
@@ -150,12 +157,17 @@ function checkIntervall(answer) {
         feedback.textContent = `❌ Falsch! Das war ${currentIntervall.short}, nicht ${getShortName(answer)}.`;
         feedback.className = 'feedback show wrong';
         
+        // Play Vanessa boo sound if in Vanessa mode
+        if (typeof playVanessaWrong === 'function') {
+            playVanessaWrong();
+        }
+        
         // Highlight wrong and correct buttons
         buttons.forEach(btn => {
-            if (btn.textContent === answer) {
+            if (btn.textContent.includes(answer)) {
                 btn.classList.add('wrong');
             }
-            if (btn.textContent === currentIntervall.name) {
+            if (btn.textContent.includes(currentIntervall.name)) {
                 btn.classList.add('correct');
             }
         });
