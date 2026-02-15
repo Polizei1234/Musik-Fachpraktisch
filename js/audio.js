@@ -6,6 +6,8 @@ let audioUnlocked = false;
 async function unlockAudio() {
     if (audioUnlocked) return true;
     
+    console.log('Unlocking audio...');
+    
     try {
         const ctx = getAudioContext();
         if (!ctx) return false;
@@ -13,6 +15,7 @@ async function unlockAudio() {
         // Resume context
         if (ctx.state === 'suspended') {
             await ctx.resume();
+            console.log('Context resumed:', ctx.state);
         }
         
         // Play actual audible sound to unlock
@@ -33,9 +36,10 @@ async function unlockAudio() {
         await new Promise(r => setTimeout(r, 150));
         
         audioUnlocked = true;
+        console.log('✅ Audio unlocked!');
         return true;
     } catch (e) {
-        console.error('Unlock failed:', e);
+        console.error('❌ Unlock failed:', e.message);
         return false;
     }
 }
@@ -46,9 +50,10 @@ function initAudio() {
     
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('✅ AudioContext created! State:', audioContext.state);
         return audioContext;
     } catch (e) {
-        console.error('Audio init failed:', e);
+        console.error('❌ Audio init failed:', e.message);
         return null;
     }
 }
@@ -126,8 +131,9 @@ function playPianoTone(frequency, startTime, duration) {
         masterGain.connect(filter);
         filter.connect(ctx.destination);
         
+        console.log('♫', Math.round(frequency), 'Hz');
     } catch (e) {
-        console.error('Play error:', e);
+        console.error('❌ Play error:', e.message);
     }
 }
 
@@ -138,7 +144,10 @@ async function playNote(noteName, duration = 0.5) {
     }
     
     const freq = noteFrequencies[noteName];
-    if (!freq) return;
+    if (!freq) {
+        console.error('❌ Unknown note:', noteName);
+        return;
+    }
     
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -148,9 +157,14 @@ async function playNote(noteName, duration = 0.5) {
 
 // Play sequence
 async function playNoteSequence(notes, gap = 0.15) {
+    console.log('▶ Sequence start');
+    
     if (!audioUnlocked) {
         const unlocked = await unlockAudio();
-        if (!unlocked) return;
+        if (!unlocked) {
+            console.error('❌ Cannot play - audio locked');
+            return;
+        }
     }
     
     const ctx = getAudioContext();
@@ -165,10 +179,14 @@ async function playNoteSequence(notes, gap = 0.15) {
             await new Promise(r => setTimeout(r, (0.8 + gap) * 1000));
         }
     }
+    
+    console.log('✓ Done');
 }
 
 // Play rhythm pattern
 async function playRhythmPattern(pattern, pitch = 'C4') {
+    console.log('▶ Rhythm');
+    
     if (!audioUnlocked) {
         await unlockAudio();
     }
@@ -191,6 +209,8 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     
     const totalDuration = (currentTime - ctx.currentTime) * 1000;
     await new Promise(r => setTimeout(r, totalDuration));
+    
+    console.log('✓ Done');
 }
 
 // Helpers
