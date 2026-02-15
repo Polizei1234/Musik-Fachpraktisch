@@ -95,7 +95,7 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Piano tone with harmonics
+// Piano tone with harmonics and NO CLICKS
 function playPianoTone(frequency, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -125,20 +125,27 @@ function playPianoTone(frequency, startTime, duration) {
             gain.connect(masterGain);
             
             osc.start(startTime);
-            osc.stop(startTime + duration);
+            osc.stop(startTime + duration + 0.1); // Stop slightly after for smooth fadeout
         });
         
-        // Piano ADSR envelope
-        const attackTime = 0.01;      // Fast attack
-        const decayTime = 0.2;        // Quick decay
-        const sustainLevel = 0.25;    // Lower sustain
-        const releaseTime = 0.4;      // Longer release
+        // Smooth ADSR envelope - CRITICAL: smooth fadeout prevents clicks
+        const attackTime = 0.005;     // Very fast attack
+        const decayTime = 0.1;        // Quick decay
+        const sustainLevel = 0.3;     // Sustain level
+        const releaseTime = 0.05;     // Short but smooth release
         
+        // Attack
         masterGain.gain.setValueAtTime(0, startTime);
-        masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
-        masterGain.gain.exponentialRampToValueAtTime(Math.max(0.01, sustainLevel), startTime + attackTime + decayTime);
+        masterGain.gain.linearRampToValueAtTime(0.7, startTime + attackTime);
+        
+        // Decay to sustain
+        masterGain.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
+        
+        // Hold sustain
         masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-        masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        // Release - MUST fade to 0 smoothly to prevent click!
+        masterGain.gain.linearRampToValueAtTime(0.0, startTime + duration);
         
         // Lowpass filter for warmth
         const filter = ctx.createBiquadFilter();
