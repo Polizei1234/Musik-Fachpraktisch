@@ -1,4 +1,4 @@
-// Safari-compatible audio with HTMLAudioElement fallback
+// Safari-compatible audio with piano sound
 let audioContext = null;
 let debugLog = [];
 let audioUnlocked = false;
@@ -95,32 +95,59 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Play tone with proper gain envelope
-function playTone(frequency, startTime, duration) {
+// Piano tone with harmonics
+function playPianoTone(frequency, startTime, duration) {
     const ctx = getAudioContext();
-    if (!ctx) {
-        log('❌ No context!');
-        return;
-    }
+    if (!ctx) return;
     
     try {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        const masterGain = ctx.createGain();
         
-        osc.frequency.value = frequency;
-        osc.type = 'sine';
+        // Harmonics for piano sound
+        const harmonics = [
+            { mult: 1.0, gain: 1.0 },      // Fundamental
+            { mult: 2.0, gain: 0.5 },      // Octave
+            { mult: 3.0, gain: 0.25 },     // Fifth above octave
+            { mult: 4.0, gain: 0.15 },     // Second octave
+            { mult: 5.0, gain: 0.08 },     // Major third above 2nd octave
+            { mult: 6.0, gain: 0.05 }      // Fifth above 2nd octave
+        ];
         
-        // Proper envelope to ensure sound plays
-        gain.gain.setValueAtTime(0, startTime);
-        gain.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
-        gain.gain.setValueAtTime(0.3, startTime + duration - 0.05);
-        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+        harmonics.forEach(harmonic => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = frequency * harmonic.mult;
+            gain.gain.value = harmonic.gain * 0.3;
+            
+            osc.connect(gain);
+            gain.connect(masterGain);
+            
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        });
         
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+        // Piano ADSR envelope
+        const attackTime = 0.01;      // Fast attack
+        const decayTime = 0.2;        // Quick decay
+        const sustainLevel = 0.25;    // Lower sustain
+        const releaseTime = 0.4;      // Longer release
         
-        osc.start(startTime);
-        osc.stop(startTime + duration);
+        masterGain.gain.setValueAtTime(0, startTime);
+        masterGain.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
+        masterGain.gain.exponentialRampToValueAtTime(Math.max(0.01, sustainLevel), startTime + attackTime + decayTime);
+        masterGain.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+        masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        // Lowpass filter for warmth
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 3000;
+        filter.Q.value = 1;
+        
+        masterGain.connect(filter);
+        filter.connect(ctx.destination);
         
         log('♫ ' + Math.round(frequency) + 'Hz');
     } catch (e) {
@@ -144,7 +171,7 @@ async function playNote(noteName, duration = 0.5) {
     const ctx = getAudioContext();
     if (!ctx) return;
     
-    playTone(freq, ctx.currentTime, duration);
+    playPianoTone(freq, ctx.currentTime, duration);
 }
 
 // Play sequence
@@ -168,6 +195,7 @@ async function playNoteSequence(notes, gap = 0.15) {
             playNote(note, 0.5);
             await new Promise(r => setTimeout(r, (0.5 + gap) * 1000));
         } else if (Array.isArray(note)) {
+            // Chord - play all at same time
             note.forEach(n => playNote(n, 0.8));
             await new Promise(r => setTimeout(r, (0.8 + gap) * 1000));
         }
@@ -176,7 +204,7 @@ async function playNoteSequence(notes, gap = 0.15) {
     log('✓ Done');
 }
 
-// Play rhythm
+// Play rhythm pattern
 async function playRhythmPattern(pattern, pitch = 'C4') {
     log('▶ Rhythm');
     
@@ -187,15 +215,22 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     const ctx = getAudioContext();
     if (!ctx) return;
     
-    const beatDuration = 1.0;
-    let delay = 0;
+    const beatDuration = 1.0; // 60 BPM
+    const freq = noteFrequencies[pitch];
+    if (!freq) return;
+    
+    let currentTime = ctx.currentTime + 0.05;
     
     for (const note of pattern) {
-        setTimeout(() => playNote(pitch, note.duration * beatDuration * 0.8), delay * 1000);
-        delay += note.duration * beatDuration;
+        if (note.duration > 0) {
+            playPianoTone(freq, currentTime, note.duration * beatDuration * 0.8);
+        }
+        currentTime += note.duration * beatDuration;
     }
     
-    await new Promise(r => setTimeout(r, delay * 1000));
+    const totalDuration = (currentTime - ctx.currentTime) * 1000;
+    await new Promise(r => setTimeout(r, totalDuration));
+    
     log('✓ Done');
 }
 
