@@ -1,24 +1,21 @@
-// Real piano samples - loads MP3 files from acoustic_grand_piano-mp3 folder
+// Real piano samples with preloading
 let audioContext = null;
 let audioUnlocked = false;
-const pianoSamples = {}; // Cache for loaded samples
+const pianoSamples = {};
 const SAMPLE_PATH = 'audio/acoustic_grand_piano-mp3/';
 
-// Map enharmonic notes to sample filenames
+// Map enharmonic notes
 const noteToSampleFile = {
-    // Sharp notes -> use the actual sample file name
     'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
 };
 
 function getSampleFilename(noteName) {
-    // noteName format: "C4", "C#4", etc.
     const match = noteName.match(/([A-G]#?)([0-9])/);
     if (!match) return null;
     
     let note = match[1];
     const octave = match[2];
     
-    // Convert sharp to flat for filename
     if (note.includes('#')) {
         note = noteToSampleFile[note] || note;
     }
@@ -34,7 +31,7 @@ async function loadPianoSample(noteName) {
     
     const filename = getSampleFilename(noteName);
     if (!filename) {
-        console.error('❌ Unknown note format:', noteName);
+        console.error('❌ Unknown note:', noteName);
         return null;
     }
     
@@ -44,7 +41,7 @@ async function loadPianoSample(noteName) {
     try {
         const response = await fetch(SAMPLE_PATH + filename);
         if (!response.ok) {
-            console.error(`❌ Failed to load ${filename}:`, response.statusText);
+            console.warn(`⚠️ Sample not found: ${filename}`);
             return null;
         }
         
@@ -52,7 +49,6 @@ async function loadPianoSample(noteName) {
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
         
         pianoSamples[noteName] = audioBuffer;
-        console.log('✅ Loaded:', filename);
         return audioBuffer;
     } catch (e) {
         console.error(`❌ Error loading ${filename}:`, e.message);
@@ -60,32 +56,25 @@ async function loadPianoSample(noteName) {
     }
 }
 
-// Force unlock Safari audio
+// Unlock audio
 async function unlockAudio() {
     if (audioUnlocked) return true;
-    
-    console.log('Unlocking audio...');
     
     try {
         const ctx = getAudioContext();
         if (!ctx) return false;
         
-        // Resume context
         if (ctx.state === 'suspended') {
             await ctx.resume();
-            console.log('Context resumed:', ctx.state);
         }
         
-        // Play silent sound to unlock
+        // Play silent tone
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        
         osc.frequency.value = 440;
         gain.gain.value = 0.01;
-        
         osc.connect(gain);
         gain.connect(ctx.destination);
-        
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.1);
         
@@ -95,7 +84,7 @@ async function unlockAudio() {
         console.log('✅ Audio unlocked!');
         return true;
     } catch (e) {
-        console.error('❌ Unlock failed:', e.message);
+        console.error('❌ Unlock failed:', e);
         return false;
     }
 }
@@ -106,10 +95,10 @@ function initAudio() {
     
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        console.log('✅ AudioContext created! State:', audioContext.state);
+        console.log('✅ AudioContext created');
         return audioContext;
     } catch (e) {
-        console.error('❌ Audio init failed:', e.message);
+        console.error('❌ Audio init failed:', e);
         return null;
     }
 }
@@ -118,7 +107,7 @@ function getAudioContext() {
     return audioContext || initAudio();
 }
 
-// Note frequencies for fallback
+// Note frequencies
 const noteFrequencies = {
     'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31,
     'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
@@ -133,7 +122,7 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Play piano sample
+// Play piano sample with LONGER duration
 async function playPianoSample(noteName, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -141,7 +130,7 @@ async function playPianoSample(noteName, startTime, duration) {
     try {
         const audioBuffer = await loadPianoSample(noteName);
         if (!audioBuffer) {
-            console.warn('⚠️ Sample not loaded, using fallback');
+            console.warn('⚠️ Using fallback synth');
             playPianoToneFallback(noteFrequencies[noteName], startTime, duration);
             return;
         }
@@ -151,30 +140,29 @@ async function playPianoSample(noteName, startTime, duration) {
         
         source.buffer = audioBuffer;
         
-        // Simple envelope for natural decay
-        gainNode.gain.setValueAtTime(0.8, startTime);
+        // Natural piano decay - longer sustain
+        gainNode.gain.setValueAtTime(0.9, startTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + Math.min(duration, audioBuffer.duration));
         
         source.connect(gainNode);
         gainNode.connect(ctx.destination);
         
         source.start(startTime);
-        source.stop(startTime + Math.min(duration + 0.1, audioBuffer.duration));
+        source.stop(startTime + Math.min(duration + 0.2, audioBuffer.duration));
         
         console.log('♫', noteName);
     } catch (e) {
-        console.error('❌ Play error:', e.message);
+        console.error('❌ Play error:', e);
     }
 }
 
-// Fallback synthesizer for when samples fail to load
+// Fallback synthesizer
 function playPianoToneFallback(frequency, startTime, duration) {
     const ctx = getAudioContext();
     if (!ctx) return;
     
     try {
         const masterGain = ctx.createGain();
-        
         const harmonics = [
             { mult: 1.0, gain: 1.0 },
             { mult: 2.0, gain: 0.4 },
@@ -182,17 +170,14 @@ function playPianoToneFallback(frequency, startTime, duration) {
             { mult: 4.0, gain: 0.15 }
         ];
         
-        harmonics.forEach(harmonic => {
+        harmonics.forEach(h => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            
             osc.type = 'sine';
-            osc.frequency.value = frequency * harmonic.mult;
-            gain.gain.value = harmonic.gain * 0.2;
-            
+            osc.frequency.value = frequency * h.mult;
+            gain.gain.value = h.gain * 0.2;
             osc.connect(gain);
             gain.connect(masterGain);
-            
             osc.start(startTime);
             osc.stop(startTime + duration + 0.1);
         });
@@ -201,21 +186,15 @@ function playPianoToneFallback(frequency, startTime, duration) {
         masterGain.gain.linearRampToValueAtTime(1.0, startTime + 0.002);
         masterGain.gain.linearRampToValueAtTime(0.2, startTime + 0.15);
         masterGain.gain.linearRampToValueAtTime(0.0, startTime + duration);
-        
         masterGain.connect(ctx.destination);
-        
-        console.log('♫ [fallback]', Math.round(frequency), 'Hz');
     } catch (e) {
-        console.error('❌ Fallback play error:', e.message);
+        console.error('❌ Fallback error:', e);
     }
 }
 
-// Play single note
-async function playNote(noteName, duration = 0.5) {
-    if (!audioUnlocked) {
-        await unlockAudio();
-    }
-    
+// Play single note - LONGER DURATION (was 0.5, now 1.0)
+async function playNote(noteName, duration = 1.0) {
+    if (!audioUnlocked) await unlockAudio();
     if (!noteFrequencies[noteName]) {
         console.error('❌ Unknown note:', noteName);
         return;
@@ -228,42 +207,35 @@ async function playNote(noteName, duration = 0.5) {
 }
 
 // Play sequence
-async function playNoteSequence(notes, gap = 0.15) {
+async function playNoteSequence(notes, gap = 0.2) {
     console.log('▶ Sequence start');
     
     if (!audioUnlocked) {
         const unlocked = await unlockAudio();
         if (!unlocked) {
-            console.error('❌ Cannot play - audio locked');
+            console.error('❌ Audio locked');
             return;
         }
     }
     
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    
     for (const note of notes) {
         if (typeof note === 'string') {
-            await playNote(note, 0.5);
-            await new Promise(r => setTimeout(r, (0.5 + gap) * 1000));
+            await playNote(note, 1.0);
+            await new Promise(r => setTimeout(r, (1.0 + gap) * 1000));
         } else if (Array.isArray(note)) {
-            // Play chord - all notes simultaneously
-            const promises = note.map(n => playNote(n, 0.8));
+            const promises = note.map(n => playNote(n, 1.2));
             await Promise.all(promises);
-            await new Promise(r => setTimeout(r, (0.8 + gap) * 1000));
+            await new Promise(r => setTimeout(r, (1.2 + gap) * 1000));
         }
     }
     
     console.log('✓ Done');
 }
 
-// Play rhythm pattern
+// Play rhythm
 async function playRhythmPattern(pattern, pitch = 'C4') {
     console.log('▶ Rhythm');
-    
-    if (!audioUnlocked) {
-        await unlockAudio();
-    }
+    if (!audioUnlocked) await unlockAudio();
     
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -280,7 +252,6 @@ async function playRhythmPattern(pattern, pitch = 'C4') {
     
     const totalDuration = (currentTime - ctx.currentTime) * 1000;
     await new Promise(r => setTimeout(r, totalDuration));
-    
     console.log('✓ Done');
 }
 
@@ -306,18 +277,24 @@ function noteToVexFlow(noteName) {
     return noteName;
 }
 
-// Preload common notes for better performance
-async function preloadCommonNotes() {
-    const commonNotes = ['C3', 'C4', 'C5', 'G3', 'G4', 'G5', 'E3', 'E4', 'E5'];
-    const promises = commonNotes.map(note => loadPianoSample(note));
+// Preload all notes from G3 to G5 (Intervalle range)
+async function preloadSamples() {
+    console.log('🔄 Preloading piano samples...');
+    const notesToPreload = [
+        'G3', 'G#3', 'A3', 'A#3', 'B3',
+        'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4',
+        'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5'
+    ];
+    
+    const promises = notesToPreload.map(note => loadPianoSample(note));
     await Promise.all(promises);
-    console.log('✅ Common notes preloaded');
+    console.log('✅ Samples preloaded!');
 }
 
 // Test
 async function testAudio() {
     await unlockAudio();
-    await playNote('C4', 0.3);
-    setTimeout(() => playNote('E4', 0.3), 400);
-    setTimeout(() => playNote('G4', 0.3), 800);
+    await playNote('C4', 1.0);
+    setTimeout(() => playNote('E4', 1.0), 1200);
+    setTimeout(() => playNote('G4', 1.0), 2400);
 }

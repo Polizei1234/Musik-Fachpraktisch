@@ -1,86 +1,114 @@
 # 🎵 Gehörbildungstrainer
 
-Ein interaktiver Webtrainer für das fachpraktische Abitur BW Musik LK - entwickelt nach den offiziellen Durchführungsbestimmungen des Kultusministeriums Baden-Württemberg.
+> Interaktiver Webtrainer für das fachpraktische Abitur Baden-Württemberg - Musik Leistungskurs
 
-## ✅ Features
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://polizei1234.github.io/Musik-Fachpraktisch/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-### Intervalle
-- **13 verschiedene Intervalle**: Prime, kleine/große Sekunde, kleine/große Terz, Quarte, Tritonus, Quinte, kleine/große Sexte, kleine/große Septime, Oktave
-- Tonbereich: C3 bis C6
-- Abspielmodus: Erst nacheinander, dann zusammen
-- Sofortiges Feedback mit visueller Notennotation
-- Statistik-Tracking
+## ✨ Features
 
-### Akkorde
-- **9 verschiedene Akkordtypen**:
-  - Dur8 (Durdreiklang mit Oktave)
-  - Dmaj7 (Dur mit großer Septime)
-  - D7 (Dur mit kleiner Septime)
-  - D56 (Dur mit Sexte)
-  - Moll8 (Molldreiklang mit Oktave)
-  - Moll7 (Moll mit kleiner Septime)
-  - Moll56 (Moll mit Sexte)
-  - Vermindert (verminderter Septakkord)
-  - Übermäßig (übermäßiger Dreiklang mit Oktave)
-- Tonbereich: C3 bis C6
-- Abspielmodus: Erst aufwärts, dann zusammen
-- Vierstimmig in Grundstellung
-- Sofortiges Feedback mit Notennotation
+### 🎼 Intervalle
+- **12 verschiedene Intervalle** (kleine Sekunde bis reine Oktave)
+- **Tonraum:** g bis g² (G3-G5)
+- **Diktiermodus:** Erst einzeln, dann zusammen
+- Sofortige Auswertung mit visueller Notennotation
+- Live-Statistik (Richtig/Falsch/Gesamt)
 
-### Melodiediktat
-**Nach offiziellen BW-Richtlinien:**
-- 4 Takte im 4/4-Takt
-- Tonarten bis zu 3 Vorzeichen (Dur und harmonisch Moll)
-- Nur leitereigene Töne
-- Ambitus über einer Oktave
-- Kadenz zur Tonartbefestigung
-- Offizieller Diktiermodus: 1-4, dann 1-1-1, 2-2-2, 3-3-3, 4-4-4, dann 1-4
-- Tonart und Anfangston werden angezeigt
+### 🎹 Akkorde
+- **9 verschiedene Akkordtypen:**
+  - Durdreiklang (D), Molldreiklang (M), Übermäßiger Dreiklang (ü)
+  - D7, Dmaj7, M7, v7
+  - D5/6, M5/6
+- **4-stimmig** in enger Lage, Grundstellung
+- **Tonraum:** g bis c³ (G3-C6)
+- **Diktiermodus:** Erst aufsteigend einzeln, dann zusammen
 
-### Rhythmusdiktat
-**Nach offiziellen BW-Richtlinien:**
-- 4 Takte im 4/4-Takt
-- Notenwerte: Viertel, Achtel, Sechzehntel
-- Enthält: Synkopen, Triolen, Punktierungen
-- Tempo: Viertel = ca. 60 BPM
-- Offizieller Diktiermodus: 1-4, dann 1-1-1, 2-2-2, 3-3-3, 4-4-4, dann 1-4
+### 🥁 Rhythmusdiktat
+- **4 Takte** im 4/4-Takt
+- **Tempo:** ♩ = ca. 60 BPM
+- **Elemente:** Synkopen, Triolen, Punktierungen
+- **Diktiermodus:** 1-4 → einzeln → 1-4 (wie in der Prüfung)
+- Lösung zur Selbstkontrolle
 
-## 🎹 Technologie
+## 🎧 Audioquality
 
-- **Reine Webanwendung** (HTML, CSS, JavaScript)
-- **Web Audio API** mit realistischem Klavierklang (6 Harmonische, ADSR-Envelope)
-- **VexFlow** für professionelle Notennotation
-- **Keine Installation notwendig** - funktioniert direkt im Browser
-- **Responsiv** - funktioniert auf Desktop, Tablet und Smartphone
+- **Echte Klaviersamples** (Acoustic Grand Piano)
+- **Hochwertige MP3-Aufnahmen** aus [MIDI.js Soundfonts](https://github.com/gleitz/midi-js-soundfonts)
+- Automatisches Preloading für flüssige Wiedergabe
+- Fallback-Synthesizer bei Ladefehlern
+
+## 💻 Technologie
+
+- **Pure Web-App** – HTML5, CSS3, JavaScript (ES6+)
+- **Web Audio API** für Audio-Wiedergabe
+- **VexFlow** für professionelle Notendarstellung
+- **Glassmorphism UI** für modernen Look
+- **Responsive Design** – funktioniert auf allen Geräten
 
 ## 🚀 Nutzung
 
-### Online
-Besuche: [https://polizei1234.github.io/Musik-Fachpraktisch/](https://polizei1234.github.io/Musik-Fachpraktisch/)
+### Online (empfohlen)
+**Direkt im Browser:** [https://polizei1234.github.io/Musik-Fachpraktisch/](https://polizei1234.github.io/Musik-Fachpraktisch/)
 
 ### Lokal
-1. Repository klonen: `git clone https://github.com/Polizei1234/Musik-Fachpraktisch.git`
-2. `index.html` im Browser öffnen
-3. Fertig!
+```bash
+git clone https://github.com/Polizei1234/Musik-Fachpraktisch.git
+cd Musik-Fachpraktisch
+# Öffne index.html im Browser
+```
+
+**Hinweis:** Bei lokaler Nutzung einen lokalen Server verwenden (z.B. `python -m http.server` oder Live Server Extension), damit die Samples korrekt laden.
 
 ## 📚 Entwickelt für
 
-Fachpraktisches Abitur Baden-Württemberg - Musik Leistungskurs
+**Fachpraktisches Abitur Baden-Württemberg** • Musik Leistungskurs
 
-Basierend auf den offiziellen Durchführungsbestimmungen des Ministeriums für Kultus, Jugend und Sport Baden-Württemberg (gültig ab Abitur 2023).
+Basierend auf den offiziellen Durchführungsbestimmungen des Ministeriums für Kultus, Jugend und Sport Baden-Württemberg.
 
-## 🛠️ Entwicklungsstand
+## 🛠️ Projektstruktur
 
-- ✅ Intervalle (vollständig)
-- ✅ Akkorde (vollständig)
-- ✅ Melodiediktat (vollständig)
-- ✅ Rhythmusdiktat (vollständig)
-- 🚧 Prüfungsmodus (geplant)
-
-## 📝 Lizenz
-
-MIT License - Frei nutzbar für Bildungszwecke
+```
+Musik-Fachpraktisch/
+├── index.html              # Hauptseite
+├── css/
+│   └── style.css           # Modernes Design
+├── js/
+│   ├── app.js              # App-Logik
+│   ├── audio.js            # Audio-Engine mit Samples
+│   ├── notation.js         # VexFlow Notennotation
+│   ├── intervalle.js       # Intervall-Übungen
+│   ├── akkorde.js          # Akkord-Übungen
+│   └── rhythmus.js         # Rhythmusdiktat
+└── audio/
+    └── acoustic_grand_piano-mp3/  # Klaviersamples
+```
 
 ## 👥 Für Mitschüler
 
-Dieses Programm ist frei verfügbar und kann von allen Schülern im Musik-LK genutzt werden. Einfach den Link teilen!
+Dieses Tool ist **kostenlos** und kann von allen Schülern im Musik-LK genutzt werden. Einfach den Link teilen!
+
+📌 **Link:** [https://polizei1234.github.io/Musik-Fachpraktisch/](https://polizei1234.github.io/Musik-Fachpraktisch/)
+
+## 🔧 Entwicklungsstand
+
+- ✅ Intervalle (vollständig)
+- ✅ Akkorde (vollständig)
+- ✅ Rhythmusdiktat (vollständig)
+- ✅ Echte Klaviersamples
+- ✅ Modernes UI-Design
+- 🚧 Melodiediktat (in Planung)
+- 🚧 Prüfungsmodus (in Planung)
+
+## 📝 Lizenz
+
+MIT License – Frei nutzbar für Bildungszwecke
+
+## 🎹 Credits
+
+- **Piano-Samples:** [MIDI.js Soundfonts](https://github.com/gleitz/midi-js-soundfonts) (Acoustic Grand Piano)
+- **Notennotation:** [VexFlow](https://www.vexflow.com/)
+- **Entwickelt von:** Polizei1234
+
+---
+
+**⭐ Viel Erfolg beim Üben und im Abitur! ⭐**

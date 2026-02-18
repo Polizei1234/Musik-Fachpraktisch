@@ -3,113 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musik Fachpraktisch - Gehörbildung</title>
+    <title>Gehörbildungstrainer - Musik Abitur BW</title>
+    <meta name="description" content="Interaktiver Gehörbildungstrainer für das fachpraktische Abitur Baden-Württemberg Musik LK">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/themes.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Settings Button (fixed top-right) -->
-    <button class="settings-button" onclick="openSettings()" title="Einstellungen">⚙️</button>
-    
-    <!-- Audio elements for Vanessa Mode -->
-    <audio id="vanessa-bg-music" loop>
-        <source src="audio/river-flows.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="vanessa-correct">
-        <source src="audio/clap.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="vanessa-wrong">
-        <source src="audio/boo.mp3" type="audio/mpeg">
-    </audio>
-    
     <div id="app">
-        <!-- Willkommensbildschirm -->
+        <!-- Welcome Screen -->
         <div id="welcome-screen" class="screen active">
             <div class="container">
                 <h1>🎵 Gehörbildungstrainer</h1>
-                <p class="subtitle">Fachpraktisches Abitur BW - Musik LK</p>
+                <p class="subtitle">Fachpraktisches Abitur Baden-Württemberg • Musik Leistungskurs</p>
                 
                 <div class="exercise-grid">
                     <button class="exercise-card" onclick="startExercise('intervalle')">
                         <div class="card-icon">🎼</div>
                         <h2>Intervalle</h2>
-                        <p>12 Intervalle (k2 bis r8)</p>
+                        <p>12 Intervalle erkennen</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Tonraum: g – g²</p>
                     </button>
                     
                     <button class="exercise-card" onclick="startExercise('akkorde')">
                         <div class="card-icon">🎹</div>
                         <h2>Akkorde</h2>
-                        <p>9 Akkorde (4-stimmig)</p>
+                        <p>9 Akkordtypen bestimmen</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">4-stimmig, Grundstellung</p>
                     </button>
                     
                     <button class="exercise-card" onclick="startExercise('rhythmus')">
                         <div class="card-icon">🥁</div>
                         <h2>Rhythmusdiktat</h2>
-                        <p>4 Takte, 4/4-Takt</p>
+                        <p>4 Takte notieren</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">4/4-Takt, Tempo ♩ = 60</p>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Einstellungen -->
-        <div id="settings-screen" class="screen">
-            <div class="container">
-                <button class="back-button" onclick="goHome()">← Zurück</button>
-                
-                <h1>⚙️ Einstellungen</h1>
-                
-                <div class="exercise-area">
-                    <h2>Theme auswählen</h2>
-                    <div class="theme-grid">
-                        <button class="theme-btn" onclick="setTheme('dark')">
-                            <div class="theme-preview dark-preview"></div>
-                            <span>Dunkel</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('light')">
-                            <div class="theme-preview light-preview"></div>
-                            <span>Hell</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('besch')">
-                            <div class="theme-preview besch-preview"></div>
-                            <span>Vanessa Modus</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('pastel-pink')">
-                            <div class="theme-preview pastel-pink-preview"></div>
-                            <span>Pastell Rosa</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('pastel-blue')">
-                            <div class="theme-preview pastel-blue-preview"></div>
-                            <span>Pastell Blau</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('pastel-green')">
-                            <div class="theme-preview pastel-green-preview"></div>
-                            <span>Pastell Grün</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('pastel-purple')">
-                            <div class="theme-preview pastel-purple-preview"></div>
-                            <span>Pastell Lila</span>
-                        </button>
-                        
-                        <button class="theme-btn" onclick="setTheme('pastel-orange')">
-                            <div class="theme-preview pastel-orange-preview"></div>
-                            <span>Pastell Orange</span>
-                        </button>
-                    </div>
-                    
-                    <p style="margin-top: 30px; text-align: center; color: var(--text-secondary);">
-                        <em>✨ Deine Auswahl wird automatisch gespeichert ✨</em>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Intervall-Übung -->
+        <!-- Intervalle Screen -->
         <div id="intervalle-screen" class="screen">
             <div class="container">
                 <button class="back-button" onclick="goHome()">← Zurück</button>
@@ -125,7 +59,7 @@
                 <div class="exercise-area">
                     <div class="info-box">
                         <p><strong>Tonraum:</strong> g bis g² (G3 bis G5)</p>
-                        <p><em>Diktiermodus: Erst einzeln, dann zusammen</em></p>
+                        <p><strong>Diktiermodus:</strong> Erst einzeln, dann zusammen</p>
                     </div>
 
                     <div id="notation-intervall" class="notation-display"></div>
@@ -160,7 +94,7 @@
             </div>
         </div>
 
-        <!-- Akkord-Übung -->
+        <!-- Akkorde Screen -->
         <div id="akkorde-screen" class="screen">
             <div class="container">
                 <button class="back-button" onclick="goHome()">← Zurück</button>
@@ -177,7 +111,7 @@
                     <div class="info-box">
                         <p><strong>Tonraum:</strong> g bis c³ (G3 bis C6)</p>
                         <p><strong>Lage:</strong> Grundstellung, enge Lage, 4-stimmig</p>
-                        <p><em>Diktiermodus: Erst einzeln, dann zusammen</em></p>
+                        <p><strong>Diktiermodus:</strong> Erst einzeln, dann zusammen</p>
                     </div>
 
                     <div id="notation-akkord" class="notation-display"></div>
@@ -209,7 +143,7 @@
             </div>
         </div>
 
-        <!-- Rhythmusdiktat -->
+        <!-- Rhythmus Screen -->
         <div id="rhythmus-screen" class="screen">
             <div class="container">
                 <button class="back-button" onclick="goHome()">← Zurück</button>
@@ -224,15 +158,15 @@
                     <div class="info-box">
                         <p><strong>Taktart:</strong> 4/4-Takt</p>
                         <p><strong>Umfang:</strong> 4 Takte</p>
-                        <p><strong>Tempo:</strong> Viertel = ca. 60</p>
-                        <p><em>Enthält: Synkopen, Triolen, Punktierungen</em></p>
+                        <p><strong>Tempo:</strong> Viertel = ca. 60 BPM</p>
+                        <p><strong>Elemente:</strong> Synkopen, Triolen, Punktierungen</p>
                         <p><em>Notiere den Rhythmus auf Notenpapier!</em></p>
                     </div>
 
                     <div id="notation-rhythmus" class="notation-display"></div>
                     
                     <div class="controls">
-                        <button class="btn-primary" id="play-rhythmus" onclick="playRhythmus()">▶ Start: Vorzählen + Takt 1-4</button>
+                        <button class="btn-primary" id="play-rhythmus" onclick="playRhythmus()">▶ Vorzählen + Takte 1-4</button>
                         <button class="btn-primary" id="continue-rhythmus" onclick="continueRhythmus()" style="display: none;">Weiter ▶</button>
                     </div>
 
@@ -242,17 +176,17 @@
 
                     <div class="feedback" id="rhythmus-feedback"></div>
                     
-                    <button class="btn-primary" id="next-rhythmus" onclick="nextRhythmus()" style="display: none;">Nächster Rhythmus →</button>
+                    <button class="btn-primary" id="next-rhythmus" onclick="nextRhythmus()" style="display: none;">Neuer Rhythmus →</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer with copyright -->
-    <footer style="text-align: center; padding: 20px; margin-top: 50px; color: var(--text-secondary); font-size: 0.85em; border-top: 1px solid var(--border-color);">
-        <p>© 2026 Jannik Herre - Alle Rechte vorbehalten</p>
-        <p style="margin-top: 5px;">
-            Piano-Samples: <a href="https://github.com/gleitz/midi-js-soundfonts" target="_blank" rel="noopener" style="color: var(--primary-color);">MIDI.js Soundfonts</a> (Acoustic Grand Piano)
+    <!-- Footer -->
+    <footer>
+        <p><strong>© 2026 Polizei1234</strong> • Alle Rechte vorbehalten</p>
+        <p style="margin-top: 0.5rem;">
+            Piano-Samples: <a href="https://github.com/gleitz/midi-js-soundfonts" target="_blank" rel="noopener">MIDI.js Soundfonts</a> (Acoustic Grand Piano)
         </p>
     </footer>
 
@@ -262,8 +196,6 @@
     <script src="js/intervalle.js"></script>
     <script src="js/akkorde.js"></script>
     <script src="js/rhythmus.js"></script>
-    <script src="js/themes.js"></script>
-    <script src="js/vanessa-sounds.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
