@@ -42,12 +42,6 @@
                         <p>9 Akkorde (4-stimmig)</p>
                     </button>
                     
-                    <button class="exercise-card" onclick="startExercise('melodie')">
-                        <div class="card-icon">🎶</div>
-                        <h2>Melodiediktat</h2>
-                        <p>4 Takte, bis 3 Vorzeichen</p>
-                    </button>
-                    
                     <button class="exercise-card" onclick="startExercise('rhythmus')">
                         <div class="card-icon">🥁</div>
                         <h2>Rhythmusdiktat</h2>
@@ -215,46 +209,6 @@
             </div>
         </div>
 
-        <!-- Melodiediktat -->
-        <div id="melodie-screen" class="screen">
-            <div class="container">
-                <button class="back-button" onclick="goHome()">← Zurück</button>
-                
-                <h1>Melodiediktat</h1>
-                
-                <div class="stats-bar">
-                    <span>Gesamt: <strong id="melodie-total">0</strong></span>
-                </div>
-
-                <div class="exercise-area">
-                    <div class="warning-box">
-                        <p><strong>⚠️ Hinweis:</strong> Das Melodiediktat funktioniert aktuell noch nicht vollständig korrekt. Die Rhythmen und Töne entsprechen möglicherweise nicht den exakten BW-Vorgaben. Bitte verwende diese Übung mit Vorsicht und vergleiche mit anderen Quellen!</p>
-                    </div>
-                    
-                    <div class="info-box">
-                        <p><strong>Tonart:</strong> <span id="melodie-tonart"></span></p>
-                        <p><strong>Anfangston:</strong> <span id="melodie-startton"></span></p>
-                        <p><em>Notiere die Melodie auf Notenpapier!</em></p>
-                    </div>
-
-                    <div id="notation-melodie" class="notation-display"></div>
-                    
-                    <div class="controls">
-                        <button class="btn-primary" id="play-melodie" onclick="playMelodie()">▶ Start: Kadenz + Vorzählen + Takt 1-4</button>
-                        <button class="btn-primary" id="continue-melodie" onclick="continueMelodie()" style="display: none;">Weiter ▶</button>
-                    </div>
-
-                    <div class="answer-section">
-                        <button class="btn-primary" id="show-melodie-solution" onclick="showMelodieSolution()" style="display: none;">Lösung anzeigen</button>
-                    </div>
-
-                    <div class="feedback" id="melodie-feedback"></div>
-                    
-                    <button class="btn-primary" id="next-melodie" onclick="nextMelodie()" style="display: none;">Nächste Melodie →</button>
-                </div>
-            </div>
-        </div>
-
         <!-- Rhythmusdiktat -->
         <div id="rhythmus-screen" class="screen">
             <div class="container">
@@ -299,7 +253,6 @@
     <script src="js/notation.js"></script>
     <script src="js/intervalle.js"></script>
     <script src="js/akkorde.js"></script>
-    <script src="js/melodie.js"></script>
     <script src="js/rhythmus.js"></script>
     <script src="js/themes.js"></script>
     <script src="js/vanessa-sounds.js"></script>
