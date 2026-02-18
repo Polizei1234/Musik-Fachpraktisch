@@ -1,7 +1,7 @@
 // Intervall-Übung nach BW-Richtlinien
 // Tonraum: g bis g2 (G3 bis G5)
 // k2, g2, k3, g3, r4, Tritonus, r5, k6, g6, k7, g7, r8
-// Diktiermodus: Erst einzeln (nicht liegen lassen), dann zusammen (jeweils einmal)
+// Diktiermodus: Erst einzeln (Viertel bei BPM=60 = 1 Sekunde), dann zusammen
 
 const intervalle = [
     { name: 'Kleine Sekunde', semitones: 1, short: 'k2' },
@@ -31,16 +31,13 @@ function initIntervalle() {
 function generateNewIntervall() {
     hasPlayedIntervall = false;
     
-    // Random interval
     const intervall = intervalle[Math.floor(Math.random() * intervalle.length)];
     
     // Random base note in range g (G3) to g2 (G5)
-    // But ensure second note doesn't exceed g2
     const minIndex = allNotes.indexOf('G3');
     const maxIndex = allNotes.indexOf('G5') - intervall.semitones;
     
     if (maxIndex < minIndex) {
-        // Interval too large for this range, use smaller interval
         generateNewIntervall();
         return;
     }
@@ -50,7 +47,6 @@ function generateNewIntervall() {
     const secondNote = getNoteByInterval(baseNote, intervall.semitones);
     
     if (!secondNote) {
-        // Skip if note out of range
         generateNewIntervall();
         return;
     }
@@ -63,10 +59,8 @@ function generateNewIntervall() {
         semitones: intervall.semitones
     };
     
-    // Clear previous notation
     clearNotation('notation-intervall');
     
-    // Reset UI
     document.getElementById('intervall-feedback').classList.remove('show', 'correct', 'wrong');
     document.getElementById('intervall-feedback').textContent = '';
     document.getElementById('next-intervall').style.display = 'none';
@@ -74,7 +68,6 @@ function generateNewIntervall() {
     document.getElementById('play-intervall').disabled = false;
     document.getElementById('replay-intervall').disabled = true;
     
-    // Reset answer buttons
     document.querySelectorAll('#intervall-answer-section .answer-btn').forEach(btn => {
         btn.disabled = false;
         btn.classList.remove('correct', 'wrong');
@@ -84,7 +77,6 @@ function generateNewIntervall() {
 async function playIntervall() {
     if (!currentIntervall) return;
     
-    // FORCE unlock audio on first play
     if (typeof unlockAudio === 'function') {
         await unlockAudio();
     }
@@ -95,26 +87,37 @@ async function playIntervall() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing interval:', currentIntervall.baseNote, currentIntervall.secondNote);
+    console.log('Playing interval (BPM=60, quarter notes):', currentIntervall.baseNote, currentIntervall.secondNote);
     
     try {
-        // Play first note
-        await playNoteSequence([currentIntervall.baseNote], 0.3);
-        console.log('First note played');
+        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
+        const quarterNote = 1.0; // 1 second duration
+        const pause = 1000; // 1 second pause in milliseconds
         
-        // Short pause
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Play first note (1 second)
+        await playNote(currentIntervall.baseNote, quarterNote);
+        console.log('First note played (1s)');
         
-        // Play second note
-        await playNoteSequence([currentIntervall.secondNote], 0.3);
-        console.log('Second note played');
+        // Wait 1 second
+        await new Promise(resolve => setTimeout(resolve, pause));
         
-        // Short pause
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Play second note (1 second)
+        await playNote(currentIntervall.secondNote, quarterNote);
+        console.log('Second note played (1s)');
         
-        // Play both together
-        await playNoteSequence([[currentIntervall.baseNote, currentIntervall.secondNote]], 0.1);
-        console.log('Both notes played together');
+        // Wait 1 second
+        await new Promise(resolve => setTimeout(resolve, pause));
+        
+        // Play both together (longer for chord)
+        const ctx = getAudioContext();
+        if (ctx) {
+            await playPianoSample(currentIntervall.baseNote, ctx.currentTime, 1.5);
+            await playPianoSample(currentIntervall.secondNote, ctx.currentTime, 1.5);
+        }
+        console.log('Both notes played together (1.5s)');
+        
+        // Wait for chord to finish
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
     } catch (error) {
         console.error('Error playing interval:', error);
@@ -137,7 +140,6 @@ function checkIntervall(answer) {
     const feedback = document.getElementById('intervall-feedback');
     const buttons = document.querySelectorAll('#intervall-answer-section .answer-btn');
     
-    // Disable all buttons
     buttons.forEach(btn => btn.disabled = true);
     
     intervallStats.total++;
@@ -149,12 +151,6 @@ function checkIntervall(answer) {
         feedback.textContent = `✅ Richtig! Das war ${currentIntervall.short}.`;
         feedback.className = 'feedback show correct';
         
-        // Play Vanessa clap sound if in Vanessa mode
-        if (typeof playVanessaCorrect === 'function') {
-            playVanessaCorrect();
-        }
-        
-        // Highlight correct button
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
                 btn.classList.add('correct');
@@ -165,12 +161,6 @@ function checkIntervall(answer) {
         feedback.textContent = `❌ Falsch! Das war ${currentIntervall.short}, nicht ${getShortName(answer)}.`;
         feedback.className = 'feedback show wrong';
         
-        // Play Vanessa boo sound if in Vanessa mode
-        if (typeof playVanessaWrong === 'function') {
-            playVanessaWrong();
-        }
-        
-        // Highlight wrong and correct buttons
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
                 btn.classList.add('wrong');
@@ -181,18 +171,13 @@ function checkIntervall(answer) {
         });
     }
     
-    // Show notation after answer
     displayInterval('notation-intervall', currentIntervall.baseNote, currentIntervall.secondNote);
     
     updateIntervallStats();
     
-    // ALWAYS show next button
     const nextBtn = document.getElementById('next-intervall');
     if (nextBtn) {
         nextBtn.style.display = 'block';
-        console.log('Next button shown');
-    } else {
-        console.error('Next button not found!');
     }
 }
 

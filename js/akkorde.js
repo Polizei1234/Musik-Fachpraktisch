@@ -2,11 +2,12 @@
 // 9 Akkorde: D, M, ü, D7, Dmaj7, M7, v7, D5/6, M5/6
 // 4-stimmig, Grundstellung, enge Lage
 // Tonraum: g bis c3 (G3 bis C6)
+// Diktiermodus: Erst einzeln (Viertel bei BPM=60 = 1 Sekunde), dann zusammen
 
 const akkorde = [
-    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7, 12] },        // Add octave
-    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7, 12] },       // Add octave
-    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8, 12] }, // Add octave
+    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7, 12] },
+    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7, 12] },
+    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8, 12] },
     { name: 'D7', short: 'D7', intervals: [0, 4, 7, 10] },
     { name: 'Dmaj7', short: 'Dmaj7', intervals: [0, 4, 7, 11] },
     { name: 'M7', short: 'M7', intervals: [0, 3, 7, 10] },
@@ -30,16 +31,13 @@ function generateNewAkkord() {
     
     const akkord = akkorde[Math.floor(Math.random() * akkorde.length)];
     
-    // Random root note between G3 and C4 to ensure octave fits within G3-C6
     const minIndex = allNotes.indexOf('G3');
-    const maxIndex = allNotes.indexOf('C4'); // Lower to fit octave
+    const maxIndex = allNotes.indexOf('C4');
     const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
     const rootNote = allNotes[randomIndex];
     
-    // Build chord notes
     const notes = akkord.intervals.map(interval => getNoteByInterval(rootNote, interval));
     
-    // Verify all notes are in range
     if (notes.some(note => !note || allNotes.indexOf(note) > allNotes.indexOf('C6'))) {
         generateNewAkkord();
         return;
@@ -53,7 +51,7 @@ function generateNewAkkord() {
         intervals: akkord.intervals
     };
     
-    console.log('Generated 4-voiced chord:', currentAkkord.short, 'with', notes.length, 'notes:', notes);
+    console.log('Generated chord:', currentAkkord.short, '- notes:', notes);
     
     clearNotation('notation-akkord');
     
@@ -73,7 +71,6 @@ function generateNewAkkord() {
 async function playAkkord() {
     if (!currentAkkord) return;
     
-    // FORCE unlock audio on first play
     if (typeof unlockAudio === 'function') {
         await unlockAudio();
     }
@@ -84,21 +81,41 @@ async function playAkkord() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing 4-voiced chord:', currentAkkord.notes.length, 'notes:', currentAkkord.notes);
+    console.log('Playing chord (BPM=60, quarter notes):', currentAkkord.notes);
     
     try {
-        // Play each note individually first
-        for (const note of currentAkkord.notes) {
-            await playNoteSequence([note], 0.15);
-            console.log('Chord note played:', note);
-            await new Promise(resolve => setTimeout(resolve, 300));
+        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
+        const quarterNote = 1.0; // 1 second duration
+        const pause = 1000; // 1 second pause in milliseconds
+        
+        // Play each note individually (1 second each + 1 second pause)
+        for (let i = 0; i < currentAkkord.notes.length; i++) {
+            const note = currentAkkord.notes[i];
+            console.log(`Playing note ${i+1}/${currentAkkord.notes.length}: ${note}`);
+            
+            await playNote(note, quarterNote);
+            
+            // Pause between notes (except after last note)
+            if (i < currentAkkord.notes.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, pause));
+            }
         }
         
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Wait 1 second before playing together
+        await new Promise(resolve => setTimeout(resolve, pause));
         
-        // Play all notes together
-        await playNoteSequence([currentAkkord.notes], 0.1);
-        console.log('All', currentAkkord.notes.length, 'notes played together');
+        // Play all notes together (longer for chord)
+        console.log('Playing all notes together');
+        const ctx = getAudioContext();
+        if (ctx) {
+            const startTime = ctx.currentTime;
+            for (const note of currentAkkord.notes) {
+                await playPianoSample(note, startTime, 1.5);
+            }
+        }
+        
+        // Wait for chord to finish
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
     } catch (error) {
         console.error('Error playing chord:', error);
@@ -132,11 +149,6 @@ function checkAkkord(answer) {
         feedback.textContent = `✅ Richtig! Das war ${currentAkkord.short}.`;
         feedback.className = 'feedback show correct';
         
-        // Play Vanessa clap sound if in Vanessa mode
-        if (typeof playVanessaCorrect === 'function') {
-            playVanessaCorrect();
-        }
-        
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
                 btn.classList.add('correct');
@@ -146,11 +158,6 @@ function checkAkkord(answer) {
         akkordStats.wrong++;
         feedback.textContent = `❌ Falsch! Das war ${currentAkkord.short}, nicht ${getAkkordShort(answer)}.`;
         feedback.className = 'feedback show wrong';
-        
-        // Play Vanessa boo sound if in Vanessa mode
-        if (typeof playVanessaWrong === 'function') {
-            playVanessaWrong();
-        }
         
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) {
@@ -166,13 +173,9 @@ function checkAkkord(answer) {
     
     updateAkkordStats();
     
-    // ALWAYS show next button
     const nextBtn = document.getElementById('next-akkord');
     if (nextBtn) {
         nextBtn.style.display = 'block';
-        console.log('Next button shown');
-    } else {
-        console.error('Next button not found!');
     }
 }
 
