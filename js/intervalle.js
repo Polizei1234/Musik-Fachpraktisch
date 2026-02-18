@@ -1,7 +1,6 @@
 // Intervall-Übung nach BW-Richtlinien
 // Tonraum: g bis g2 (G3 bis G5)
-// k2, g2, k3, g3, r4, Tritonus, r5, k6, g6, k7, g7, r8
-// Diktiermodus: Erst einzeln (Viertel bei BPM=60 = 1 Sekunde), dann zusammen
+// Diktiermodus: Kontinuierlicher Loop ohne Pausen (BPM=60)
 
 const intervalle = [
     { name: 'Kleine Sekunde', semitones: 1, short: 'k2' },
@@ -33,7 +32,6 @@ function generateNewIntervall() {
     
     const intervall = intervalle[Math.floor(Math.random() * intervalle.length)];
     
-    // Random base note in range g (G3) to g2 (G5)
     const minIndex = allNotes.indexOf('G3');
     const maxIndex = allNotes.indexOf('G5') - intervall.semitones;
     
@@ -87,37 +85,35 @@ async function playIntervall() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing interval (BPM=60, quarter notes):', currentIntervall.baseNote, currentIntervall.secondNote);
+    console.log('Playing interval seamlessly (BPM=60):', currentIntervall.baseNote, currentIntervall.secondNote);
     
     try {
-        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
-        const quarterNote = 1.0; // 1 second duration
-        const pause = 1000; // 1 second pause in milliseconds
-        
-        // Play first note (1 second)
-        await playNote(currentIntervall.baseNote, quarterNote);
-        console.log('First note played (1s)');
-        
-        // Wait 1 second
-        await new Promise(resolve => setTimeout(resolve, pause));
-        
-        // Play second note (1 second)
-        await playNote(currentIntervall.secondNote, quarterNote);
-        console.log('Second note played (1s)');
-        
-        // Wait 1 second
-        await new Promise(resolve => setTimeout(resolve, pause));
-        
-        // Play both together (longer for chord)
         const ctx = getAudioContext();
-        if (ctx) {
-            await playPianoSample(currentIntervall.baseNote, ctx.currentTime, 1.5);
-            await playPianoSample(currentIntervall.secondNote, ctx.currentTime, 1.5);
-        }
-        console.log('Both notes played together (1.5s)');
+        if (!ctx) return;
         
-        // Wait for chord to finish
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
+        const beatDuration = 1.0;
+        let startTime = ctx.currentTime + 0.05;
+        
+        // Play first note (starts at t=0)
+        await playPianoSample(currentIntervall.baseNote, startTime, beatDuration);
+        console.log('Note 1 starts at', startTime);
+        
+        // Play second note (starts at t=1, seamless)
+        startTime += beatDuration;
+        await playPianoSample(currentIntervall.secondNote, startTime, beatDuration);
+        console.log('Note 2 starts at', startTime);
+        
+        // Short pause before chord
+        startTime += beatDuration + 0.3;
+        
+        // Play both together
+        await playPianoSample(currentIntervall.baseNote, startTime, 1.5);
+        await playPianoSample(currentIntervall.secondNote, startTime, 1.5);
+        console.log('Chord starts at', startTime);
+        
+        // Wait for everything to finish (2s notes + 0.3s pause + 1.5s chord)
+        await new Promise(resolve => setTimeout(resolve, 3800));
         
     } catch (error) {
         console.error('Error playing interval:', error);
@@ -134,8 +130,6 @@ async function playIntervall() {
 
 function checkIntervall(answer) {
     if (!hasPlayedIntervall) return;
-    
-    console.log('Checking answer:', answer, 'Correct:', currentIntervall.name);
     
     const feedback = document.getElementById('intervall-feedback');
     const buttons = document.querySelectorAll('#intervall-answer-section .answer-btn');
@@ -172,13 +166,9 @@ function checkIntervall(answer) {
     }
     
     displayInterval('notation-intervall', currentIntervall.baseNote, currentIntervall.secondNote);
-    
     updateIntervallStats();
     
-    const nextBtn = document.getElementById('next-intervall');
-    if (nextBtn) {
-        nextBtn.style.display = 'block';
-    }
+    document.getElementById('next-intervall').style.display = 'block';
 }
 
 function getShortName(fullName) {
@@ -187,7 +177,6 @@ function getShortName(fullName) {
 }
 
 function nextIntervall() {
-    console.log('Next interval clicked');
     generateNewIntervall();
 }
 

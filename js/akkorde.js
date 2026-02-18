@@ -2,7 +2,7 @@
 // 9 Akkorde: D, M, ü, D7, Dmaj7, M7, v7, D5/6, M5/6
 // 4-stimmig, Grundstellung, enge Lage
 // Tonraum: g bis c3 (G3 bis C6)
-// Diktiermodus: Erst einzeln (Viertel bei BPM=60 = 1 Sekunde), dann zusammen
+// Diktiermodus: Kontinuierlicher Loop ohne Pausen (BPM=60)
 
 const akkorde = [
     { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7, 12] },
@@ -81,41 +81,38 @@ async function playAkkord() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing chord (BPM=60, quarter notes):', currentAkkord.notes);
+    console.log('Playing chord seamlessly (BPM=60):', currentAkkord.notes);
     
     try {
-        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
-        const quarterNote = 1.0; // 1 second duration
-        const pause = 1000; // 1 second pause in milliseconds
+        const ctx = getAudioContext();
+        if (!ctx) return;
         
-        // Play each note individually (1 second each + 1 second pause)
+        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
+        const beatDuration = 1.0;
+        let startTime = ctx.currentTime + 0.05;
+        
+        // Play each note seamlessly (no gaps)
         for (let i = 0; i < currentAkkord.notes.length; i++) {
             const note = currentAkkord.notes[i];
-            console.log(`Playing note ${i+1}/${currentAkkord.notes.length}: ${note}`);
+            console.log(`Note ${i+1} starts at ${startTime}`);
             
-            await playNote(note, quarterNote);
+            await playPianoSample(note, startTime, beatDuration);
             
-            // Pause between notes (except after last note)
-            if (i < currentAkkord.notes.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, pause));
-            }
+            // Next note starts exactly when previous ends
+            startTime += beatDuration;
         }
         
-        // Wait 1 second before playing together
-        await new Promise(resolve => setTimeout(resolve, pause));
+        // Short pause before chord
+        startTime += 0.3;
         
-        // Play all notes together (longer for chord)
-        console.log('Playing all notes together');
-        const ctx = getAudioContext();
-        if (ctx) {
-            const startTime = ctx.currentTime;
-            for (const note of currentAkkord.notes) {
-                await playPianoSample(note, startTime, 1.5);
-            }
+        // Play all notes together
+        console.log('Chord starts at', startTime);
+        for (const note of currentAkkord.notes) {
+            await playPianoSample(note, startTime, 1.5);
         }
         
-        // Wait for chord to finish
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Wait for everything to finish (4s individual + 0.3s pause + 1.5s chord)
+        await new Promise(resolve => setTimeout(resolve, 5800));
         
     } catch (error) {
         console.error('Error playing chord:', error);
@@ -132,8 +129,6 @@ async function playAkkord() {
 
 function checkAkkord(answer) {
     if (!hasPlayedAkkord) return;
-    
-    console.log('Checking answer:', answer, 'Correct:', currentAkkord.name);
     
     const feedback = document.getElementById('akkord-feedback');
     const buttons = document.querySelectorAll('#akkord-answer-section .answer-btn');
@@ -170,13 +165,9 @@ function checkAkkord(answer) {
     }
     
     displayChord('notation-akkord', currentAkkord.notes);
-    
     updateAkkordStats();
     
-    const nextBtn = document.getElementById('next-akkord');
-    if (nextBtn) {
-        nextBtn.style.display = 'block';
-    }
+    document.getElementById('next-akkord').style.display = 'block';
 }
 
 function getAkkordShort(fullName) {
@@ -185,7 +176,6 @@ function getAkkordShort(fullName) {
 }
 
 function nextAkkord() {
-    console.log('Next chord clicked');
     generateNewAkkord();
 }
 
