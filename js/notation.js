@@ -7,6 +7,18 @@ function clearNotation(elementId) {
     }
 }
 
+function noteToVexFlow(note) {
+    // Convert "C4" to "c/4", "F#5" to "f#/5", "Bb3" to "bb/3"
+    const match = note.match(/([A-G])(#|b)?([0-9])/);
+    if (!match) return 'c/4';
+    
+    const noteName = match[1].toLowerCase();
+    const accidental = match[2] || '';
+    const octave = match[3];
+    
+    return noteName + accidental + '/' + octave;
+}
+
 function displayInterval(elementId, baseNote, secondNote) {
     const element = document.getElementById(elementId);
     if (!element) return;
