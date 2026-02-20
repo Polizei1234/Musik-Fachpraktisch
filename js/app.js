@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'rhythmus':
                         if (typeof initRhythmus === 'function') initRhythmus();
                         break;
+                    case 'melodie':
+                        if (typeof initMelodie === 'function') initMelodie();
+                        break;
                 }
             }
         });
@@ -128,6 +131,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextRhythmusBtn) {
         nextRhythmusBtn.addEventListener('click', () => {
             if (typeof nextRhythmus === 'function') nextRhythmus();
+        });
+    }
+    
+    // === MELODIE BUTTONS ===
+    const playMelodieBtn = document.getElementById('play-melodie');
+    if (playMelodieBtn) {
+        playMelodieBtn.addEventListener('click', () => {
+            console.log('👆 Play Melodie button clicked!');
+            if (typeof playMelodie === 'function') {
+                playMelodie();
+            } else {
+                console.error('playMelodie function not found!');
+            }
+        });
+    }
+    
+    const continueMelodieBtn = document.getElementById('continue-melodie');
+    if (continueMelodieBtn) {
+        continueMelodieBtn.addEventListener('click', () => {
+            if (typeof continueMelodie === 'function') continueMelodie();
+        });
+    }
+    
+    const showMelodieSolutionBtn = document.getElementById('show-melodie-solution');
+    if (showMelodieSolutionBtn) {
+        showMelodieSolutionBtn.addEventListener('click', () => {
+            if (typeof showMelodieSolution === 'function') showMelodieSolution();
+        });
+    }
+    
+    const nextMelodieBtn = document.getElementById('next-melodie');
+    if (nextMelodieBtn) {
+        nextMelodieBtn.addEventListener('click', () => {
+            if (typeof nextMelodie === 'function') nextMelodie();
         });
     }
     
