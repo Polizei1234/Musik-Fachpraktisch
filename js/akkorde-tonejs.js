@@ -65,10 +65,24 @@ async function playAkkord() {
     console.log('▶ Playing chord with Tone.js');
     
     try {
+        // 1. Nacheinander (arpeggiert)
+        const arpeggio = [];
+        let time = 0;
+        currentAkkord.notes.forEach(note => {
+            arpeggio.push({ notes: note, time: time, duration: 0.8 });
+            time += 0.6; // Überlappend
+        });
+        
+        await scheduleNotes(arpeggio);
+        await new Promise(r => setTimeout(r, time * 1000 + 1000));
+        
+        // Kurze Pause
+        await new Promise(r => setTimeout(r, 500));
+        
+        // 2. Zusammen (akkordisch)
         await scheduleNotes([
             { notes: currentAkkord.notes, time: 0, duration: 3.0 }
         ]);
-        
         await new Promise(r => setTimeout(r, 3500));
         
     } catch (error) {
