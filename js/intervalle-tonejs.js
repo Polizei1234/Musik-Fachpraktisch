@@ -60,7 +60,6 @@ function generateNewIntervall() {
     document.getElementById('next-intervall').style.display = 'none';
     document.getElementById('intervall-answer-section').style.display = 'none';
     document.getElementById('play-intervall').disabled = false;
-    document.getElementById('replay-intervall').disabled = true;
     
     document.querySelectorAll('#intervall-answer-section .answer-btn').forEach(btn => {
         btn.disabled = false;
@@ -72,22 +71,17 @@ async function playIntervall() {
     if (!currentIntervall) return;
     
     const playBtn = document.getElementById('play-intervall');
-    const replayBtn = document.getElementById('replay-intervall');
-    
     playBtn.disabled = true;
-    replayBtn.disabled = true;
     
     console.log('▶ Playing interval with Tone.js');
     
     try {
-        // Kürzere Dauer: 2s statt 3s!
         await scheduleNotes([
             { notes: currentIntervall.baseNote, time: 0, duration: 2.0 },
             { notes: currentIntervall.secondNote, time: 2.5, duration: 2.0 },
             { notes: [currentIntervall.baseNote, currentIntervall.secondNote], time: 5.0, duration: 2.0 }
         ]);
         
-        // Wait for completion (2s + 0.5s + 2s + 0.5s + 2s = 7s)
         await new Promise(r => setTimeout(r, 7500));
         
     } catch (error) {
@@ -100,7 +94,6 @@ async function playIntervall() {
     }
     
     playBtn.disabled = false;
-    replayBtn.disabled = false;
 }
 
 function checkIntervall(answer) {

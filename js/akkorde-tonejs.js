@@ -1,14 +1,15 @@
 // Akkorde mit Tone.js
 
 const akkorde = [
-    { name: 'Dur-Dreiklang', intervals: [0, 4, 7], short: 'Dur' },
-    { name: 'Moll-Dreiklang', intervals: [0, 3, 7], short: 'Moll' },
-    { name: 'Übermäßiger Dreiklang', intervals: [0, 4, 8], short: 'Üb' },
-    { name: 'Verminderter Dreiklang', intervals: [0, 3, 6], short: 'Verm' },
-    { name: 'Dominantseptakkord', intervals: [0, 4, 7, 10], short: 'Dom7' },
-    { name: 'Großer Septakkord', intervals: [0, 4, 7, 11], short: 'Maj7' },
-    { name: 'Kleiner Septakkord', intervals: [0, 3, 7, 10], short: 'Min7' },
-    { name: 'Halbverminderter Septakkord', intervals: [0, 3, 6, 10], short: 'Halbverm7' }
+    { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7] },
+    { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7] },
+    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8] },
+    { name: 'D7', short: 'D7', intervals: [0, 4, 7, 10] },
+    { name: 'Dmaj7', short: 'Dmaj7', intervals: [0, 4, 7, 11] },
+    { name: 'M7', short: 'M7', intervals: [0, 3, 7, 10] },
+    { name: 'v7', short: 'v7', intervals: [0, 3, 6, 9] },
+    { name: 'D56', short: 'D5/6', intervals: [0, 4, 7, 9] },
+    { name: 'M56', short: 'M5/6', intervals: [0, 3, 7, 9] }
 ];
 
 let currentAkkord = null;
@@ -25,32 +26,21 @@ function generateNewAkkord() {
     hasPlayedAkkord = false;
     
     const akkord = akkorde[Math.floor(Math.random() * akkorde.length)];
-    const minIndex = allNotes.indexOf('C3');
-    const maxSemitones = Math.max(...akkord.intervals);
-    const maxIndex = allNotes.indexOf('C5') - maxSemitones;
     
-    if (maxIndex < minIndex) {
-        generateNewAkkord();
-        return;
-    }
+    const baseNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4'];
+    const baseNote = baseNotes[Math.floor(Math.random() * baseNotes.length)];
     
-    const randomIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
-    const baseNote = allNotes[randomIndex];
+    const chordNotes = akkord.intervals.map(semitones => getNoteByInterval(baseNote, semitones));
     
-    const chordNotes = akkord.intervals.map(interval => 
-        getNoteByInterval(baseNote, interval)
-    ).filter(note => note !== null);
-    
-    if (chordNotes.length !== akkord.intervals.length) {
-        generateNewAkkord();
-        return;
-    }
+    const voicing = [
+        getNoteByInterval(chordNotes[0], -12),
+        ...chordNotes
+    ];
     
     currentAkkord = {
         name: akkord.name,
         short: akkord.short,
-        notes: chordNotes,
-        intervals: akkord.intervals
+        notes: voicing
     };
     
     clearNotation('notation-akkord');
@@ -59,7 +49,6 @@ function generateNewAkkord() {
     document.getElementById('next-akkord').style.display = 'none';
     document.getElementById('akkord-answer-section').style.display = 'none';
     document.getElementById('play-akkord').disabled = false;
-    document.getElementById('replay-akkord').disabled = true;
     
     document.querySelectorAll('#akkord-answer-section .answer-btn').forEach(btn => {
         btn.disabled = false;
@@ -71,31 +60,16 @@ async function playAkkord() {
     if (!currentAkkord) return;
     
     const playBtn = document.getElementById('play-akkord');
-    const replayBtn = document.getElementById('replay-akkord');
-    
     playBtn.disabled = true;
-    replayBtn.disabled = true;
     
     console.log('▶ Playing chord with Tone.js');
     
     try {
-        const schedule = [];
-        let time = 0;
+        await scheduleNotes([
+            { notes: currentAkkord.notes, time: 0, duration: 3.0 }
+        ]);
         
-        // Play each note individually (2s each)
-        currentAkkord.notes.forEach((note, index) => {
-            schedule.push({ notes: note, time: time, duration: 2.0 });
-            time += 2.5;
-        });
-        
-        // Play full chord (2s)
-        schedule.push({ notes: currentAkkord.notes, time: time, duration: 2.0 });
-        
-        await scheduleNotes(schedule);
-        
-        // Wait for completion
-        const totalTime = (currentAkkord.notes.length * 2.5) + 2.5;
-        await new Promise(r => setTimeout(r, totalTime * 1000));
+        await new Promise(r => setTimeout(r, 3500));
         
     } catch (error) {
         console.error('❌ Error:', error);
@@ -107,7 +81,6 @@ async function playAkkord() {
     }
     
     playBtn.disabled = false;
-    replayBtn.disabled = false;
 }
 
 function checkAkkord(answer) {
@@ -123,14 +96,14 @@ function checkAkkord(answer) {
     
     if (isCorrect) {
         akkordStats.correct++;
-        feedback.textContent = `✅ Richtig! Das war ${currentAkkord.short}.`;
+        feedback.textContent = `✅ Richtig! Das war ein ${currentAkkord.short}.`;
         feedback.className = 'feedback show correct';
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) btn.classList.add('correct');
         });
     } else {
         akkordStats.wrong++;
-        feedback.textContent = `❌ Falsch! Das war ${currentAkkord.short}, nicht ${getAkkordShortName(answer)}.`;
+        feedback.textContent = `❌ Falsch! Das war ein ${currentAkkord.short}, nicht ${getAkkordShortName(answer)}.`;
         feedback.className = 'feedback show wrong';
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) btn.classList.add('wrong');
@@ -144,8 +117,8 @@ function checkAkkord(answer) {
 }
 
 function getAkkordShortName(fullName) {
-    const akkord = akkorde.find(a => a.name === fullName);
-    return akkord ? akkord.short : fullName;
+    const chord = akkorde.find(a => a.name === fullName);
+    return chord ? chord.short : fullName;
 }
 
 function nextAkkord() {
