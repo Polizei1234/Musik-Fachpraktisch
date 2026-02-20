@@ -83,36 +83,31 @@ function generateNewMelodie() {
 }
 
 function generateMelodieBar(tonart, position) {
-    // Erstelle realistische Melodie-Patterns
+    // Einfachere Patterns die genau 4 Schläge ergeben
     const patterns = [
-        // Viertel und Achtel
+        // Viertel = 4 Schläge
         [{d: 1, step: 0}, {d: 1, step: 1}, {d: 1, step: 2}, {d: 1, step: 1}],
+        [{d: 1, step: 0}, {d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
+        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}],
+        // Mit Halben = 4 Schläge
+        [{d: 2, step: 0}, {d: 1, step: 1}, {d: 1, step: 2}],
+        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 2, step: 2}],
+        [{d: 2, step: 0}, {d: 2, step: 2}],
+        // Mit Achteln = 4 Schläge
         [{d: 0.5, step: 0}, {d: 0.5, step: 1}, {d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
-        [{d: 1, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 1, step: 3}, {d: 1, step: 2}],
-        [{d: 0.5, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 3}, {d: 1, step: 4}, {d: 1, step: 3}],
-        [{d: 1, step: 0}, {d: 1, step: 2}, {d: 0.5, step: 1}, {d: 0.5, step: 0}, {d: 1, step: -1}],
-        [{d: 0.5, step: 0}, {d: 0.5, step: 2}, {d: 1, step: 4}, {d: 1, step: 2}, {d: 1, step: 0}],
-        [{d: 1, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 3}, {d: 0.5, step: 2}, {d: 1, step: 1}],
-        [{d: 0.5, step: 0}, {d: 0.5, step: -1}, {d: 1, step: 0}, {d: 1, step: 1}, {d: 1, step: 2}],
-        // Mit Sprüngen (Terz/Quart)
-        [{d: 1, step: 0}, {d: 1, step: 2}, {d: 1, step: 4}, {d: 1, step: 2}],
-        [{d: 0.5, step: 0}, {d: 0.5, step: 2}, {d: 0.5, step: 4}, {d: 0.5, step: 2}, {d: 1, step: 0}, {d: 1, step: 1}],
-        [{d: 1, step: 0}, {d: 1, step: 3}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}],
-        // Punktierte
-        [{d: 1.5, step: 0}, {d: 0.5, step: 1}, {d: 1, step: 2}, {d: 1, step: 1}],
-        [{d: 1, step: 0}, {d: 0.75, step: 1}, {d: 0.25, step: 2}, {d: 1, step: 3}, {d: 1, step: 2}],
-        [{d: 0.75, step: 0}, {d: 0.25, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}]
+        [{d: 1, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
+        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}]
     ];
     
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     // Starte bei einem Skalenton (Oktave 3-4)
     let startOctave = 3 + Math.floor(Math.random() * 2);
-    let currentScaleIndex = Math.floor(Math.random() * 5); // Start in mittlerer Lage
+    let currentScaleIndex = Math.floor(Math.random() * 5);
     
     // Für Endtakt: zurück zum Grundton
     if (position === 'end') {
-        const lastPattern = [{d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}];
+        const lastPattern = [{d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}, {d: 1, step: -2}];
         return createNotesFromPattern(lastPattern, tonart, currentScaleIndex, startOctave);
     }
     
@@ -146,7 +141,7 @@ function createNotesFromPattern(pattern, tonart, startIndex, startOctave) {
         notes.push({
             note: noteName,
             duration: d,
-            vexDuration: d === 1.5 ? 'qd' : d === 1 ? 'q' : d === 0.75 ? '8d' : d === 0.5 ? '8' : d === 0.25 ? '16' : 'q'
+            vexDuration: d === 2 ? 'h' : d === 1 ? 'q' : d === 0.5 ? '8' : 'q'
         });
     });
     
@@ -163,7 +158,6 @@ function calculateAmbitus(notes) {
         const chromatic = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         let index = chromatic.indexOf(noteName);
         if (index === -1 && noteName.includes('b')) {
-            // Bb -> A#
             const flat = noteName.replace('b', '');
             index = chromatic.indexOf(flat) - 1;
             if (index < 0) index += 12;
@@ -182,13 +176,12 @@ async function playKadenz(tonart) {
     const root = tonart.root;
     const mode = tonart.mode;
     
-    // I - IV - V - I Kadenz
     let kadenz = [];
     
     if (mode === 'major') {
         const tonic = root;
-        const subdominant = getNoteByInterval(root, 5); // Quarte
-        const dominant = getNoteByInterval(root, 7); // Quinte
+        const subdominant = getNoteByInterval(root, 5);
+        const dominant = getNoteByInterval(root, 7);
         
         kadenz = [
             { notes: [tonic, getNoteByInterval(tonic, 4), getNoteByInterval(tonic, 7)], time: 0, duration: 1.5 },
@@ -197,7 +190,6 @@ async function playKadenz(tonart) {
             { notes: [tonic, getNoteByInterval(tonic, 4), getNoteByInterval(tonic, 7)], time: 4.5, duration: 2.0 }
         ];
     } else {
-        // Moll: i - iv - V - i
         const tonic = root;
         const subdominant = getNoteByInterval(root, 5);
         const dominant = getNoteByInterval(root, 7);
@@ -226,12 +218,10 @@ window.playMelodie = async function() {
     try {
         melodiePlaybackStep = 0;
         
-        // Spiele Kadenz
         console.log('🎵 Playing cadence...');
         await playKadenz(currentMelodie.tonart);
         await new Promise(r => setTimeout(r, 500));
         
-        // Spiele komplette Melodie
         console.log('🎵 Playing melody...');
         await playMelodieBars(currentMelodie.bars);
         
@@ -257,20 +247,17 @@ window.continueMelodie = async function() {
         if (melodiePlaybackStep >= 1 && melodiePlaybackStep < melodieDiktierSteps.length) {
             const step = melodieDiktierSteps[melodiePlaybackStep];
             
-            // Spiele Kadenz nur beim ersten Mal
             if (step.type === 'full') {
                 await playKadenz(currentMelodie.tonart);
                 await new Promise(r => setTimeout(r, 500));
             }
             
-            // 2 Count-In Schläge
             await scheduleNotes([
                 { notes: 'C5', time: 0, duration: 0.15 },
                 { notes: 'C5', time: 1, duration: 0.15 }
             ]);
             await new Promise(r => setTimeout(r, 2200));
             
-            // Spiele gewählte Takte
             let barsToPlay = [];
             step.bars.forEach(barIndex => {
                 barsToPlay.push(currentMelodie.bars[barIndex]);
@@ -345,25 +332,22 @@ function displayMelodieNotation(elementId, melodie) {
     try {
         const VF = Vex.Flow;
         const renderer = new VF.Renderer(element, VF.Renderer.Backends.SVG);
-        renderer.resize(900, 250);
+        renderer.resize(900, 200);
         const context = renderer.getContext();
         
-        const staves = [];
+        const staveWidth = 210;
         const yPos = 40;
-        const staveWidth = 200;
         
-        // Bestimme Notenschlüssel
-        const clef = 'treble';
-        
-        for (let i = 0; i < 4; i++) {
-            const xPos = 10 + (i * (staveWidth + 20));
+        // Rendere jeden Takt einzeln
+        melodie.bars.forEach((bar, barIndex) => {
+            const xPos = 10 + (barIndex * staveWidth);
             const stave = new VF.Stave(xPos, yPos, staveWidth);
             
-            if (i === 0) {
-                stave.addClef(clef);
+            // Nur erster Takt bekommt Schlüssel, Takt und Tonart
+            if (barIndex === 0) {
+                stave.addClef('treble');
                 stave.addTimeSignature('4/4');
                 
-                // Vorzeichen
                 const keySignature = getKeySignature(melodie.tonart.name);
                 if (keySignature) {
                     stave.addKeySignature(keySignature);
@@ -371,41 +355,42 @@ function displayMelodieNotation(elementId, melodie) {
             }
             
             stave.setContext(context).draw();
-            staves.push(stave);
-        }
-        
-        melodie.bars.forEach((bar, barIndex) => {
+            
+            // Erstelle Noten für diesen Takt
             const vexNotes = [];
             
             bar.forEach((noteObj) => {
                 const key = noteToVexFlow(noteObj.note);
                 
                 const staveNote = new VF.StaveNote({
-                    clef: clef,
+                    clef: 'treble',
                     keys: [key],
                     duration: noteObj.vexDuration
                 });
                 
-                if (noteObj.vexDuration.includes('d')) {
-                    VF.Dot.buildAndAttach([staveNote]);
-                }
-                
-                // Vorzeichen falls nötig
-                if (noteObj.note.includes('#')) {
-                    staveNote.addModifier(new VF.Accidental('#'), 0);
-                } else if (noteObj.note.includes('b')) {
-                    staveNote.addModifier(new VF.Accidental('b'), 0);
+                // Vorzeichen nur wenn nicht in Tonart-Signatur
+                const needsAccidental = noteNeedsAccidental(noteObj.note, melodie.tonart);
+                if (needsAccidental) {
+                    if (noteObj.note.includes('#')) {
+                        staveNote.addModifier(new VF.Accidental('#'), 0);
+                    } else if (noteObj.note.includes('b')) {
+                        staveNote.addModifier(new VF.Accidental('b'), 0);
+                    }
                 }
                 
                 vexNotes.push(staveNote);
             });
             
+            // Balken für Achtel
             const beams = VF.Beam.generateBeams(vexNotes, { beam_rests: false });
+            
+            // Voice mit genau 4 Schlägen
             const voice = new VF.Voice({num_beats: 4, beat_value: 4});
             voice.addTickables(vexNotes);
             
+            // Formatieren und zeichnen
             new VF.Formatter().joinVoices([voice]).format([voice], staveWidth - 30);
-            voice.draw(context, staves[barIndex]);
+            voice.draw(context, stave);
             beams.forEach(beam => beam.setContext(context).draw());
         });
         
@@ -416,6 +401,12 @@ function displayMelodieNotation(elementId, melodie) {
         element.innerHTML = '<p style="text-align: center; padding: 60px; color: #e74c3c;">' +
             'Fehler bei der Notendarstellung. Bitte lade die Seite neu.</p>';
     }
+}
+
+function noteNeedsAccidental(note, tonart) {
+    // Check ob Note ein Vorzeichen hat das NICHT in der Tonart-Signatur ist
+    const noteName = note.match(/([A-G]#?b?)/)[1];
+    return !tonart.scale.includes(noteName.replace(/[0-9]/g, ''));
 }
 
 function getKeySignature(tonartName) {
