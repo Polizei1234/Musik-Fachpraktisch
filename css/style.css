@@ -1,17 +1,4 @@
-/* Modern Tab-Based Design */
-
-:root {
-    --primary: #2c3e50;
-    --accent: #3498db;
-    --accent-hover: #2980b9;
-    --success: #27ae60;
-    --error: #e74c3c;
-    --bg: #f5f7fa;
-    --card-bg: #ffffff;
-    --border: #dfe6e9;
-    --text: #2c3e50;
-    --text-secondary: #7f8c8d;
-}
+/* Musik Fachpraktisch - Gehörbildung Trainer Styles */
 
 * {
     margin: 0;
@@ -20,124 +7,111 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2c3e50;
 }
 
-/* Header */
 header {
-    background: var(--card-bg);
-    padding: 2rem;
     text-align: center;
-    border-bottom: 2px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    color: white;
+    margin-bottom: 30px;
 }
 
 header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 header p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 1.1rem;
+    opacity: 0.95;
 }
 
-/* Navigation Tabs */
 nav {
-    background: var(--card-bg);
     display: flex;
     justify-content: center;
-    gap: 0;
-    border-bottom: 2px solid var(--border);
-    padding: 0 2rem;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
 .nav-btn {
-    background: transparent;
+    padding: 12px 24px;
+    background: white;
     border: none;
-    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .nav-btn:hover {
-    color: var(--accent);
-    background: rgba(52, 152, 219, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .nav-btn.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    background: #3498db;
+    color: white;
 }
 
-/* Main Content */
 main {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
 }
 
-/* Exercise Sections */
 .exercise-section {
     display: none;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
 .exercise-section.active {
     display: block;
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 .exercise-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary);
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 2rem;
 }
 
 .description {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
+    color: #7f8c8d;
+    margin-bottom: 25px;
+    font-size: 1.05rem;
 }
 
-/* Controls */
 .controls {
     display: flex;
-    gap: 1rem;
-    margin: 2rem 0;
+    gap: 15px;
+    margin-bottom: 25px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 12px 24px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn-primary {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background: var(--accent-hover);
+.btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .btn:disabled {
@@ -145,154 +119,129 @@ main {
     cursor: not-allowed;
 }
 
-/* Notation Display */
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #7f8c8d;
+}
+
 .notation {
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 2rem 0;
-    min-height: 250px;
+    min-height: 200px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Answer Section */
 .answer-section {
-    margin: 2rem 0;
+    margin-bottom: 25px;
 }
 
 .answer-section h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: var(--primary);
+    margin-bottom: 15px;
+    color: #34495e;
 }
 
 .answer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 12px;
 }
 
 .answer-btn {
-    padding: 0.9rem;
-    background: white;
-    border: 2px solid var(--border);
+    padding: 12px 20px;
+    background: #ecf0f1;
+    border: 2px solid #bdc3c7;
     border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.answer-btn:hover:not(:disabled) {
-    border-color: var(--accent);
-    transform: scale(1.02);
+.answer-btn:hover {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+    transform: translateY(-2px);
 }
 
-.answer-btn.correct {
-    background: #d4edda;
-    border-color: var(--success);
-    color: var(--success);
-}
-
-.answer-btn.wrong {
-    background: #f8d7da;
-    border-color: var(--error);
-    color: var(--error);
-}
-
-.answer-btn:disabled {
-    cursor: not-allowed;
-}
-
-/* Feedback */
 .feedback {
-    padding: 1rem;
+    padding: 15px;
     border-radius: 8px;
-    margin: 1.5rem 0;
-    text-align: center;
+    margin-bottom: 20px;
     font-weight: 600;
+    text-align: center;
     display: none;
 }
 
 .feedback.show {
     display: block;
-    animation: slideIn 0.3s;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 .feedback.correct {
     background: #d4edda;
-    border: 2px solid var(--success);
-    color: var(--success);
+    color: #155724;
+    border: 2px solid #c3e6cb;
 }
 
 .feedback.wrong {
     background: #f8d7da;
-    border: 2px solid var(--error);
-    color: var(--error);
+    color: #721c24;
+    border: 2px solid #f5c6cb;
 }
 
-/* Stats */
 .stats {
     text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    margin-top: 2rem;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 20px;
 }
 
 .stats p {
-    font-size: 1rem;
-    color: var(--text-secondary);
+    font-size: 1.1rem;
+    color: #34495e;
 }
 
 .stats span {
     font-weight: 700;
-    font-size: 1.3rem;
-    color: var(--primary);
-    margin: 0 0.3rem;
+    color: #2c3e50;
 }
 
-/* Footer */
 footer {
     text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-    border-top: 2px solid var(--border);
-    margin-top: 3rem;
+    color: white;
+    margin-top: 40px;
+    padding: 20px;
+    font-size: 1rem;
+    opacity: 0.9;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-    nav {
-        flex-direction: column;
-        padding: 0;
+    header h1 {
+        font-size: 1.8rem;
     }
     
-    .nav-btn {
-        border-bottom: 1px solid var(--border);
-        border-right: none;
-    }
-    
-    .nav-btn.active {
-        border-left: 3px solid var(--accent);
-        border-bottom: 1px solid var(--border);
+    .exercise-section {
+        padding: 20px;
     }
     
     .answer-grid {
         grid-template-columns: 1fr;
-    }
-    
-    main {
-        padding: 1rem;
     }
 }

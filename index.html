@@ -9,13 +9,13 @@
     <!-- VexFlow for music notation -->
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     
-    <!-- Tone.js for professional audio (wie musictheory.net!) -->
+    <!-- Tone.js for professional audio -->
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
 </head>
 <body>
     <header>
         <h1>🎵 Musik Fachpraktisch - Gehörbildung</h1>
-        <p>Vorbereitung für das Abitur am 3. März 2026</p>
+        <p>Vorbereitung für fachpraktisches Abitur – Nach Standards Baden-Württemberg</p>
     </header>
 
     <nav>
@@ -33,7 +33,6 @@
             
             <div class="controls">
                 <button id="play-intervall" class="btn btn-primary">▶ Intervall abspielen</button>
-                <button id="replay-intervall" class="btn" disabled>🔁 Wiederholen</button>
             </div>
 
             <div id="notation-intervall" class="notation"></div>
@@ -58,7 +57,9 @@
 
             <div id="intervall-feedback" class="feedback"></div>
             
-            <button id="next-intervall" class="btn btn-secondary" onclick="nextIntervall()" style="display: none;">Nächstes Intervall</button>
+            <div class="controls">
+                <button id="next-intervall" class="btn btn-primary" onclick="nextIntervall()" style="display: none;">Nächstes Intervall ▶</button>
+            </div>
 
             <div class="stats">
                 <p>Richtig: <span id="intervall-correct">0</span> | Falsch: <span id="intervall-wrong">0</span> | Gesamt: <span id="intervall-total">0</span></p>
@@ -72,7 +73,6 @@
             
             <div class="controls">
                 <button id="play-akkord" class="btn btn-primary">▶ Akkord abspielen</button>
-                <button id="replay-akkord" class="btn" disabled>🔁 Wiederholen</button>
             </div>
 
             <div id="notation-akkord" class="notation"></div>
@@ -94,7 +94,9 @@
 
             <div id="akkord-feedback" class="feedback"></div>
             
-            <button id="next-akkord" class="btn btn-secondary" onclick="nextAkkord()" style="display: none;">Nächster Akkord</button>
+            <div class="controls">
+                <button id="next-akkord" class="btn btn-primary" onclick="nextAkkord()" style="display: none;">Nächster Akkord ▶</button>
+            </div>
 
             <div class="stats">
                 <p>Richtig: <span id="akkord-correct">0</span> | Falsch: <span id="akkord-wrong">0</span> | Gesamt: <span id="akkord-total">0</span></p>
@@ -152,7 +154,7 @@
     </main>
 
     <footer>
-        <p>Viel Erfolg beim Üben! 🎶</p>
+        <p>© 2026 Musik Fachpraktisch Gehörbildungstrainer – Viel Erfolg beim Üben! 🎶</p>
     </footer>
 
     <!-- Load scripts in order -->
