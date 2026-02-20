@@ -1,66 +1,66 @@
 // Professional Audio with Tone.js
+// Mit Fallback auf Synth falls Sampler nicht funktioniert
 
-let pianoSampler = null;
+let piano = null;
 let audioInitialized = false;
+let usingSynth = false;
 
-// Initialize Tone.js Piano
+// Initialize Tone.js Audio
 async function initToneJS() {
-    if (audioInitialized && pianoSampler) return true;
+    if (audioInitialized && piano) return true;
     
-    console.log('🎹 Initializing Tone.js Piano...');
+    console.log('🎹 Initializing Tone.js Audio...');
     
     try {
         // Start audio context
         await Tone.start();
-        console.log('✅ AudioContext started');
+        console.log('✅ AudioContext started, state:', Tone.context.state);
         
-        // Create Sampler with Salamander Grand Piano
-        pianoSampler = new Tone.Sampler({
-            urls: {
-                'A0': 'A0.mp3',
-                'C1': 'C1.mp3',
-                'D#1': 'Ds1.mp3',
-                'F#1': 'Fs1.mp3',
-                'A1': 'A1.mp3',
-                'C2': 'C2.mp3',
-                'D#2': 'Ds2.mp3',
-                'F#2': 'Fs2.mp3',
-                'A2': 'A2.mp3',
-                'C3': 'C3.mp3',
-                'D#3': 'Ds3.mp3',
-                'F#3': 'Fs3.mp3',
-                'A3': 'A3.mp3',
-                'C4': 'C4.mp3',
-                'D#4': 'Ds4.mp3',
-                'F#4': 'Fs4.mp3',
-                'A4': 'A4.mp3',
-                'C5': 'C5.mp3',
-                'D#5': 'Ds5.mp3',
-                'F#5': 'Fs5.mp3',
-                'A5': 'A5.mp3',
-                'C6': 'C6.mp3',
-                'D#6': 'Ds6.mp3',
-                'F#6': 'Fs6.mp3',
-                'A6': 'A6.mp3',
-                'C7': 'C7.mp3',
-                'D#7': 'Ds7.mp3',
-                'F#7': 'Fs7.mp3',
-                'A7': 'A7.mp3',
-                'C8': 'C8.mp3'
-            },
-            release: 3,
-            baseUrl: 'https://tonejs.github.io/audio/salamander/'
-        }).toDestination();
-        
-        console.log('⏳ Loading piano samples...');
-        await Tone.loaded();
+        // Try Piano Sampler first
+        try {
+            console.log('🎹 Trying Piano Sampler...');
+            piano = new Tone.Sampler({
+                urls: {
+                    'C4': 'C4.mp3',
+                    'D#4': 'Ds4.mp3',
+                    'F#4': 'Fs4.mp3',
+                    'A4': 'A4.mp3',
+                },
+                release: 3,
+                baseUrl: 'https://tonejs.github.io/audio/salamander/'
+            }).toDestination();
+            
+            console.log('⏳ Loading samples...');
+            await Tone.loaded();
+            console.log('✅ Piano Sampler loaded!');
+            usingSynth = false;
+            
+        } catch (samplerError) {
+            console.warn('⚠️ Sampler failed, using Synth:', samplerError);
+            
+            // Fallback: Use Synth (sounds like piano-ish)
+            piano = new Tone.PolySynth(Tone.Synth, {
+                oscillator: {
+                    type: 'triangle'
+                },
+                envelope: {
+                    attack: 0.005,
+                    decay: 0.3,
+                    sustain: 0.4,
+                    release: 2
+                }
+            }).toDestination();
+            
+            console.log('✅ Synth ready (fallback mode)');
+            usingSynth = true;
+        }
         
         audioInitialized = true;
-        console.log('✅ Tone.js Piano ready!');
+        console.log('✅ Audio ready! Using:', usingSynth ? 'Synth' : 'Piano Sampler');
         return true;
         
     } catch (error) {
-        console.error('❌ Tone.js init error:', error);
+        console.error('❌ Audio init error:', error);
         alert('Audio-Initialisierung fehlgeschlagen. Bitte Seite neu laden.');
         return false;
     }
@@ -70,6 +70,7 @@ async function initToneJS() {
 async function playToneNote(note, duration = 2.5) {
     try {
         if (!audioInitialized) {
+            console.log('🔄 Initializing audio...');
             const success = await initToneJS();
             if (!success) return;
         }
@@ -78,8 +79,8 @@ async function playToneNote(note, duration = 2.5) {
             await Tone.start();
         }
         
-        pianoSampler.triggerAttackRelease(note, duration);
-        console.log('♫ Playing:', note, duration + 's');
+        console.log('♫ Playing note:', note, duration + 's');
+        piano.triggerAttackRelease(note, duration);
         
     } catch (error) {
         console.error('❌ Play error:', error);
@@ -98,11 +99,11 @@ async function playToneChord(notes, duration = 3.0) {
             await Tone.start();
         }
         
+        console.log('♫ Playing chord:', notes, duration + 's');
         const now = Tone.now();
         notes.forEach(note => {
-            pianoSampler.triggerAttackRelease(note, duration, now);
+            piano.triggerAttackRelease(note, duration, now);
         });
-        console.log('♫ Chord:', notes, duration + 's');
         
     } catch (error) {
         console.error('❌ Chord error:', error);
@@ -113,6 +114,7 @@ async function playToneChord(notes, duration = 3.0) {
 async function scheduleNotes(notesArray) {
     try {
         if (!audioInitialized) {
+            console.log('🔄 Initializing audio for scheduling...');
             const success = await initToneJS();
             if (!success) return;
         }
@@ -122,20 +124,25 @@ async function scheduleNotes(notesArray) {
         }
         
         const now = Tone.now();
+        console.log('📅 Scheduling', notesArray.length, 'events starting at', now);
         
-        notesArray.forEach(({notes, time, duration}) => {
+        notesArray.forEach(({notes, time, duration}, index) => {
+            const scheduleTime = now + time;
+            
             if (Array.isArray(notes)) {
                 // Chord
+                console.log(`  ${index+1}. Chord at +${time}s:`, notes);
                 notes.forEach(note => {
-                    pianoSampler.triggerAttackRelease(note, duration, now + time);
+                    piano.triggerAttackRelease(note, duration, scheduleTime);
                 });
             } else {
                 // Single note
-                pianoSampler.triggerAttackRelease(notes, duration, now + time);
+                console.log(`  ${index+1}. Note at +${time}s:`, notes);
+                piano.triggerAttackRelease(notes, duration, scheduleTime);
             }
         });
         
-        console.log('♫ Scheduled', notesArray.length, 'notes');
+        console.log('✅ All notes scheduled!');
         
     } catch (error) {
         console.error('❌ Schedule error:', error);
@@ -171,15 +178,18 @@ function noteToVexFlow(noteName) {
     return noteName;
 }
 
-// Auto-initialize on load
-console.log('🚀 Tone.js wird beim ersten Klick geladen...');
+// Test audio on first click
+console.log('🚀 Tone.js bereit - Audio startet beim ersten Klick');
 
-// Ensure audio starts on first interaction
 let firstClick = true;
 document.addEventListener('click', async () => {
     if (firstClick) {
         firstClick = false;
-        console.log('👆 Erste Interaktion - starte Audio...');
+        console.log('👆 Erste Interaktion erkannt - initialisiere Audio...');
         await initToneJS();
+        
+        // Test-Ton
+        console.log('🔊 Test-Ton...');
+        await playToneNote('C4', 0.5);
     }
 }, { once: true });
