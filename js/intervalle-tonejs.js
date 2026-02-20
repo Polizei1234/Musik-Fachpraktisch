@@ -80,15 +80,15 @@ async function playIntervall() {
     console.log('▶ Playing interval with Tone.js');
     
     try {
-        // Professional timing wie musictheory.net!
+        // Kürzere Dauer: 2s statt 3s!
         await scheduleNotes([
-            { notes: currentIntervall.baseNote, time: 0, duration: 2.5 },
-            { notes: currentIntervall.secondNote, time: 3.0, duration: 2.5 },
-            { notes: [currentIntervall.baseNote, currentIntervall.secondNote], time: 6.0, duration: 3.0 }
+            { notes: currentIntervall.baseNote, time: 0, duration: 2.0 },
+            { notes: currentIntervall.secondNote, time: 2.5, duration: 2.0 },
+            { notes: [currentIntervall.baseNote, currentIntervall.secondNote], time: 5.0, duration: 2.0 }
         ]);
         
-        // Wait for completion
-        await new Promise(r => setTimeout(r, 9500));
+        // Wait for completion (2s + 0.5s + 2s + 0.5s + 2s = 7s)
+        await new Promise(r => setTimeout(r, 7500));
         
     } catch (error) {
         console.error('❌ Error:', error);
