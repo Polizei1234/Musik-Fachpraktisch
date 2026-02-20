@@ -3,199 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gehörbildungstrainer - Musik Abitur BW</title>
-    <meta name="description" content="Interaktiver Gehörbildungstrainer für das fachpraktische Abitur Baden-Württemberg Musik LK">
+    <title>Musik Fachpraktisch - Gehörbildung Übungen</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- VexFlow for music notation -->
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    
+    <!-- Tone.js for professional audio (wie musictheory.net!) -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
 </head>
 <body>
-    <div id="app">
-        <!-- Welcome Screen -->
-        <div id="welcome-screen" class="screen active">
-            <div class="container">
-                <h1>🎵 Gehörbildungstrainer</h1>
-                <p class="subtitle">Fachpraktisches Abitur Baden-Württemberg • Musik Leistungskurs</p>
-                
-                <div class="exercise-grid">
-                    <button class="exercise-card" onclick="startExercise('intervalle')">
-                        <div class="card-icon">🎼</div>
-                        <h2>Intervalle</h2>
-                        <p>12 Intervalle erkennen</p>
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Tonraum: g – g²</p>
-                    </button>
-                    
-                    <button class="exercise-card" onclick="startExercise('akkorde')">
-                        <div class="card-icon">🎹</div>
-                        <h2>Akkorde</h2>
-                        <p>9 Akkordtypen bestimmen</p>
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">4-stimmig, Grundstellung</p>
-                    </button>
-                    
-                    <button class="exercise-card" onclick="startExercise('rhythmus')">
-                        <div class="card-icon">🥁</div>
-                        <h2>Rhythmusdiktat</h2>
-                        <p>4 Takte notieren</p>
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">4/4-Takt, Tempo ♩ = 60</p>
-                    </button>
+    <header>
+        <h1>🎵 Musik Fachpraktisch - Gehörbildung</h1>
+        <p>Vorbereitung für das Abitur am 3. März 2026</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" data-section="intervalle">Intervalle</button>
+        <button class="nav-btn" data-section="akkorde">Akkorde</button>
+        <button class="nav-btn" data-section="rhythmus">Rhythmusdiktat</button>
+    </nav>
+
+    <main>
+        <!-- Intervalle Section -->
+        <section id="intervalle-section" class="exercise-section active">
+            <h2>Intervalle erkennen</h2>
+            <p class="description">Tonraum: g bis g² (G3 bis G5). Höre die Intervalle und bestimme sie.</p>
+            
+            <div class="controls">
+                <button id="play-intervall" class="btn btn-primary">▶ Intervall abspielen</button>
+                <button id="replay-intervall" class="btn" disabled>🔁 Wiederholen</button>
+            </div>
+
+            <div id="notation-intervall" class="notation"></div>
+
+            <div id="intervall-answer-section" class="answer-section" style="display: none;">
+                <h3>Wähle das Intervall:</h3>
+                <div class="answer-grid">
+                    <button class="answer-btn" onclick="checkIntervall('Kleine Sekunde')">Kleine Sekunde (k2)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Große Sekunde')">Große Sekunde (g2)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Kleine Terz')">Kleine Terz (k3)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Große Terz')">Große Terz (g3)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Reine Quarte')">Reine Quarte (r4)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Tritonus')">Tritonus</button>
+                    <button class="answer-btn" onclick="checkIntervall('Reine Quinte')">Reine Quinte (r5)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Kleine Sexte')">Kleine Sexte (k6)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Große Sexte')">Große Sexte (g6)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Kleine Septime')">Kleine Septime (k7)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Große Septime')">Große Septime (g7)</button>
+                    <button class="answer-btn" onclick="checkIntervall('Reine Oktave')">Reine Oktave (r8)</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Intervalle Screen -->
-        <div id="intervalle-screen" class="screen">
-            <div class="container">
-                <button class="back-button" onclick="goHome()">← Zurück</button>
-                
-                <h1>Intervalle erkennen</h1>
-                
-                <div class="stats-bar">
-                    <span>Richtig: <strong id="intervall-correct">0</strong></span>
-                    <span>Falsch: <strong id="intervall-wrong">0</strong></span>
-                    <span>Gesamt: <strong id="intervall-total">0</strong></span>
-                </div>
+            <div id="intervall-feedback" class="feedback"></div>
+            
+            <button id="next-intervall" class="btn btn-secondary" onclick="nextIntervall()" style="display: none;">Nächstes Intervall</button>
 
-                <div class="exercise-area">
-                    <div class="info-box">
-                        <p><strong>Tonraum:</strong> g bis g² (G3 bis G5)</p>
-                        <p><strong>Diktiermodus:</strong> Erst einzeln, dann zusammen</p>
-                    </div>
+            <div class="stats">
+                <p>Richtig: <span id="intervall-correct">0</span> | Falsch: <span id="intervall-wrong">0</span> | Gesamt: <span id="intervall-total">0</span></p>
+            </div>
+        </section>
 
-                    <div id="notation-intervall" class="notation-display"></div>
-                    
-                    <div class="controls">
-                        <button class="btn-primary" id="play-intervall" onclick="playIntervall()">▶ Abspielen</button>
-                        <button class="btn-secondary" id="replay-intervall" onclick="playIntervall()" disabled>🔄 Wiederholen</button>
-                    </div>
+        <!-- Akkorde Section -->
+        <section id="akkorde-section" class="exercise-section">
+            <h2>Akkorde erkennen</h2>
+            <p class="description">9 Akkorde: D, M, ü, D7, Dmaj7, M7, v7, D5/6, M5/6. 4-stimmig, Grundstellung, enge Lage.</p>
+            
+            <div class="controls">
+                <button id="play-akkord" class="btn btn-primary">▶ Akkord abspielen</button>
+                <button id="replay-akkord" class="btn" disabled>🔁 Wiederholen</button>
+            </div>
 
-                    <div class="answer-section" id="intervall-answer-section" style="display: none;">
-                        <h3>Welches Intervall hörst du?</h3>
-                        <div class="button-grid">
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Sekunde')">Kleine Sekunde (k2)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Sekunde')">Große Sekunde (g2)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Terz')">Kleine Terz (k3)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Terz')">Große Terz (g3)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Reine Quarte')">Reine Quarte (r4)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Tritonus')">Tritonus</button>
-                            <button class="answer-btn" onclick="checkIntervall('Reine Quinte')">Reine Quinte (r5)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Sexte')">Kleine Sexte (k6)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Sexte')">Große Sexte (g6)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Kleine Septime')">Kleine Septime (k7)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Große Septime')">Große Septime (g7)</button>
-                            <button class="answer-btn" onclick="checkIntervall('Reine Oktave')">Reine Oktave (r8)</button>
-                        </div>
-                    </div>
+            <div id="notation-akkord" class="notation"></div>
 
-                    <div class="feedback" id="intervall-feedback"></div>
-                    
-                    <button class="btn-primary" id="next-intervall" onclick="nextIntervall()" style="display: none;">Nächstes Intervall →</button>
+            <div id="akkord-answer-section" class="answer-section" style="display: none;">
+                <h3>Wähle den Akkord:</h3>
+                <div class="answer-grid">
+                    <button class="answer-btn" onclick="checkAkkord('Durdreiklang')">Durdreiklang (D)</button>
+                    <button class="answer-btn" onclick="checkAkkord('Molldreiklang')">Molldreiklang (M)</button>
+                    <button class="answer-btn" onclick="checkAkkord('Übermäßiger Dreiklang')">Übermäßiger Dreiklang (ü)</button>
+                    <button class="answer-btn" onclick="checkAkkord('D7')">Dominantseptakkord (D7)</button>
+                    <button class="answer-btn" onclick="checkAkkord('Dmaj7')">Dur mit großer Septime (Dmaj7)</button>
+                    <button class="answer-btn" onclick="checkAkkord('M7')">Moll mit kleiner Septime (M7)</button>
+                    <button class="answer-btn" onclick="checkAkkord('v7')">Verminderter Septakkord (v7)</button>
+                    <button class="answer-btn" onclick="checkAkkord('D56')">Dur mit großer Sexte (D5/6)</button>
+                    <button class="answer-btn" onclick="checkAkkord('M56')">Moll mit großer Sexte (M5/6)</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Akkorde Screen -->
-        <div id="akkorde-screen" class="screen">
-            <div class="container">
-                <button class="back-button" onclick="goHome()">← Zurück</button>
-                
-                <h1>Akkorde erkennen</h1>
-                
-                <div class="stats-bar">
-                    <span>Richtig: <strong id="akkord-correct">0</strong></span>
-                    <span>Falsch: <strong id="akkord-wrong">0</strong></span>
-                    <span>Gesamt: <strong id="akkord-total">0</strong></span>
-                </div>
+            <div id="akkord-feedback" class="feedback"></div>
+            
+            <button id="next-akkord" class="btn btn-secondary" onclick="nextAkkord()" style="display: none;">Nächster Akkord</button>
 
-                <div class="exercise-area">
-                    <div class="info-box">
-                        <p><strong>Tonraum:</strong> g bis c³ (G3 bis C6)</p>
-                        <p><strong>Lage:</strong> Grundstellung, enge Lage, 4-stimmig</p>
-                        <p><strong>Diktiermodus:</strong> Erst einzeln, dann zusammen</p>
-                    </div>
-
-                    <div id="notation-akkord" class="notation-display"></div>
-                    
-                    <div class="controls">
-                        <button class="btn-primary" id="play-akkord" onclick="playAkkord()">▶ Abspielen</button>
-                        <button class="btn-secondary" id="replay-akkord" onclick="playAkkord()" disabled>🔄 Wiederholen</button>
-                    </div>
-
-                    <div class="answer-section" id="akkord-answer-section" style="display: none;">
-                        <h3>Welchen Akkord hörst du?</h3>
-                        <div class="button-grid">
-                            <button class="answer-btn" onclick="checkAkkord('Durdreiklang')">Durdreiklang (D)</button>
-                            <button class="answer-btn" onclick="checkAkkord('Molldreiklang')">Molldreiklang (M)</button>
-                            <button class="answer-btn" onclick="checkAkkord('Übermäßiger Dreiklang')">Übermäßiger Dreiklang (ü)</button>
-                            <button class="answer-btn" onclick="checkAkkord('D7')">D7</button>
-                            <button class="answer-btn" onclick="checkAkkord('Dmaj7')">Dmaj7</button>
-                            <button class="answer-btn" onclick="checkAkkord('M7')">M7</button>
-                            <button class="answer-btn" onclick="checkAkkord('v7')">v7</button>
-                            <button class="answer-btn" onclick="checkAkkord('D56')">D5/6</button>
-                            <button class="answer-btn" onclick="checkAkkord('M56')">M5/6</button>
-                        </div>
-                    </div>
-
-                    <div class="feedback" id="akkord-feedback"></div>
-                    
-                    <button class="btn-primary" id="next-akkord" onclick="nextAkkord()" style="display: none;">Nächster Akkord →</button>
-                </div>
+            <div class="stats">
+                <p>Richtig: <span id="akkord-correct">0</span> | Falsch: <span id="akkord-wrong">0</span> | Gesamt: <span id="akkord-total">0</span></p>
             </div>
-        </div>
+        </section>
 
-        <!-- Rhythmus Screen -->
-        <div id="rhythmus-screen" class="screen">
-            <div class="container">
-                <button class="back-button" onclick="goHome()">← Zurück</button>
-                
-                <h1>Rhythmusdiktat</h1>
-                
-                <div class="stats-bar">
-                    <span>Gesamt: <strong id="rhythmus-total">0</strong></span>
-                </div>
-
-                <div class="exercise-area">
-                    <div class="info-box">
-                        <p><strong>Taktart:</strong> 4/4-Takt</p>
-                        <p><strong>Umfang:</strong> 4 Takte</p>
-                        <p><strong>Tempo:</strong> Viertel = ca. 60 BPM</p>
-                        <p><strong>Elemente:</strong> Synkopen, Triolen, Punktierungen</p>
-                        <p><em>Notiere den Rhythmus auf Notenpapier!</em></p>
-                    </div>
-
-                    <div id="notation-rhythmus" class="notation-display"></div>
-                    
-                    <div class="controls">
-                        <button class="btn-primary" id="play-rhythmus" onclick="playRhythmus()">▶ Vorzählen + Takte 1-4</button>
-                        <button class="btn-primary" id="continue-rhythmus" onclick="continueRhythmus()" style="display: none;">Weiter ▶</button>
-                    </div>
-
-                    <div class="answer-section">
-                        <button class="btn-primary" id="show-rhythmus-solution" onclick="showRhythmusSolution()" style="display: none;">Lösung anzeigen</button>
-                    </div>
-
-                    <div class="feedback" id="rhythmus-feedback"></div>
-                    
-                    <button class="btn-primary" id="next-rhythmus" onclick="nextRhythmus()" style="display: none;">Neuer Rhythmus →</button>
-                </div>
+        <!-- Rhythmus Section -->
+        <section id="rhythmus-section" class="exercise-section">
+            <h2>Rhythmusdiktat</h2>
+            <p class="description">4 Takte im 4/4-Takt. Tempo: Viertel = 60 BPM. Nach offiziellen BW-Rhythmus-Bausteinen.</p>
+            
+            <div class="controls">
+                <button id="play-rhythmus" class="btn btn-primary">▶ Abspielen (1-4)</button>
+                <button id="continue-rhythmus" class="btn" style="display: none;">▶ Weiter</button>
             </div>
-        </div>
-    </div>
 
-    <!-- Footer -->
+            <div id="notation-rhythmus" class="notation"></div>
+
+            <div id="rhythmus-feedback" class="feedback"></div>
+            
+            <div class="controls">
+                <button id="show-rhythmus-solution" class="btn" onclick="showRhythmusSolution()" style="display: none;">Lösung anzeigen</button>
+                <button id="next-rhythmus" class="btn btn-secondary" onclick="nextRhythmus()" style="display: none;">Neuer Rhythmus</button>
+            </div>
+
+            <div class="stats">
+                <p>Geübt: <span id="rhythmus-total">0</span></p>
+            </div>
+        </section>
+    </main>
+
     <footer>
-        <p><strong>© 2026 Jannik Herre</strong> • Alle Rechte vorbehalten</p>
-        <p style="margin-top: 0.5rem;">
-            Piano-Samples: <a href="https://github.com/gleitz/midi-js-soundfonts" target="_blank" rel="noopener">MIDI.js Soundfonts</a> (Acoustic Grand Piano)
-        </p>
+        <p>Viel Erfolg beim Üben! 🎶</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.3/build/cjs/vexflow.js"></script>
-    <script src="js/audio.js"></script>
+    <!-- Load scripts in order -->
+    <script src="js/audio-tonejs.js"></script>
     <script src="js/notation.js"></script>
-    <script src="js/intervalle.js"></script>
-    <script src="js/akkorde.js"></script>
-    <script src="js/rhythmus.js"></script>
+    <script src="js/intervalle-tonejs.js"></script>
+    <script src="js/akkorde-tonejs.js"></script>
+    <script src="js/rhythmus-tonejs.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
