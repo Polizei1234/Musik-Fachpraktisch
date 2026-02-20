@@ -42,10 +42,8 @@ window.initMelodie = function() {
 function generateNewMelodie() {
     melodiePlaybackStep = 0;
     
-    // Wähle zufällige Tonart
     const tonart = tonarten[Math.floor(Math.random() * tonarten.length)];
     
-    // Erstelle 4-taktige Melodie
     const bars = [
         generateMelodieBar(tonart, 'start'),
         generateMelodieBar(tonart, 'middle'),
@@ -53,7 +51,6 @@ function generateNewMelodie() {
         generateMelodieBar(tonart, 'end')
     ];
     
-    // Überprüfe Ambitus (muss > Oktave sein)
     let allNotes = [];
     bars.forEach(bar => {
         bar.forEach(note => allNotes.push(note.note));
@@ -61,7 +58,6 @@ function generateNewMelodie() {
     
     const ambitus = calculateAmbitus(allNotes);
     if (ambitus <= 12) {
-        // Ambitus zu klein, nochmal generieren
         generateNewMelodie();
         return;
     }
@@ -79,36 +75,58 @@ function generateNewMelodie() {
     document.getElementById('next-melodie').style.display = 'none';
     document.getElementById('play-melodie').disabled = false;
     document.getElementById('continue-melodie').style.display = 'none';
-    document.getElementById('melodie-info').textContent = `Tonart: ${tonart.name} | Ambitus: ${ambitus} Halbtöne (${Math.floor(ambitus/12)} Oktave${ambitus > 12 ? 'n' : ''})`;
+    document.getElementById('melodie-info').textContent = `Tonart: ${tonart.name} | Ambitus: ${ambitus} Halbtöne`;
 }
 
 function generateMelodieBar(tonart, position) {
-    // Einfachere Patterns die genau 4 Schläge ergeben
+    // REALISTISCHE Patterns wie in den Beispielen!
     const patterns = [
-        // Viertel = 4 Schläge
-        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 1, step: 2}, {d: 1, step: 1}],
-        [{d: 1, step: 0}, {d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
-        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}],
-        // Mit Halben = 4 Schläge
-        [{d: 2, step: 0}, {d: 1, step: 1}, {d: 1, step: 2}],
-        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 2, step: 2}],
-        [{d: 2, step: 0}, {d: 2, step: 2}],
-        // Mit Achteln = 4 Schläge
-        [{d: 0.5, step: 0}, {d: 0.5, step: 1}, {d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
-        [{d: 1, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
-        [{d: 1, step: 0}, {d: 1, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}]
+        // MIT SECHZEHNTELN
+        [{d: 0.25, step: 0}, {d: 0.25, step: 1}, {d: 0.25, step: 2}, {d: 0.25, step: 3}, {d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}],
+        [{d: 1, step: 0}, {d: 0.25, step: 1}, {d: 0.25, step: 2}, {d: 0.25, step: 1}, {d: 0.25, step: 0}, {d: 1, step: 2}, {d: 1, step: 4}],
+        [{d: 0.5, step: 0}, {d: 0.5, step: 2}, {d: 0.25, step: 4}, {d: 0.25, step: 3}, {d: 0.25, step: 2}, {d: 0.25, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}],
+        [{d: 1, step: 0}, {d: 0.25, step: 1}, {d: 0.25, step: 0}, {d: 0.25, step: 1}, {d: 0.25, step: 2}, {d: 0.5, step: 3}, {d: 0.5, step: 2}, {d: 1, step: 1}],
+        
+        // MIT PUNKTIERTEN
+        [{d: 1.5, step: 0}, {d: 0.5, step: 2}, {d: 1, step: 4}, {d: 1, step: 2}],
+        [{d: 0.75, step: 0}, {d: 0.25, step: 1}, {d: 1, step: 2}, {d: 0.75, step: 3}, {d: 0.25, step: 2}, {d: 1, step: 1}],
+        [{d: 1, step: 0}, {d: 0.75, step: 2}, {d: 0.25, step: 3}, {d: 0.5, step: 4}, {d: 0.5, step: 2}, {d: 1, step: 0}],
+        
+        // MIT ACHTEL-GRUPPEN
+        [{d: 0.5, step: 0}, {d: 0.5, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 3}, {d: 1, step: 4}, {d: 1, step: 2}, {d: 1, step: 0}],
+        [{d: 1, step: 0}, {d: 0.5, step: 2}, {d: 0.5, step: 4}, {d: 0.5, step: 3}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 0.5, step: 0}, {d: 1, step: -1}],
+        [{d: 0.5, step: 0}, {d: 0.5, step: 2}, {d: 1, step: 4}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}, {d: 1, step: -2}],
+        
+        // MIT SPRÜNGEN (Terzen/Quarten)
+        [{d: 1, step: 0}, {d: 1, step: 2}, {d: 0.5, step: 4}, {d: 0.5, step: 2}, {d: 0.5, step: 0}, {d: 0.5, step: -2}, {d: 1, step: 0}],
+        [{d: 0.5, step: 0}, {d: 0.5, step: 3}, {d: 1, step: 5}, {d: 1, step: 3}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}],
+        [{d: 1, step: 0}, {d: 0.5, step: 2}, {d: 0.5, step: 4}, {d: 1, step: 6}, {d: 0.5, step: 4}, {d: 0.5, step: 2}, {d: 1, step: 0}],
+        
+        // SYNKOPEN-ARTIG
+        [{d: 0.5, step: 0}, {d: 1, step: 1}, {d: 0.5, step: 2}, {d: 0.5, step: 3}, {d: 1, step: 2}, {d: 0.5, step: 1}],
+        [{d: 1, step: 0}, {d: 0.5, step: 1}, {d: 1, step: 2}, {d: 0.5, step: 3}, {d: 0.5, step: 2}, {d: 0.5, step: 1}],
+        
+        // TRIOLISCH (3:2)
+        [{d: 0.67, step: 0}, {d: 0.67, step: 1}, {d: 0.67, step: 2}, {d: 1, step: 3}, {d: 1, step: 2}, {d: 1, step: 1}],
+        
+        // KOMPLEXERE MISCHUNGEN
+        [{d: 0.25, step: 0}, {d: 0.25, step: 2}, {d: 0.5, step: 4}, {d: 1, step: 5}, {d: 0.5, step: 4}, {d: 0.25, step: 2}, {d: 0.25, step: 1}, {d: 1, step: 0}],
+        [{d: 1.5, step: 0}, {d: 0.25, step: 1}, {d: 0.25, step: 2}, {d: 0.5, step: 3}, {d: 0.5, step: 2}, {d: 1, step: 1}]
     ];
     
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
-    // Starte bei einem Skalenton (Oktave 3-4)
     let startOctave = 3 + Math.floor(Math.random() * 2);
     let currentScaleIndex = Math.floor(Math.random() * 5);
     
-    // Für Endtakt: zurück zum Grundton
     if (position === 'end') {
-        const lastPattern = [{d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}, {d: 1, step: -2}];
-        return createNotesFromPattern(lastPattern, tonart, currentScaleIndex, startOctave);
+        // Schluss-Pattern: zurück zum Grundton
+        const endPatterns = [
+            [{d: 1, step: 2}, {d: 1, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}],
+            [{d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}, {d: 1, step: -2}],
+            [{d: 1, step: 3}, {d: 0.5, step: 2}, {d: 0.5, step: 1}, {d: 1, step: 0}, {d: 1, step: -1}]
+        ];
+        return createNotesFromPattern(endPatterns[Math.floor(Math.random() * endPatterns.length)], tonart, currentScaleIndex, startOctave);
     }
     
     return createNotesFromPattern(pattern, tonart, currentScaleIndex, startOctave);
@@ -122,7 +140,6 @@ function createNotesFromPattern(pattern, tonart, startIndex, startOctave) {
     pattern.forEach(({d, step}) => {
         currentIndex += step;
         
-        // Oktave anpassen wenn nötig
         while (currentIndex >= 7) {
             currentIndex -= 7;
             currentOctave++;
@@ -132,16 +149,25 @@ function createNotesFromPattern(pattern, tonart, startIndex, startOctave) {
             currentOctave--;
         }
         
-        // Begrenze auf Oktaven 3-5
         if (currentOctave < 3) currentOctave = 3;
         if (currentOctave > 5) currentOctave = 5;
         
         const noteName = tonart.scale[currentIndex] + currentOctave;
         
+        // VexFlow duration mapping
+        let vexDur = 'q';
+        if (d >= 2) vexDur = 'h';
+        else if (d >= 1.5) vexDur = 'qd';
+        else if (d >= 1) vexDur = 'q';
+        else if (d >= 0.75) vexDur = '8d';
+        else if (d >= 0.67) vexDur = '8t'; // Triole
+        else if (d >= 0.5) vexDur = '8';
+        else if (d >= 0.25) vexDur = '16';
+        
         notes.push({
             note: noteName,
             duration: d,
-            vexDuration: d === 2 ? 'h' : d === 1 ? 'q' : d === 0.5 ? '8' : 'q'
+            vexDuration: vexDur
         });
     });
     
@@ -338,12 +364,10 @@ function displayMelodieNotation(elementId, melodie) {
         const staveWidth = 210;
         const yPos = 40;
         
-        // Rendere jeden Takt einzeln
         melodie.bars.forEach((bar, barIndex) => {
             const xPos = 10 + (barIndex * staveWidth);
             const stave = new VF.Stave(xPos, yPos, staveWidth);
             
-            // Nur erster Takt bekommt Schlüssel, Takt und Tonart
             if (barIndex === 0) {
                 stave.addClef('treble');
                 stave.addTimeSignature('4/4');
@@ -356,7 +380,6 @@ function displayMelodieNotation(elementId, melodie) {
             
             stave.setContext(context).draw();
             
-            // Erstelle Noten für diesen Takt
             const vexNotes = [];
             
             bar.forEach((noteObj) => {
@@ -368,7 +391,11 @@ function displayMelodieNotation(elementId, melodie) {
                     duration: noteObj.vexDuration
                 });
                 
-                // Vorzeichen nur wenn nicht in Tonart-Signatur
+                // Punkte für punktierte Noten
+                if (noteObj.vexDuration.includes('d')) {
+                    VF.Dot.buildAndAttach([staveNote]);
+                }
+                
                 const needsAccidental = noteNeedsAccidental(noteObj.note, melodie.tonart);
                 if (needsAccidental) {
                     if (noteObj.note.includes('#')) {
@@ -381,14 +408,12 @@ function displayMelodieNotation(elementId, melodie) {
                 vexNotes.push(staveNote);
             });
             
-            // Balken für Achtel
             const beams = VF.Beam.generateBeams(vexNotes, { beam_rests: false });
             
-            // Voice mit genau 4 Schlägen
             const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+            voice.setStrict(false); // Erlaubt leichte Abweichungen
             voice.addTickables(vexNotes);
             
-            // Formatieren und zeichnen
             new VF.Formatter().joinVoices([voice]).format([voice], staveWidth - 30);
             voice.draw(context, stave);
             beams.forEach(beam => beam.setContext(context).draw());
@@ -404,7 +429,6 @@ function displayMelodieNotation(elementId, melodie) {
 }
 
 function noteNeedsAccidental(note, tonart) {
-    // Check ob Note ein Vorzeichen hat das NICHT in der Tonart-Signatur ist
     const noteName = note.match(/([A-G]#?b?)/)[1];
     return !tonart.scale.includes(noteName.replace(/[0-9]/g, ''));
 }
