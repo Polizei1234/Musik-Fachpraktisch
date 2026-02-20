@@ -138,16 +138,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('✅ App bereit! Tone.js wird beim ersten Klick aktiviert.');
 });
-
-// Make answer functions global for onclick attributes
-window.checkIntervall = function(answer) {
-    if (typeof checkIntervall === 'function') {
-        checkIntervall(answer);
-    }
-};
-
-window.checkAkkord = function(answer) {
-    if (typeof checkAkkord === 'function') {
-        checkAkkord(answer);
-    }
-};
