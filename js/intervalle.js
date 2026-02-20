@@ -1,6 +1,6 @@
 // Intervall-Übung nach BW-Richtlinien
 // Tonraum: g bis g2 (G3 bis G5)
-// Diktiermodus: Kontinuierlicher Loop ohne Pausen (BPM=60)
+// Längerer Sustain wie musictheory.net
 
 const intervalle = [
     { name: 'Kleine Sekunde', semitones: 1, short: 'k2' },
@@ -85,38 +85,42 @@ async function playIntervall() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing interval seamlessly (BPM=60):', currentIntervall.baseNote, currentIntervall.secondNote);
+    console.log('▶ Playing interval:', currentIntervall.baseNote, currentIntervall.secondNote);
     
     try {
         const ctx = getAudioContext();
         if (!ctx) return;
         
-        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
-        const beatDuration = 1.0;
+        // Längere Töne wie musictheory.net!
+        const noteDuration = 2.5; // 2.5 Sekunden pro Ton
+        const chordDuration = 3.0; // 3 Sekunden für Akkord
+        const gap = 0.3; // Kurze Pause
+        
         let startTime = ctx.currentTime + 0.05;
         
-        // Play first note (starts at t=0)
-        await playPianoSample(currentIntervall.baseNote, startTime, beatDuration);
-        console.log('Note 1 starts at', startTime);
+        // Note 1 (2.5s)
+        await playPianoSample(currentIntervall.baseNote, startTime, noteDuration);
+        console.log('♫ Note 1:', currentIntervall.baseNote, 'at', startTime);
         
-        // Play second note (starts at t=1, seamless)
-        startTime += beatDuration;
-        await playPianoSample(currentIntervall.secondNote, startTime, beatDuration);
-        console.log('Note 2 starts at', startTime);
+        // Note 2 (2.5s, starts after note 1 finishes)
+        startTime += noteDuration + gap;
+        await playPianoSample(currentIntervall.secondNote, startTime, noteDuration);
+        console.log('♫ Note 2:', currentIntervall.secondNote, 'at', startTime);
         
-        // Short pause before chord
-        startTime += beatDuration + 0.3;
+        // Both together (3s, fuller sound)
+        startTime += noteDuration + gap;
+        await playPianoSample(currentIntervall.baseNote, startTime, chordDuration);
+        await playPianoSample(currentIntervall.secondNote, startTime, chordDuration);
+        console.log('♫ Chord at', startTime);
         
-        // Play both together
-        await playPianoSample(currentIntervall.baseNote, startTime, 1.5);
-        await playPianoSample(currentIntervall.secondNote, startTime, 1.5);
-        console.log('Chord starts at', startTime);
+        // Wait for completion
+        const totalTime = (noteDuration + gap) * 2 + chordDuration + 500;
+        await new Promise(resolve => setTimeout(resolve, totalTime));
         
-        // Wait for everything to finish (2s notes + 0.3s pause + 1.5s chord)
-        await new Promise(resolve => setTimeout(resolve, 3800));
+        console.log('✓ Interval complete');
         
     } catch (error) {
-        console.error('Error playing interval:', error);
+        console.error('❌ Error playing interval:', error);
     }
     
     if (!hasPlayedIntervall) {

@@ -2,7 +2,7 @@
 // 9 Akkorde: D, M, ü, D7, Dmaj7, M7, v7, D5/6, M5/6
 // 4-stimmig, Grundstellung, enge Lage
 // Tonraum: g bis c3 (G3 bis C6)
-// Diktiermodus: Kontinuierlicher Loop ohne Pausen (BPM=60)
+// Längerer Sustain wie musictheory.net
 
 const akkorde = [
     { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7, 12] },
@@ -81,41 +81,42 @@ async function playAkkord() {
     playBtn.disabled = true;
     replayBtn.disabled = true;
     
-    console.log('Playing chord seamlessly (BPM=60):', currentAkkord.notes);
+    console.log('▶ Playing chord:', currentAkkord.notes);
     
     try {
         const ctx = getAudioContext();
         if (!ctx) return;
         
-        // BPM = 60 -> 1 Viertelnote = 1 Sekunde
-        const beatDuration = 1.0;
+        // Längere Töne wie musictheory.net!
+        const noteDuration = 2.5; // 2.5 Sekunden pro Ton
+        const chordDuration = 3.5; // 3.5 Sekunden für vollen Akkord
+        const gap = 0.3;
+        
         let startTime = ctx.currentTime + 0.05;
         
-        // Play each note seamlessly (no gaps)
+        // Play each note individually (2.5s each)
         for (let i = 0; i < currentAkkord.notes.length; i++) {
             const note = currentAkkord.notes[i];
-            console.log(`Note ${i+1} starts at ${startTime}`);
+            await playPianoSample(note, startTime, noteDuration);
+            console.log(`♫ Note ${i+1}:`, note, 'at', startTime);
             
-            await playPianoSample(note, startTime, beatDuration);
-            
-            // Next note starts exactly when previous ends
-            startTime += beatDuration;
+            startTime += noteDuration + gap;
         }
         
-        // Short pause before chord
-        startTime += 0.3;
-        
-        // Play all notes together
-        console.log('Chord starts at', startTime);
+        // Play all together (3.5s, voller Klang)
+        console.log('♫ Chord starts at', startTime);
         for (const note of currentAkkord.notes) {
-            await playPianoSample(note, startTime, 1.5);
+            await playPianoSample(note, startTime, chordDuration);
         }
         
-        // Wait for everything to finish (4s individual + 0.3s pause + 1.5s chord)
-        await new Promise(resolve => setTimeout(resolve, 5800));
+        // Wait for completion
+        const totalTime = (noteDuration + gap) * 4 + chordDuration + 500;
+        await new Promise(resolve => setTimeout(resolve, totalTime));
+        
+        console.log('✓ Chord complete');
         
     } catch (error) {
-        console.error('Error playing chord:', error);
+        console.error('❌ Error playing chord:', error);
     }
     
     if (!hasPlayedAkkord) {
