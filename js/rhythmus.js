@@ -1,6 +1,7 @@
-// Rhythmusdiktat nach OFFIZIELLEN BW-Abitur Richtlinien
+// Rhythmusdiktat nach OFFIZIELLEN Rhythmus-Bausteinen
+// Quelle: Rhythmus-Bausteine-BEAMER.pdf (BW-Abitur)
 // Mit ECHTEM PIANO-SOUND wie musictheory.net
-// 4 Takte, 4/4-Takt, Viertel/Achtel/Sechzehntel, KEINE Pausen
+// 4 Takte, 4/4-Takt
 // Tempo: Viertel = ca. 60 BPM
 
 let currentRhythmus = null;
@@ -58,46 +59,67 @@ function generateNewRhythmus() {
 }
 
 function generateAbiturBar() {
+    // EXAKTE Bausteine aus dem offiziellen PDF!
     const patterns = [
-        // Einfach: Viertel + Achtel
-        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
-        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
-        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        // === GRUNDBAUSTEINE: Viertel ===
         [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         
-        // Punktierungen
+        // === GRUNDBAUSTEINE: Achtel ===
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}],
+        
+        // === MISCHUNG: 2 Achtel = 1 Viertel ===
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        
+        // === SECHZEHNTEL (4 = 1 Viertel) ===
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        
+        // === PUNKTIERTE ACHTEL (aus PDF) ===
         [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 1, n: 'q'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        
+        // === PUNKTIERTE VIERTEL ===
         [{d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         [{d: 1, n: 'q'}, {d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}],
+        [{d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}, {d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}],
         
-        // Synkopen
+        // === SYNKOPEN (typisch Abitur!) ===
         [{d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
         [{d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}],
+        [{d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
         
-        // Sechzehntel
-        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        // === TRIOLEN (wie im PDF!) ===
+        [{d: 1/3, n: '8t', triplet: true}, {d: 1/3, n: '8t', triplet: true}, {d: 1/3, n: '8t', triplet: true}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1/3, n: '8t', triplet: true}, {d: 1/3, n: '8t', triplet: true}, {d: 1/3, n: '8t', triplet: true}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 2/3, n: 'qt', triplet: true}, {d: 2/3, n: 'qt', triplet: true}, {d: 2/3, n: 'qt', triplet: true}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 2/3, n: 'qt', triplet: true}, {d: 2/3, n: 'qt', triplet: true}, {d: 2/3, n: 'qt', triplet: true}, {d: 1, n: 'q'}],
         
-        // Kombiniert
-        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        // === KOMBINATIONEN (anspruchsvoll) ===
         [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         [{d: 0.5, n: '8'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
-        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}]
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}]
     ];
     
     return patterns[Math.floor(Math.random() * patterns.length)];
 }
 
-// PIANO COUNT-IN wie musictheory.net!
 async function playCountIn() {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -106,13 +128,12 @@ async function playCountIn() {
         await ctx.resume();
     }
     
-    const beatDuration = 1.0; // 60 BPM
+    const beatDuration = 1.0;
     const now = ctx.currentTime;
     
-    // Play 4 piano clicks (C5 for emphasis)
     for (let i = 0; i < 4; i++) {
         const startTime = now + (i * beatDuration);
-        const pitch = i === 0 ? 'C5' : 'C4'; // First beat higher
+        const pitch = i === 0 ? 'C5' : 'C4';
         await playPianoSample(pitch, startTime, 0.15);
     }
     
@@ -134,8 +155,6 @@ async function playRhythmus() {
         rhythmusPlaybackStep = 0;
         await playCountIn();
         await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // Play rhythm with PIANO (C4)
         await playRhythmPatternPiano(currentRhythmus.pattern, 'C4');
         
         rhythmusPlaybackStep = 1;
@@ -165,7 +184,6 @@ async function continueRhythmus() {
                 notesToPlay = notesToPlay.concat(currentRhythmus.bars[barIndex]);
             });
             
-            // Piano count-in (2 beats)
             const ctx = getAudioContext();
             const now = ctx.currentTime;
             const beatDuration = 1.0;
@@ -195,19 +213,17 @@ async function continueRhythmus() {
     continueBtn.disabled = false;
 }
 
-// Play rhythm with REAL PIANO SOUND
 async function playRhythmPatternPiano(pattern, pitch = 'C4') {
     console.log('▶ Playing rhythm with piano');
     
     const ctx = getAudioContext();
     if (!ctx) return;
     
-    const beatDuration = 1.0; // 60 BPM
+    const beatDuration = 1.0;
     let currentTime = ctx.currentTime + 0.05;
     
     for (const noteObj of pattern) {
         if (noteObj.d > 0) {
-            // Play piano sample for each note
             const noteDuration = noteObj.d * beatDuration;
             await playPianoSample(pitch, currentTime, noteDuration * 0.9);
         }
@@ -272,8 +288,10 @@ function displayRhythmNotation(elementId, bars) {
         
         bars.forEach((bar, barIndex) => {
             const vexNotes = [];
+            const tripletGroups = [];
+            let currentTriplet = [];
             
-            bar.forEach(noteObj => {
+            bar.forEach((noteObj, idx) => {
                 const staveNote = new VF.StaveNote({
                     clef: 'percussion',
                     keys: ['b/4'],
@@ -285,6 +303,15 @@ function displayRhythmNotation(elementId, bars) {
                 }
                 
                 vexNotes.push(staveNote);
+                
+                // Track triplets
+                if (noteObj.triplet) {
+                    currentTriplet.push(staveNote);
+                    if (currentTriplet.length === 3) {
+                        tripletGroups.push([...currentTriplet]);
+                        currentTriplet = [];
+                    }
+                }
             });
             
             const beams = VF.Beam.generateBeams(vexNotes, {
@@ -300,9 +327,15 @@ function displayRhythmNotation(elementId, bars) {
             
             voice.draw(context, staves[barIndex]);
             beams.forEach(beam => beam.setContext(context).draw());
+            
+            // Draw triplet brackets
+            tripletGroups.forEach(group => {
+                const tuplet = new VF.Tuplet(group);
+                tuplet.setContext(context).draw();
+            });
         });
         
-        console.log('✅ Notation displayed!');
+        console.log('✅ Notation with triplets displayed!');
         
     } catch (error) {
         console.error('❌ Notation error:', error);
