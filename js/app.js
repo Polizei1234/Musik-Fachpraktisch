@@ -43,6 +43,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
+    // === INTERVALLE BUTTONS ===
+    const playIntervallBtn = document.getElementById('play-intervall');
+    if (playIntervallBtn) {
+        playIntervallBtn.addEventListener('click', () => {
+            console.log('👆 Play Intervall button clicked!');
+            if (typeof playIntervall === 'function') {
+                playIntervall();
+            } else {
+                console.error('playIntervall function not found!');
+            }
+        });
+    }
+    
+    const replayIntervallBtn = document.getElementById('replay-intervall');
+    if (replayIntervallBtn) {
+        replayIntervallBtn.addEventListener('click', () => {
+            if (typeof playIntervall === 'function') playIntervall();
+        });
+    }
+    
+    const nextIntervallBtn = document.getElementById('next-intervall');
+    if (nextIntervallBtn) {
+        nextIntervallBtn.addEventListener('click', () => {
+            if (typeof nextIntervall === 'function') nextIntervall();
+        });
+    }
+    
+    // === AKKORDE BUTTONS ===
+    const playAkkordBtn = document.getElementById('play-akkord');
+    if (playAkkordBtn) {
+        playAkkordBtn.addEventListener('click', () => {
+            console.log('👆 Play Akkord button clicked!');
+            if (typeof playAkkord === 'function') {
+                playAkkord();
+            } else {
+                console.error('playAkkord function not found!');
+            }
+        });
+    }
+    
+    const replayAkkordBtn = document.getElementById('replay-akkord');
+    if (replayAkkordBtn) {
+        replayAkkordBtn.addEventListener('click', () => {
+            if (typeof playAkkord === 'function') playAkkord();
+        });
+    }
+    
+    const nextAkkordBtn = document.getElementById('next-akkord');
+    if (nextAkkordBtn) {
+        nextAkkordBtn.addEventListener('click', () => {
+            if (typeof nextAkkord === 'function') nextAkkord();
+        });
+    }
+    
+    // === RHYTHMUS BUTTONS ===
+    const playRhythmusBtn = document.getElementById('play-rhythmus');
+    if (playRhythmusBtn) {
+        playRhythmusBtn.addEventListener('click', () => {
+            console.log('👆 Play Rhythmus button clicked!');
+            if (typeof playRhythmus === 'function') {
+                playRhythmus();
+            } else {
+                console.error('playRhythmus function not found!');
+            }
+        });
+    }
+    
+    const continueRhythmusBtn = document.getElementById('continue-rhythmus');
+    if (continueRhythmusBtn) {
+        continueRhythmusBtn.addEventListener('click', () => {
+            if (typeof continueRhythmus === 'function') continueRhythmus();
+        });
+    }
+    
+    const showRhythmusSolutionBtn = document.getElementById('show-rhythmus-solution');
+    if (showRhythmusSolutionBtn) {
+        showRhythmusSolutionBtn.addEventListener('click', () => {
+            if (typeof showRhythmusSolution === 'function') showRhythmusSolution();
+        });
+    }
+    
+    const nextRhythmusBtn = document.getElementById('next-rhythmus');
+    if (nextRhythmusBtn) {
+        nextRhythmusBtn.addEventListener('click', () => {
+            if (typeof nextRhythmus === 'function') nextRhythmus();
+        });
+    }
+    
     // Initialize first section (Intervalle)
     if (typeof initIntervalle === 'function') {
         initIntervalle();
@@ -50,3 +138,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('✅ App bereit! Tone.js wird beim ersten Klick aktiviert.');
 });
+
+// Make answer functions global for onclick attributes
+window.checkIntervall = function(answer) {
+    if (typeof checkIntervall === 'function') {
+        checkIntervall(answer);
+    }
+};
+
+window.checkAkkord = function(answer) {
+    if (typeof checkAkkord === 'function') {
+        checkAkkord(answer);
+    }
+};
