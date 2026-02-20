@@ -33,11 +33,11 @@ const tonarten = [
     { name: 'g-Moll', root: 'G3', scale: ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F#'], mode: 'minor' }
 ];
 
-function initMelodie() {
+window.initMelodie = function() {
     melodieStats = { total: 0 };
     updateMelodieStats();
     generateNewMelodie();
-}
+};
 
 function generateNewMelodie() {
     melodiePlaybackStep = 0;
@@ -214,7 +214,7 @@ async function playKadenz(tonart) {
     await new Promise(r => setTimeout(r, 7000));
 }
 
-async function playMelodie() {
+window.playMelodie = async function() {
     if (!currentMelodie) return;
     
     const playBtn = document.getElementById('play-melodie');
@@ -245,9 +245,9 @@ async function playMelodie() {
     }
     
     playBtn.disabled = false;
-}
+};
 
-async function continueMelodie() {
+window.continueMelodie = async function() {
     if (!currentMelodie) return;
     
     const continueBtn = document.getElementById('continue-melodie');
@@ -293,7 +293,7 @@ async function continueMelodie() {
     }
     
     continueBtn.disabled = false;
-}
+};
 
 async function playMelodieBars(bars) {
     const schedule = [];
@@ -314,7 +314,7 @@ async function playMelodieBars(bars) {
     await new Promise(r => setTimeout(r, time * 1000 + 200));
 }
 
-function showMelodieSolution() {
+window.showMelodieSolution = function() {
     melodieStats.total++;
     updateMelodieStats();
     
@@ -326,11 +326,11 @@ function showMelodieSolution() {
     
     document.getElementById('next-melodie').style.display = 'block';
     document.getElementById('show-melodie-solution').style.display = 'none';
-}
+};
 
-function nextMelodie() {
+window.nextMelodie = function() {
     generateNewMelodie();
-}
+};
 
 function updateMelodieStats() {
     document.getElementById('melodie-total').textContent = melodieStats.total;
@@ -429,3 +429,5 @@ function getKeySignature(tonartName) {
     
     return signatures[tonartName] || 'C';
 }
+
+console.log('✅ Melodie module loaded');
