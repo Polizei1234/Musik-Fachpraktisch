@@ -1,6 +1,9 @@
-// Rhythmusdiktat nach echten BW-Abitur Richtlinien
-// 4 Takte, 4/4-Takt, machbare Kombinationen
-// Tempo: Viertel = ca. 60
+// Rhythmusdiktat nach OFFIZIELLEN BW-Abitur Richtlinien
+// Quelle: Ministerium für Kultus Baden-Württemberg
+// 4 Takte, 4/4-Takt
+// Notenwerte: Viertel, Achtel, Sechzehntel
+// KEINE Pausenwerte!
+// Tempo: Viertel = ca. 60 BPM
 // Diktiermodus: 1-4, dann 1, 1, 1+2, 2, 2+3, 3, 3+4, 4, 4, 1-4
 
 let currentRhythmus = null;
@@ -30,15 +33,14 @@ function initRhythmus() {
 function generateNewRhythmus() {
     rhythmusPlaybackStep = 0;
     
-    // Generate 4 bars - REALISTISCHE ABITUR-RHYTHMEN
+    // Generate 4 bars - AUTHENTIC ABITUR PATTERNS
     const bars = [
-        generateRealisticBar(),
-        generateRealisticBar(),
-        generateRealisticBar(),
-        generateRealisticBar()
+        generateAbiturBar(),
+        generateAbiturBar(),
+        generateAbiturBar(),
+        generateAbiturBar()
     ];
     
-    // Flatten for playback
     let pattern = [];
     bars.forEach(bar => {
         pattern = pattern.concat(bar);
@@ -59,119 +61,209 @@ function generateNewRhythmus() {
     document.getElementById('continue-rhythmus').style.display = 'none';
 }
 
-function generateRealisticBar() {
-    // REALISTISCHE Abitur-Rhythmen aus echten Prüfungen
+function generateAbiturBar() {
+    // ECHTE Abitur-Rhythmen nach BW-Vorgaben
+    // Nur Viertel, Achtel, Sechzehntel - KEINE PAUSEN!
     const patterns = [
-        // Einfache Viertel/Achtel Kombinationen
+        // === EINFACH: Viertel + Achtel ===
         [
-            {duration: 1, note: 'q'},      // Viertel
-            {duration: 1, note: 'q'},      // Viertel
-            {duration: 0.5, note: '8'},    // Achtel
-            {duration: 0.5, note: '8'},    // Achtel
-            {duration: 1, note: 'q'}       // Viertel
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 0.5, note: '8'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},
-            {duration: 0.5, note: '8'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'}
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 1, note: 'q'},
-            {duration: 0.5, note: '8'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
-        ],
-        
-        // Punktierungen (einfach)
-        [
-            {duration: 1.5, note: 'qd'},   // Punktierte Viertel
-            {duration: 0.5, note: '8'},    // Achtel
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 1, note: 'q'},
-            {duration: 1.5, note: 'qd'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'}
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 0.75, note: '8d'},  // Punktierte Achtel
-            {duration: 0.25, note: '16'},  // Sechzehntel
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         
-        // Einfache Synkopen
+        // === MITTEL: Punktierungen (typisch Abitur!) ===
         [
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},      // Synkope!
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 1, note: 'q'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},      // Synkope!
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'}
-        ],
-        
-        // Triolen (einfach)
-        [
-            {duration: 1/3, note: '8t', isTriplet: true},
-            {duration: 1/3, note: '8t', isTriplet: true},
-            {duration: 1/3, note: '8t', isTriplet: true},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 1, n: 'q'},
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 1, note: 'q'},
-            {duration: 2/3, note: 'qt', isTriplet: true},
-            {duration: 2/3, note: 'qt', isTriplet: true},
-            {duration: 2/3, note: 'qt', isTriplet: true},
-            {duration: 1, note: 'q'}
-        ],
-        
-        // Sechzehntel (einfache Gruppen)
-        [
-            {duration: 0.25, note: '16'},
-            {duration: 0.25, note: '16'},
-            {duration: 0.25, note: '16'},
-            {duration: 0.25, note: '16'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 1, note: 'q'},
-            {duration: 0.25, note: '16'},
-            {duration: 0.25, note: '16'},
-            {duration: 0.5, note: '8'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 1.5, n: 'qd'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 1, n: 'q'},
+            {d: 1.5, n: 'qd'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'}
         ],
         
-        // Pausen eingebaut
+        // === SYNKOPEN (sehr beliebt im Abitur!) ===
         [
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'qr', isRest: true},  // Viertelpause
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},   // Synkope!
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
         ],
         [
-            {duration: 0.5, note: '8'},
-            {duration: 0.5, note: '8r', isRest: true},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'},
-            {duration: 1, note: 'q'}
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},   // Synkope!
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'}
+        ],
+        
+        // === SECHZEHNTEL (klassische Abitur-Muster) ===
+        [
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 1, n: 'q'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.5, n: '8'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'}
+        ],
+        
+        // === KOMBINIERT (anspruchsvoll) ===
+        [
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        
+        // === MIT SYNKOPEN + SECHZEHNTEL ===
+        [
+            {d: 0.5, n: '8'},
+            {d: 0.75, n: '8d'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 1, n: 'q'}
+        ],
+        [
+            {d: 0.25, n: '16'},
+            {d: 0.25, n: '16'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'},
+            {d: 0.5, n: '8'},
+            {d: 0.5, n: '8'},
+            {d: 1, n: 'q'}
         ]
     ];
     
@@ -298,10 +390,9 @@ function showRhythmusSolution() {
     updateRhythmusStats();
     
     const feedback = document.getElementById('rhythmus-feedback');
-    feedback.textContent = '✅ Hier ist die Lösung! Vergleiche mit deiner Notation.';
+    feedback.textContent = '✅ Hier ist die Lösung! Vergleiche Takt für Takt.';
     feedback.className = 'feedback show correct';
     
-    // JETZT MIT ECHTER NOTATION!
     displayRhythmNotation('notation-rhythmus', currentRhythmus.bars);
     
     document.getElementById('next-rhythmus').style.display = 'block';
@@ -328,11 +419,11 @@ function displayRhythmNotation(elementId, bars) {
         renderer.resize(900, 250);
         const context = renderer.getContext();
         
-        // Create 4 staves (one per bar)
         const staves = [];
         const yPos = 40;
         const staveWidth = 200;
         
+        // Create 4 staves
         for (let i = 0; i < 4; i++) {
             const xPos = 10 + (i * (staveWidth + 20));
             const stave = new VF.Stave(xPos, yPos, staveWidth);
@@ -346,42 +437,28 @@ function displayRhythmNotation(elementId, bars) {
             staves.push(stave);
         }
         
-        // Draw each bar
+        // Draw each bar with proper beaming
         bars.forEach((bar, barIndex) => {
             const vexNotes = [];
             
             bar.forEach(noteObj => {
-                let duration = noteObj.note;
-                
-                // Pausen
-                if (noteObj.isRest) {
-                    duration += 'r';
-                }
-                
                 const staveNote = new VF.StaveNote({
                     clef: 'percussion',
                     keys: ['b/4'],
-                    duration: duration
+                    duration: noteObj.n
                 });
                 
-                // Punkte für punktierte Noten
-                if (duration.includes('d')) {
-                    staveNote.addModifier(new VF.Dot(), 0);
+                // Dots for dotted notes
+                if (noteObj.n.includes('d')) {
+                    VF.Dot.buildAndAttach([staveNote]);
                 }
                 
                 vexNotes.push(staveNote);
             });
             
-            // Triolen gruppieren
-            let triplets = [];
-            vexNotes.forEach((note, idx) => {
-                if (bar[idx] && bar[idx].isTriplet) {
-                    triplets.push(note);
-                    if (triplets.length === 3) {
-                        const tuplet = new VF.Tuplet(triplets);
-                        tuplets = [];
-                    }
-                }
+            // Auto-beam eighth and sixteenth notes
+            const beams = VF.Beam.generateBeams(vexNotes, {
+                beam_rests: false
             });
             
             const voice = new VF.Voice({num_beats: 4, beat_value: 4});
@@ -389,18 +466,20 @@ function displayRhythmNotation(elementId, bars) {
             
             new VF.Formatter()
                 .joinVoices([voice])
-                .format([voice], staveWidth - 20);
+                .format([voice], staveWidth - 30);
             
             voice.draw(context, staves[barIndex]);
+            
+            // Draw beams
+            beams.forEach(beam => beam.setContext(context).draw());
         });
         
-        console.log('✅ Rhythm notation displayed!');
+        console.log('✅ Rhythm notation with beaming displayed!');
         
     } catch (error) {
-        console.error('❌ Error displaying rhythm notation:', error);
+        console.error('❌ Error displaying rhythm:', error);
         element.innerHTML = '<p style="text-align: center; padding: 60px; color: #e74c3c;">' +
             '<strong>Fehler bei der Notendarstellung</strong><br><br>' +
-            'Die Rhythmus-Lösung konnte nicht angezeigt werden.<br>' +
-            'Bitte vergleiche deine handschriftliche Lösung mit dem gehörten Rhythmus.</p>';
+            'Bitte lade die Seite neu.</p>';
     }
 }
