@@ -1,58 +1,52 @@
-// Main App Logic with Sample Preloading
+// Main App Logic with Tone.js
 
-let samplesLoaded = false;
+let audioReady = false;
 
-function startExercise(type) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    
-    // Show selected screen
-    const screenId = type + '-screen';
-    const screen = document.getElementById(screenId);
-    if (screen) {
-        screen.classList.add('active');
-        
-        // Initialize exercise
-        switch(type) {
-            case 'intervalle':
-                if (typeof initIntervalle === 'function') initIntervalle();
-                break;
-            case 'akkorde':
-                if (typeof initAkkorde === 'function') initAkkorde();
-                break;
-            case 'rhythmus':
-                if (typeof initRhythmus === 'function') initRhythmus();
-                break;
-        }
-    }
-}
-
-function goHome() {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    document.getElementById('welcome-screen').classList.add('active');
-}
-
-// Initialize app and preload samples
-window.addEventListener('DOMContentLoaded', async () => {
+// Section Navigation
+document.addEventListener('DOMContentLoaded', () => {
     console.log('🎵 Gehörbildungstrainer initialisiert');
     
-    // Unlock audio on first click
-    document.body.addEventListener('click', async () => {
-        if (!samplesLoaded && typeof unlockAudio === 'function') {
-            await unlockAudio();
-            console.log('🔓 Audio entsperrt');
-            
-            // Preload samples
-            if (typeof preloadSamples === 'function') {
-                await preloadSamples();
-                samplesLoaded = true;
-            }
-        }
-    }, { once: true });
+    // Navigation buttons
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.exercise-section');
     
-    console.log('✅ Klicke irgendwo um Audio zu aktivieren');
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionId = btn.dataset.section;
+            
+            // Update active nav button
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update active section
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const targetSection = document.getElementById(sectionId + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+                
+                // Initialize exercise
+                switch(sectionId) {
+                    case 'intervalle':
+                        if (typeof initIntervalle === 'function') initIntervalle();
+                        break;
+                    case 'akkorde':
+                        if (typeof initAkkorde === 'function') initAkkorde();
+                        break;
+                    case 'rhythmus':
+                        if (typeof initRhythmus === 'function') initRhythmus();
+                        break;
+                }
+            }
+        });
+    });
+    
+    // Initialize first section (Intervalle)
+    if (typeof initIntervalle === 'function') {
+        initIntervalle();
+    }
+    
+    console.log('✅ App bereit! Tone.js wird beim ersten Klick aktiviert.');
 });
