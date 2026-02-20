@@ -1,10 +1,7 @@
 // Rhythmusdiktat nach OFFIZIELLEN BW-Abitur Richtlinien
-// Quelle: Ministerium für Kultus Baden-Württemberg
-// 4 Takte, 4/4-Takt
-// Notenwerte: Viertel, Achtel, Sechzehntel
-// KEINE Pausenwerte!
+// Mit ECHTEM PIANO-SOUND wie musictheory.net
+// 4 Takte, 4/4-Takt, Viertel/Achtel/Sechzehntel, KEINE Pausen
 // Tempo: Viertel = ca. 60 BPM
-// Diktiermodus: 1-4, dann 1, 1, 1+2, 2, 2+3, 3, 3+4, 4, 4, 1-4
 
 let currentRhythmus = null;
 let rhythmusStats = { total: 0 };
@@ -33,7 +30,6 @@ function initRhythmus() {
 function generateNewRhythmus() {
     rhythmusPlaybackStep = 0;
     
-    // Generate 4 bars - AUTHENTIC ABITUR PATTERNS
     const bars = [
         generateAbiturBar(),
         generateAbiturBar(),
@@ -62,214 +58,46 @@ function generateNewRhythmus() {
 }
 
 function generateAbiturBar() {
-    // ECHTE Abitur-Rhythmen nach BW-Vorgaben
-    // Nur Viertel, Achtel, Sechzehntel - KEINE PAUSEN!
     const patterns = [
-        // === EINFACH: Viertel + Achtel ===
-        [
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
+        // Einfach: Viertel + Achtel
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
         
-        // === MITTEL: Punktierungen (typisch Abitur!) ===
-        [
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1.5, n: 'qd'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 1.5, n: 'qd'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'}
-        ],
+        // Punktierungen
+        [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
+        [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1.5, n: 'qd'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
         
-        // === SYNKOPEN (sehr beliebt im Abitur!) ===
-        [
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},   // Synkope!
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},   // Synkope!
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'}
-        ],
+        // Synkopen
+        [{d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}],
         
-        // === SECHZEHNTEL (klassische Abitur-Muster) ===
-        [
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.5, n: '8'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'}
-        ],
+        // Sechzehntel
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 1, n: 'q'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}],
         
-        // === KOMBINIERT (anspruchsvoll) ===
-        [
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        
-        // === MIT SYNKOPEN + SECHZEHNTEL ===
-        [
-            {d: 0.5, n: '8'},
-            {d: 0.75, n: '8d'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 1, n: 'q'}
-        ],
-        [
-            {d: 0.25, n: '16'},
-            {d: 0.25, n: '16'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'},
-            {d: 0.5, n: '8'},
-            {d: 0.5, n: '8'},
-            {d: 1, n: 'q'}
-        ]
+        // Kombiniert
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.5, n: '8'}, {d: 0.75, n: '8d'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 1, n: 'q'}],
+        [{d: 0.25, n: '16'}, {d: 0.25, n: '16'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}, {d: 0.5, n: '8'}, {d: 0.5, n: '8'}, {d: 1, n: 'q'}]
     ];
     
     return patterns[Math.floor(Math.random() * patterns.length)];
 }
 
+// PIANO COUNT-IN wie musictheory.net!
 async function playCountIn() {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -278,25 +106,14 @@ async function playCountIn() {
         await ctx.resume();
     }
     
-    const now = ctx.currentTime;
     const beatDuration = 1.0; // 60 BPM
+    const now = ctx.currentTime;
     
+    // Play 4 piano clicks (C5 for emphasis)
     for (let i = 0; i < 4; i++) {
         const startTime = now + (i * beatDuration);
-        const freq = i === 0 ? 1000 : 800;
-        
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(freq, startTime);
-        gainNode.gain.setValueAtTime(0.3, startTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        oscillator.start(startTime);
-        oscillator.stop(startTime + 0.05);
+        const pitch = i === 0 ? 'C5' : 'C4'; // First beat higher
+        await playPianoSample(pitch, startTime, 0.15);
     }
     
     await new Promise(resolve => setTimeout(resolve, beatDuration * 4 * 1000));
@@ -312,10 +129,14 @@ async function playRhythmus() {
     continueBtn.disabled = true;
     
     try {
+        if (!audioUnlocked) await unlockAudio();
+        
         rhythmusPlaybackStep = 0;
         await playCountIn();
         await new Promise(resolve => setTimeout(resolve, 200));
-        await playRhythmPattern(currentRhythmus.pattern, 'C4');
+        
+        // Play rhythm with PIANO (C4)
+        await playRhythmPatternPiano(currentRhythmus.pattern, 'C4');
         
         rhythmusPlaybackStep = 1;
         continueBtn.style.display = 'inline-block';
@@ -344,29 +165,18 @@ async function continueRhythmus() {
                 notesToPlay = notesToPlay.concat(currentRhythmus.bars[barIndex]);
             });
             
-            // Count-in "drei, vier"
+            // Piano count-in (2 beats)
             const ctx = getAudioContext();
             const now = ctx.currentTime;
             const beatDuration = 1.0;
             
             for (let i = 0; i < 2; i++) {
                 const startTime = now + (i * beatDuration);
-                const oscillator = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, startTime);
-                gainNode.gain.setValueAtTime(0.2, startTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                oscillator.start(startTime);
-                oscillator.stop(startTime + 0.05);
+                await playPianoSample('C4', startTime, 0.15);
             }
             
             await new Promise(resolve => setTimeout(resolve, beatDuration * 2 * 1000 + 200));
-            await playRhythmPattern(notesToPlay, 'C4');
+            await playRhythmPatternPiano(notesToPlay, 'C4');
             
             rhythmusPlaybackStep++;
             
@@ -383,6 +193,30 @@ async function continueRhythmus() {
     }
     
     continueBtn.disabled = false;
+}
+
+// Play rhythm with REAL PIANO SOUND
+async function playRhythmPatternPiano(pattern, pitch = 'C4') {
+    console.log('▶ Playing rhythm with piano');
+    
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    const beatDuration = 1.0; // 60 BPM
+    let currentTime = ctx.currentTime + 0.05;
+    
+    for (const noteObj of pattern) {
+        if (noteObj.d > 0) {
+            // Play piano sample for each note
+            const noteDuration = noteObj.d * beatDuration;
+            await playPianoSample(pitch, currentTime, noteDuration * 0.9);
+        }
+        currentTime += noteObj.d * beatDuration;
+    }
+    
+    const totalDuration = (currentTime - ctx.currentTime) * 1000;
+    await new Promise(r => setTimeout(r, totalDuration + 100));
+    console.log('✓ Rhythm complete');
 }
 
 function showRhythmusSolution() {
@@ -423,7 +257,6 @@ function displayRhythmNotation(elementId, bars) {
         const yPos = 40;
         const staveWidth = 200;
         
-        // Create 4 staves
         for (let i = 0; i < 4; i++) {
             const xPos = 10 + (i * (staveWidth + 20));
             const stave = new VF.Stave(xPos, yPos, staveWidth);
@@ -437,7 +270,6 @@ function displayRhythmNotation(elementId, bars) {
             staves.push(stave);
         }
         
-        // Draw each bar with proper beaming
         bars.forEach((bar, barIndex) => {
             const vexNotes = [];
             
@@ -448,7 +280,6 @@ function displayRhythmNotation(elementId, bars) {
                     duration: noteObj.n
                 });
                 
-                // Dots for dotted notes
                 if (noteObj.n.includes('d')) {
                     VF.Dot.buildAndAttach([staveNote]);
                 }
@@ -456,7 +287,6 @@ function displayRhythmNotation(elementId, bars) {
                 vexNotes.push(staveNote);
             });
             
-            // Auto-beam eighth and sixteenth notes
             const beams = VF.Beam.generateBeams(vexNotes, {
                 beam_rests: false
             });
@@ -469,15 +299,13 @@ function displayRhythmNotation(elementId, bars) {
                 .format([voice], staveWidth - 30);
             
             voice.draw(context, staves[barIndex]);
-            
-            // Draw beams
             beams.forEach(beam => beam.setContext(context).draw());
         });
         
-        console.log('✅ Rhythm notation with beaming displayed!');
+        console.log('✅ Notation displayed!');
         
     } catch (error) {
-        console.error('❌ Error displaying rhythm:', error);
+        console.error('❌ Notation error:', error);
         element.innerHTML = '<p style="text-align: center; padding: 60px; color: #e74c3c;">' +
             '<strong>Fehler bei der Notendarstellung</strong><br><br>' +
             'Bitte lade die Seite neu.</p>';
