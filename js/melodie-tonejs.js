@@ -5,7 +5,7 @@ let currentMelodie = null;
 let melodieStats = { total: 0 };
 let melodiePlaybackStep = 0;
 
-const diktierSteps = [
+const melodieDiktierSteps = [
     { label: 'Kadenz + Takt 1-4', type: 'full', bars: [0, 1, 2, 3] },
     { label: 'Takt 1', type: 'bar', bars: [0] },
     { label: 'Takt 1', type: 'bar', bars: [0] },
@@ -238,7 +238,7 @@ window.playMelodie = async function() {
         melodiePlaybackStep = 1;
         continueBtn.style.display = 'inline-block';
         continueBtn.disabled = false;
-        continueBtn.textContent = diktierSteps[melodiePlaybackStep].label + ' ▶';
+        continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' ▶';
         
     } catch (error) {
         console.error('Error:', error);
@@ -254,8 +254,8 @@ window.continueMelodie = async function() {
     continueBtn.disabled = true;
     
     try {
-        if (melodiePlaybackStep >= 1 && melodiePlaybackStep < diktierSteps.length) {
-            const step = diktierSteps[melodiePlaybackStep];
+        if (melodiePlaybackStep >= 1 && melodiePlaybackStep < melodieDiktierSteps.length) {
+            const step = melodieDiktierSteps[melodiePlaybackStep];
             
             // Spiele Kadenz nur beim ersten Mal
             if (step.type === 'full') {
@@ -280,8 +280,8 @@ window.continueMelodie = async function() {
             
             melodiePlaybackStep++;
             
-            if (melodiePlaybackStep < diktierSteps.length) {
-                continueBtn.textContent = diktierSteps[melodiePlaybackStep].label + ' ▶';
+            if (melodiePlaybackStep < melodieDiktierSteps.length) {
+                continueBtn.textContent = melodieDiktierSteps[melodiePlaybackStep].label + ' ▶';
             } else {
                 continueBtn.style.display = 'none';
                 document.getElementById('show-melodie-solution').style.display = 'block';
