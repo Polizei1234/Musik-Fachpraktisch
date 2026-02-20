@@ -1,16 +1,19 @@
-// Professional Audio with Tone.js (wie musictheory.net!)
-// Uses Salamander Grand Piano samples
+// Professional Audio with Tone.js
 
 let pianoSampler = null;
 let audioInitialized = false;
 
 // Initialize Tone.js Piano
 async function initToneJS() {
-    if (audioInitialized) return true;
+    if (audioInitialized && pianoSampler) return true;
     
     console.log('🎹 Initializing Tone.js Piano...');
     
     try {
+        // Start audio context
+        await Tone.start();
+        console.log('✅ AudioContext started');
+        
         // Create Sampler with Salamander Grand Piano
         pianoSampler = new Tone.Sampler({
             urls: {
@@ -45,11 +48,11 @@ async function initToneJS() {
                 'A7': 'A7.mp3',
                 'C8': 'C8.mp3'
             },
-            release: 3, // Längerer Sustain!
+            release: 3,
             baseUrl: 'https://tonejs.github.io/audio/salamander/'
         }).toDestination();
         
-        // Wait for samples to load
+        console.log('⏳ Loading piano samples...');
         await Tone.loaded();
         
         audioInitialized = true;
@@ -58,30 +61,26 @@ async function initToneJS() {
         
     } catch (error) {
         console.error('❌ Tone.js init error:', error);
+        alert('Audio-Initialisierung fehlgeschlagen. Bitte Seite neu laden.');
         return false;
-    }
-}
-
-// Unlock audio (required for mobile/browser)
-async function unlockToneJS() {
-    if (Tone.context.state !== 'running') {
-        await Tone.start();
-        console.log('✅ Audio unlocked!');
     }
 }
 
 // Play single note
 async function playToneNote(note, duration = 2.5) {
-    if (!audioInitialized) {
-        await initToneJS();
-    }
-    
-    await unlockToneJS();
-    
     try {
-        // triggerAttackRelease(note, duration)
+        if (!audioInitialized) {
+            const success = await initToneJS();
+            if (!success) return;
+        }
+        
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+        
         pianoSampler.triggerAttackRelease(note, duration);
-        console.log('♫', note, duration + 's');
+        console.log('♫ Playing:', note, duration + 's');
+        
     } catch (error) {
         console.error('❌ Play error:', error);
     }
@@ -89,18 +88,22 @@ async function playToneNote(note, duration = 2.5) {
 
 // Play multiple notes together (chord)
 async function playToneChord(notes, duration = 3.0) {
-    if (!audioInitialized) {
-        await initToneJS();
-    }
-    
-    await unlockToneJS();
-    
     try {
+        if (!audioInitialized) {
+            const success = await initToneJS();
+            if (!success) return;
+        }
+        
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+        
         const now = Tone.now();
         notes.forEach(note => {
             pianoSampler.triggerAttackRelease(note, duration, now);
         });
         console.log('♫ Chord:', notes, duration + 's');
+        
     } catch (error) {
         console.error('❌ Chord error:', error);
     }
@@ -108,13 +111,16 @@ async function playToneChord(notes, duration = 3.0) {
 
 // Schedule notes with precise timing
 async function scheduleNotes(notesArray) {
-    if (!audioInitialized) {
-        await initToneJS();
-    }
-    
-    await unlockToneJS();
-    
     try {
+        if (!audioInitialized) {
+            const success = await initToneJS();
+            if (!success) return;
+        }
+        
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+        
         const now = Tone.now();
         
         notesArray.forEach(({notes, time, duration}) => {
@@ -129,12 +135,14 @@ async function scheduleNotes(notesArray) {
             }
         });
         
+        console.log('♫ Scheduled', notesArray.length, 'notes');
+        
     } catch (error) {
         console.error('❌ Schedule error:', error);
     }
 }
 
-// Note frequency map (for helpers)
+// Note frequency map
 const noteFrequencies = {
     'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31,
     'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
@@ -149,7 +157,6 @@ const noteFrequencies = {
 
 const allNotes = Object.keys(noteFrequencies);
 
-// Helpers
 function getNoteByInterval(baseNote, semitones) {
     const baseIndex = allNotes.indexOf(baseNote);
     if (baseIndex === -1) return null;
@@ -164,13 +171,15 @@ function noteToVexFlow(noteName) {
     return noteName;
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Starting Tone.js initialization...');
-    await initToneJS();
-});
+// Auto-initialize on load
+console.log('🚀 Tone.js wird beim ersten Klick geladen...');
 
-// Handle first user interaction
+// Ensure audio starts on first interaction
+let firstClick = true;
 document.addEventListener('click', async () => {
-    await unlockToneJS();
+    if (firstClick) {
+        firstClick = false;
+        console.log('👆 Erste Interaktion - starte Audio...');
+        await initToneJS();
+    }
 }, { once: true });
