@@ -32,10 +32,14 @@ function generateNewAkkord() {
     
     const chordNotes = akkord.intervals.map(semitones => getNoteByInterval(baseNote, semitones));
     
+    // ALLE Akkorde bekommen jetzt Bass-Oktave für besseren Klang!
+    // Dreiklänge: Bass + verdoppelter Grundton + Terz + Quinte = 4 Stimmen
+    // Vierklänge: Bass + alle 4 Töne = 5 Stimmen (wie in Prüfungen!)
+    
     let voicing;
     
     if (chordNotes.length === 3) {
-        // Dreiklang: Grundton verdoppeln (Basston + 3 Töne) = 4-stimmig
+        // Dreiklang: 4-stimmig mit Bassverdopplung
         voicing = [
             getNoteByInterval(chordNotes[0], -12), // Bass (Oktave tiefer)
             chordNotes[0],  // Grundton
@@ -43,8 +47,14 @@ function generateNewAkkord() {
             chordNotes[2]   // Quinte
         ];
     } else {
-        // Vierklang: KEIN Basston hinzufügen, nur die 4 Töne = 4-stimmig
-        voicing = chordNotes;
+        // Vierklang: 5-stimmig mit Bass
+        voicing = [
+            getNoteByInterval(chordNotes[0], -12), // Bass (Oktave tiefer)
+            chordNotes[0],  // Grundton
+            chordNotes[1],  // Terz
+            chordNotes[2],  // Quinte/Sexte
+            chordNotes[3]   // Septime/None
+        ];
     }
     
     currentAkkord = {
@@ -77,7 +87,7 @@ async function playAkkord() {
     console.log('▶ Playing chord with Tone.js');
     
     try {
-        // 1. Nacheinander (arpeggiert) - JETZT 2.0s Länge!
+        // 1. Nacheinander (arpeggiert) - 2.0s Länge
         const arpeggio = [];
         let time = 0;
         currentAkkord.notes.forEach(note => {
@@ -155,4 +165,10 @@ function updateAkkordStats() {
     document.getElementById('akkord-correct').textContent = akkordStats.correct;
     document.getElementById('akkord-wrong').textContent = akkordStats.wrong;
     document.getElementById('akkord-total').textContent = akkordStats.total;
+    
+    // Erfolgsquote in %
+    if (akkordStats.total > 0) {
+        const percentage = Math.round((akkordStats.correct / akkordStats.total) * 100);
+        document.getElementById('akkord-total').textContent = akkordStats.total + ' (' + percentage + '%)';
+    }
 }

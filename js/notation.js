@@ -34,18 +34,32 @@ function displayInterval(elementId, baseNote, secondNote) {
         const stave = new VF.Stave(10, 40, 350);
         stave.addClef('treble').setContext(context).draw();
         
-        const notes = [
-            new VF.StaveNote({
-                clef: 'treble',
-                keys: [noteToVexFlow(baseNote)],
-                duration: 'w'
-            }),
-            new VF.StaveNote({
-                clef: 'treble',
-                keys: [noteToVexFlow(secondNote)],
-                duration: 'w'
-            })
-        ];
+        const note1 = new VF.StaveNote({
+            clef: 'treble',
+            keys: [noteToVexFlow(baseNote)],
+            duration: 'w'
+        });
+        
+        const note2 = new VF.StaveNote({
+            clef: 'treble',
+            keys: [noteToVexFlow(secondNote)],
+            duration: 'w'
+        });
+        
+        // Add accidentals if needed
+        if (baseNote.includes('#')) {
+            note1.addModifier(new VF.Accidental('#'), 0);
+        } else if (baseNote.includes('b')) {
+            note1.addModifier(new VF.Accidental('b'), 0);
+        }
+        
+        if (secondNote.includes('#')) {
+            note2.addModifier(new VF.Accidental('#'), 0);
+        } else if (secondNote.includes('b')) {
+            note2.addModifier(new VF.Accidental('b'), 0);
+        }
+        
+        const notes = [note1, note2];
         
         const voice = new VF.Voice({num_beats: 8, beat_value: 4});
         voice.addTickables(notes);
@@ -84,6 +98,15 @@ function displayChord(elementId, notes) {
             clef: 'treble',
             keys: vexKeys,
             duration: 'w'
+        });
+        
+        // Add accidentals for each note in chord
+        notes.forEach((note, index) => {
+            if (note.includes('#')) {
+                chordNote.addModifier(new VF.Accidental('#'), index);
+            } else if (note.includes('b')) {
+                chordNote.addModifier(new VF.Accidental('b'), index);
+            }
         });
         
         const voice = new VF.Voice({num_beats: 4, beat_value: 4});

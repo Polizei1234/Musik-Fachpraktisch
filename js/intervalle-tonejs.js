@@ -142,4 +142,10 @@ function updateIntervallStats() {
     document.getElementById('intervall-correct').textContent = intervallStats.correct;
     document.getElementById('intervall-wrong').textContent = intervallStats.wrong;
     document.getElementById('intervall-total').textContent = intervallStats.total;
+    
+    // Erfolgsquote in %
+    if (intervallStats.total > 0) {
+        const percentage = Math.round((intervallStats.correct / intervallStats.total) * 100);
+        document.getElementById('intervall-total').textContent = intervallStats.total + ' (' + percentage + '%)';
+    }
 }
