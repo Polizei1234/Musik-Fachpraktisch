@@ -77,16 +77,16 @@ async function playAkkord() {
     console.log('▶ Playing chord with Tone.js');
     
     try {
-        // 1. Nacheinander (arpeggiert) - 1.5s Länge
+        // 1. Nacheinander (arpeggiert) - JETZT 2.0s Länge!
         const arpeggio = [];
         let time = 0;
         currentAkkord.notes.forEach(note => {
-            arpeggio.push({ notes: note, time: time, duration: 1.5 });
+            arpeggio.push({ notes: note, time: time, duration: 2.0 });
             time += 0.6;
         });
         
         await scheduleNotes(arpeggio);
-        await new Promise(r => setTimeout(r, time * 1000 + 1500));
+        await new Promise(r => setTimeout(r, time * 1000 + 2000));
         
         // Kurze Pause
         await new Promise(r => setTimeout(r, 500));
