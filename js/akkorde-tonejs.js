@@ -3,7 +3,7 @@
 const akkorde = [
     { name: 'Durdreiklang', short: 'D', intervals: [0, 4, 7] },
     { name: 'Molldreiklang', short: 'M', intervals: [0, 3, 7] },
-    { name: 'Übermäßiger Dreiklang', short: 'ü', intervals: [0, 4, 8] },
+    { name: 'Uebermaeßiger Dreiklang', short: 'ue', intervals: [0, 4, 8] },
     { name: 'D7', short: 'D7', intervals: [0, 4, 7, 10] },
     { name: 'Dmaj7', short: 'Dmaj7', intervals: [0, 4, 7, 11] },
     { name: 'M7', short: 'M7', intervals: [0, 3, 7, 10] },
@@ -32,16 +32,28 @@ function generateNewAkkord() {
     
     const chordNotes = akkord.intervals.map(semitones => getNoteByInterval(baseNote, semitones));
     
-    const voicing = [
-        getNoteByInterval(chordNotes[0], -12),
-        ...chordNotes
-    ];
+    let voicing;
+    
+    if (chordNotes.length === 3) {
+        // Dreiklang: Grundton verdoppeln (Basston + 3 Toene) = 4-stimmig
+        voicing = [
+            getNoteByInterval(chordNotes[0], -12), // Bass (Oktave tiefer)
+            chordNotes[0],  // Grundton
+            chordNotes[1],  // Terz
+            chordNotes[2]   // Quinte
+        ];
+    } else {
+        // Vierklang: KEIN Basston hinzufuegen, nur die 4 Toene = 4-stimmig
+        voicing = chordNotes;
+    }
     
     currentAkkord = {
         name: akkord.name,
         short: akkord.short,
         notes: voicing
     };
+    
+    console.log('Akkord: ' + akkord.short + ', Toene: ' + voicing.length, voicing);
     
     clearNotation('notation-akkord');
     document.getElementById('akkord-feedback').classList.remove('show', 'correct', 'wrong');
@@ -62,15 +74,15 @@ async function playAkkord() {
     const playBtn = document.getElementById('play-akkord');
     playBtn.disabled = true;
     
-    console.log('▶ Playing chord with Tone.js');
+    console.log('Playing chord with Tone.js');
     
     try {
-        // 1. Nacheinander (arpeggiert) - JETZT 1.5s Länge!
+        // 1. Nacheinander (arpeggiert) - 1.5s Laenge
         const arpeggio = [];
         let time = 0;
         currentAkkord.notes.forEach(note => {
             arpeggio.push({ notes: note, time: time, duration: 1.5 });
-            time += 0.6; // Überlappend
+            time += 0.6;
         });
         
         await scheduleNotes(arpeggio);
@@ -86,7 +98,7 @@ async function playAkkord() {
         await new Promise(r => setTimeout(r, 3500));
         
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
     }
     
     if (!hasPlayedAkkord) {
@@ -110,14 +122,14 @@ function checkAkkord(answer) {
     
     if (isCorrect) {
         akkordStats.correct++;
-        feedback.textContent = `✅ Richtig! Das war ein ${currentAkkord.short}.`;
+        feedback.textContent = 'Richtig! Das war ein ' + currentAkkord.short + '.';
         feedback.className = 'feedback show correct';
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) btn.classList.add('correct');
         });
     } else {
         akkordStats.wrong++;
-        feedback.textContent = `❌ Falsch! Das war ein ${currentAkkord.short}, nicht ${getAkkordShortName(answer)}.`;
+        feedback.textContent = 'Falsch! Das war ein ' + currentAkkord.short + ', nicht ' + getAkkordShortName(answer) + '.';
         feedback.className = 'feedback show wrong';
         buttons.forEach(btn => {
             if (btn.textContent.includes(answer)) btn.classList.add('wrong');
